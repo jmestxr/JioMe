@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { IconButton, Icon, Text } from "native-base";
+import { View } from "react-native";
+import { IconButton, Icon, Text, PresenceTransition } from "native-base";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
@@ -16,8 +16,19 @@ const TabIcon = ({tabName, iconName}) => ({color, onPressHandler, onLongPressHan
     }
 
     return (
-        <View style={{alignItems:'center', flex:1}}>
-            {showLabel ? <Text style={styles.label} fontSize='xs'>{tabName}</Text> : []}
+        <View style={{alignItems:'center', flex:1, marginBottom:'5%'}}>
+            <PresenceTransition 
+                visible={showLabel} 
+                initial={{opacity: 0}} 
+                animate={{
+                    opacity: 1,
+                    transition: {
+                      duration: 250
+                    }
+                 }}
+                 >
+                <Text fontSize='xs'>{tabName}</Text>
+            </PresenceTransition>
             <IconButton 
                     icon={<Icon as={MaterialIcons} name={iconName} color={color} />}
                     borderRadius="full"
@@ -25,7 +36,8 @@ const TabIcon = ({tabName, iconName}) => ({color, onPressHandler, onLongPressHan
                       size: "2xl"
                     }} 
                     _hover={{
-                      bg: "orange.600:alpha.20"
+                      bg: "orange.600:alpha.20",
+                      
                     }} 
                     _pressed={{
                       bg: "orange.600:alpha.20",
@@ -37,14 +49,5 @@ const TabIcon = ({tabName, iconName}) => ({color, onPressHandler, onLongPressHan
         </View>  
     )
 }
-
-const styles = StyleSheet.create({
-    label: {
-        position:'absolute',
-        transform:[{translateY:-20}],
-        flex:1,
-        flexDirection:'row',
-    }
-});
 
 export default TabIcon;
