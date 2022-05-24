@@ -8,7 +8,7 @@ const AuthTextInput = (props) => {
 
     return (
         <View style={styles.fieldBox}>
-            <Icon as={MaterialIcons} name={iconName} color='black' size='xl' style={{marginRight: '4%'}} />
+            <Icon as={MaterialIcons} name={iconName} color='black' size='xl' marginRight={'3%'}  />
             <Input
                 variant='underlined'
                 size='xl'
@@ -17,20 +17,19 @@ const AuthTextInput = (props) => {
                 value={value}
                 secureTextEntry={secureTextEntry}
                 onChangeText={textHandler}
+                width='80%'
                 />
         </View>
 
     )
 }
 
-
-
 const styles = StyleSheet.create({
     fieldBox: {
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
-      width: '85%'
+      flexWrap:'wrap'
     }
 })
 

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Image } from 'react-native';
-import { Box, Center, VStack, Text, Checkbox, FormControl, Input, WarningOutlineIcon, ScrollView } from 'native-base';
+import { Center, VStack, Text } from 'native-base';
 import AuthButton from '../components/auth/AuthButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import { useAuth } from '../components/contexts/Auth';
-// import { FullWindowOverlay } from 'react-native-screens';
 import { supabase } from '../../supabaseClient';
 
 
@@ -15,11 +14,6 @@ const SignUpPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmpassword, setConfirmPassword] = useState('')
-    // Do we need this to ask for phone number? May be too complicated
-    // const [number, setNumber] = useState('')
-    // Checks the ticks of the required checkboxes
-    const [checked1, setChecked1] = useState(false)
-    const [checked2, setChecked2] = useState(false)
 
     const navigation = useNavigation(); 
 
@@ -41,9 +35,6 @@ const SignUpPage = () => {
             alert('Error: Your password should have at least 8 characters.')
         } else if (password != confirmpassword) {
             alert('Error: Your passwords do not match.')
-        } else if (!checked1 || !checked2) {
-            // checks at least one of the checkboxes not ticked
-            alert('Error: You did not check all the required checkboxes')
         } else if (count > 0) {
             // username taken
             alert('Error: Username has already been taken. Please try again')
@@ -95,11 +86,9 @@ const SignUpPage = () => {
     }
 
     return (
-        <ScrollView>
-        <Center>
-            <Center height='95%' width='80%'>
+            <Center height='100%' width='100%'>
             <Image 
-                    style={{width: 200, height: 200}}
+                    style={{width: 225, height: 225}}
                     source={require('../assets/logo.png')} 
                 />
                 <VStack space={4} alignItems="center">
@@ -134,32 +123,6 @@ const SignUpPage = () => {
                         />
                     {checkConfirmPassword()}
                 </VStack>
-                <Box _text={{opacity: 0}}>
-                    Invisible words
-                </Box>
-                <Box>
-                    <Checkbox value="First Agreement" size="sm" onChange={state => {
-                        if (state) {
-                            setChecked1(true);  
-                        } else {
-                            setChecked1(false);
-                        }
-                    }}>
-                        I agree to JioMe's Terms of service.
-                    </Checkbox>
-                    <Box _text={{opacity: 0}}>
-                    Invisible words
-                    </Box>
-                    <Checkbox value="Second Agreement" size="sm" onChange={state => {
-                        if (state) {
-                            setChecked2(true); 
-                        } else {
-                            setChecked2(false);
-                        }
-                    }}>
-                        I accept JioMe's use of my data for the service and everything else described in the Privacy Policy and Data Processing Agreement.
-                    </Checkbox>
-                </Box>                
                 <AuthButton onPressHandler={handleSignUp} title='Sign Up'/>
                 <Text style={{marginTop:'10%'}} fontSize='sm'>
                     Existing user? &nbsp;
@@ -167,11 +130,7 @@ const SignUpPage = () => {
                     Sign in now!
                     </Text>
                 </Text>
-
             </Center>
-        </Center>    
-        </ScrollView>
- 
     )
 }
 

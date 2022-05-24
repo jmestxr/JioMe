@@ -39,10 +39,9 @@ const SignInPage = () => {
     
         
     return (
-        <Center>
-            <Center height='80%' width='80%'>
+        <Center height='100%' width='100%'>
                 <Image 
-                    style={{width: 200, height: 200}}
+                    style={{width: 225, height: 225, marginBottom:'0%'}}
                     source={require('../assets/logo.png')} 
                 />
 
@@ -74,7 +73,6 @@ const SignInPage = () => {
                     Sign up now!
                     </Text>
                 </Text>
-            </Center>
         </Center>        
     )
 };
