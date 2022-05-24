@@ -97,7 +97,7 @@ const SignUpPage = () => {
     return (
         <ScrollView>
         <Center>
-            <Center height='80%' width='80%'>
+            <Center height='95%' width='80%'>
             <Image 
                     style={{width: 200, height: 200}}
                     source={require('../assets/logo.png')} 
