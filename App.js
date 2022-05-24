@@ -26,7 +26,7 @@ const App = () => {
           }}
         >
           <Stack.Screen name="SignIn" component={SignInPage} options={{ headerShown:false }}/>
-          <Stack.Screen name="SignUp" component={SignUpPage} />
+          <Stack.Screen name="SignUp" component={SignUpPage} options={{ headerShown:false }}/>
           <Stack.Screen name="Dashboard" component={Dashboard} options={{headerBackVisible:false}} />
         </Stack.Navigator>
       </AuthProvider>
