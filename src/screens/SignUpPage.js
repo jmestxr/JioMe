@@ -17,8 +17,36 @@ const SignUpPage = () => {
 
     const navigation = useNavigation(); 
 
-    // Get signIn function from the auth context
-    const { signUp } = useAuth()
+    // Get signUp function from the auth context
+    const { signUp, signIn } = useAuth()
+
+    const createUserProfile = async (e) => {
+     try {
+       const user = supabase.auth.user()
+       const { data, error } = await supabase
+       .from('profiles')
+       .insert([
+         { id: user.id, username: username },
+       ])
+       if (error) throw error
+     } catch (error) {
+       alert(error.error_description || error.message)
+     }
+   }
+
+    const handleLogin = async (e) => {
+     try {
+       // e.preventDefault()
+       const { error } = await signIn({ email, password })
+       if (error) {
+         throw error;
+       } else {
+         createUserProfile()
+       }
+     } catch (error) {
+       alert(error.error_description || error.message)
+     } 
+   }
 
     const handleSignUp = async (e) => {
         e.preventDefault()
@@ -27,7 +55,7 @@ const SignUpPage = () => {
 
         // checks the Usernames table whether username is in use
         const {data, count} = await supabase
-            .from('Usernames')
+            .from('profiles')
             .select('*', { count: 'exact' })
             .eq('username', username)
         
@@ -37,22 +65,20 @@ const SignUpPage = () => {
             alert('Error: Your passwords do not match.')
         } else if (count > 0) {
             // username taken
-            alert('Error: Username has already been taken. Please try again')
+            alert('Error: Username has already been taken. Please try again.')
         } else {
             const { error } = await signUp({ email, password })
             if (error) {
-                alert('Error: unable to sign up with the email provided. Please enter a different Email')
+                alert('Error: unable to sign up with the email provided. Please enter a different email.')
             } else {
-                // insert details into Username table
-                const { testingdata, testingerror } = await supabase
-                    .from('Usernames')
-                    .insert([
-                        {username: username},
-                    ])
+                // Sign up is successful; proceeds to call signIn function to insert user details into profiles table
+                handleLogin()
 
-                // To be modified in future?
+                // Clear fields
+                setUsername('')
                 setEmail('')
                 setPassword('')
+                setConfirmPassword('')
 
                 // Redirect user to Dashboard
                 // Should there be a confirmation page to await confirmation of email?
@@ -68,7 +94,7 @@ const SignUpPage = () => {
         if (password.length > 0 && password.length < 8) {
             return (
                 <Text fontSize='sm' color={"#f87171"} >
-                    *Password Does not meet the requirements.
+                    *Password does not meet the requirements.
                 </Text>
             )
         }

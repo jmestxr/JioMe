@@ -36,7 +36,7 @@ const App = () => {
       <NavigationContainer>
       <AuthProvider>
         <Stack.Navigator 
-          initialRouteName="Dashboard"
+          initialRouteName="SignIn"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#ea580c',
@@ -50,7 +50,7 @@ const App = () => {
           }}
         >
           <Stack.Screen name="SignIn" component={SignInPage} options={{ headerShown:false }}/>
-          <Stack.Screen name="SignUp" component={SignUpPage} />
+          <Stack.Screen name="SignUp" component={SignUpPage} options={{ headerShown:false }}/>
           <Stack.Screen name="Dashboard" component={BottomTabs} 
             options={ ({ route }) => ({ headerTitle: getHeaderTitle(route), headerBackVisible:false }) } />
         </Stack.Navigator>
