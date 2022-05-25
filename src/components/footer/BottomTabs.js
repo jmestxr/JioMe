@@ -62,6 +62,7 @@ const BottomTabs = () => {
     tabBar={props => <CustomTabBar {...props} />}
     screenOptions={{
         headerShown:false,
+        
       }}
      >
        <Tab.Screen
@@ -74,11 +75,12 @@ const BottomTabs = () => {
         />
 
       <Tab.Screen
-        name="MarketPlace"
+        name="Marketplace"
         component={PlaceholderScreen}
         options={{
           tabBarLabel: 'Marketplace',
-          tabBarIcon: TabIcon({tabName: 'Marketplace', iconName:'store'})
+          tabBarIcon: TabIcon({tabName: 'Marketplace', iconName:'store'}),
+          title:'Marketplace'
         }}
       />
       <Tab.Screen

@@ -27,7 +27,7 @@ const TabIcon = ({tabName, iconName}) => ({color, onPressHandler, onLongPressHan
                     }
                  }}
                  >
-                <Text fontSize='xs'>{tabName}</Text>
+                <Text fontSize='xs' fontWeight='semibold'>{tabName}</Text>
             </PresenceTransition>
             <IconButton 
                     icon={<Icon as={MaterialIcons} name={iconName} color={color} />}
