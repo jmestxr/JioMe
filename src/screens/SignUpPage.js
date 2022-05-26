@@ -29,6 +29,18 @@ const SignUpPage = () => {
        .insert([
          { id: user.id, username: username },
        ])
+       // Clear fields
+       setUsername('')
+       setEmail('')
+       setPassword('')
+       setConfirmPassword('')
+
+       setLoading(false)
+
+       // Redirect user to Dashboard
+       // Should there be a confirmation page to await confirmation of email?
+       const pushAction = StackActions.push('Dashboard');
+       navigation.dispatch(pushAction);
        if (error) throw error
      } catch (error) {
        alert(error.error_description || error.message)
@@ -74,17 +86,6 @@ const SignUpPage = () => {
             } else {
                 // Sign up is successful; proceeds to call signIn function to insert user details into profiles table
                 handleLogin()
-
-                // Clear fields
-                setUsername('')
-                setEmail('')
-                setPassword('')
-                setConfirmPassword('')
-
-                // Redirect user to Dashboard
-                // Should there be a confirmation page to await confirmation of email?
-                const pushAction = StackActions.push('Dashboard');
-                navigation.dispatch(pushAction);
             }
         }  
         setLoading(false)

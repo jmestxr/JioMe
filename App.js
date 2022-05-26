@@ -39,7 +39,7 @@ const App = () => {
       <NavigationContainer>
       <AuthProvider>
         <Stack.Navigator 
-          initialRouteName="Dashboard"
+          initialRouteName="SignIn"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#ea580c',
