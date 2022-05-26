@@ -1,19 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../components/contexts/Auth";
 import { Text, HStack, Icon, Pressable, Square, PresenceTransition, View, Avatar } from "native-base"
 import { Dimensions } from "react-native";
 import { Wrapper } from "../components/basic/Wrapper";
 import { MaterialIcons } from "@native-base/icons";
 import { useNavigation } from "@react-navigation/native";
+import { supabase } from "../../supabaseClient";
 
 const windowWidth = Dimensions.get('window').width;
 
 const Dashboard = () => {
+    const [username, setUsername] = useState('')
+
     const navigation = useNavigation(); 
+
+    useEffect(() => {
+        getUsername()
+    })
+
+    const { user } = useAuth()
+
+    const getUsername = async (e) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('id', user.id)
+                .single()
+            if (error) throw error
+            if (data) {
+                setUsername(data.username)
+            }
+        }
+        catch (error) {
+            alert(error.error_description || error.message)
+        }
+    }
 
     return (
         <Wrapper>
             <HStack justifyContent='space-between' alignItems='center'>
-                <Text fontSize="2xl">Welcome back, {"\n"} (username)</Text>
+                <Text fontSize="2xl">Welcome back, {"\n"} {username}!</Text>
                 <Avatar bg="gray.300" size="xl" marginRight="3%" source={{uri: ''}}>
                         JM
                 </Avatar>
