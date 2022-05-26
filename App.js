@@ -1,13 +1,16 @@
 import 'react-native-url-polyfill/auto'
 import React from "react";
+import { LogBox } from 'react-native';
 import { NativeBaseProvider } from "native-base";
 import SignInPage from './src/screens/SignInPage';
 import SignUpPage from './src/screens/SignUpPage';
 import BottomTabs from './src/components/footer/BottomTabs';
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider } from './src/components/contexts/Auth';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 function getHeaderTitle(route) {
    // If the focused route is not found, we need to assume it's the initial screen
@@ -20,11 +23,11 @@ function getHeaderTitle(route) {
     case 'Marketplace':
       return 'Marketplace';
     case 'Create':
-      return 'Create New Event';
+      return 'Event Form';
     case 'Liked':
-      return 'My Liked Events';
+      return 'Wishlist';
     case 'Profile':
-      return 'My Profile';
+      return 'User Profile';
   }
 }
 
@@ -36,7 +39,7 @@ const App = () => {
       <NavigationContainer>
       <AuthProvider>
         <Stack.Navigator 
-          initialRouteName="SignIn"
+          initialRouteName="Dashboard"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#ea580c',

@@ -4,11 +4,13 @@ import { Text } from "native-base";
 
 
 const AuthButton = (props) => {
-    const { onPressHandler, title } = props;
+    const { onPressHandler, title, isDisabled } = props;
 
     return (
         <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.5}
+            disabled={isDisabled}
             onPress={onPressHandler}
         >
             <Text fontSize='md' color='white'>{title}</Text>    

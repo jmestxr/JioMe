@@ -96,7 +96,7 @@ const BottomTabs = () => {
         component={PlaceholderScreen}
         options={{
           tabBarLabel: 'Liked Events',
-          tabBarIcon: TabIcon({tabName: 'Liked Events', iconName:'favorite'})
+          tabBarIcon: TabIcon({tabName: 'Wishlist', iconName:'favorite'})
         }}
       />
       <Tab.Screen

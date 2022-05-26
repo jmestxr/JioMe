@@ -8,16 +8,16 @@ const AuthTextInput = (props) => {
 
     return (
         <View style={styles.fieldBox}>
-            <Icon as={MaterialIcons} name={iconName} color='black' size='xl' marginRight={'3%'}  />
+            <Icon as={MaterialIcons} name={iconName} color='black' size='lg' marginRight={'3%'}  />
             <Input
                 variant='underlined'
-                size='xl'
+                size='lg'
                 _focus={{borderColor:'orange.500'}}
                 placeholder={placeholder}
                 value={value}
                 secureTextEntry={secureTextEntry}
                 onChangeText={textHandler}
-                width='80%'
+                width='73%'
                 />
         </View>
 

@@ -25,7 +25,7 @@ const SignInPage = () => {
       const { error } = await signIn({ email, password })
 
       if (error) {
-        alert('error signing in')
+        alert('Error: Invalid email or password.')
       } else {
         setEmail('')
         setPassword('')
@@ -62,10 +62,7 @@ const SignInPage = () => {
                         />
                 </VStack>
 
-                <AuthButton
-                    onPressHandler={handleSignIn}
-                    title='Sign In'
-                    />
+                <AuthButton onPressHandler={handleSignIn} title='Sign In' isDisabled={loading}/>
 
                 <Text style={{marginTop:'10%'}} fontSize='sm'>
                     New user? &nbsp;

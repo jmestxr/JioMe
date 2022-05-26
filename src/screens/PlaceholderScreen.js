@@ -1,7 +1,12 @@
 import React from "react";
-import { Text } from "native-base";
+import { Wrapper } from "../components/basic/Wrapper";
+import { HeaderTitle } from "../components/basic/HeaderTitle";
 
 
-export const PlaceholderScreen = () => (
-    <Text fontSize='2xl'>Placeholder Screen</Text>
-)
+export const PlaceholderScreen = () => { 
+    return (
+        <Wrapper>
+            <HeaderTitle title="Placeholder title" />
+        </Wrapper>
+    )
+}

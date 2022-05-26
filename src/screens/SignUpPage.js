@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Image } from 'react-native';
 import { Center, VStack, Text } from 'native-base';
+import { Warning } from '../components/basic/Warning';
 import AuthButton from '../components/auth/AuthButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
 import { useNavigation, StackActions } from '@react-navigation/native';
@@ -92,28 +93,20 @@ const SignUpPage = () => {
     // function displays warning message if password is invalid
     function checkPassword() {
         if (password.length > 0 && password.length < 8) {
-            return (
-                <Text fontSize='sm' color={"#f87171"} >
-                    *Password does not meet the requirements.
-                </Text>
-            )
+            return <Warning warningMessage="Password does not meet the requirements." />
         }
     }
 
     // function displays warning message if passwords do not match
     function checkConfirmPassword() {
         if (confirmpassword.length > 0 && confirmpassword != password) {
-            return (
-                <Text fontSize='sm' color={"#f87171"} >
-                    *Passwords are not the same.
-                </Text>
-            )
+            return <Warning warningMessage="Passwords are not the same." />
         }
     }
 
     return (
             <Center height='100%' width='100%'>
-            <Image 
+                <Image 
                     style={{width: 225, height: 225}}
                     source={require('../assets/logo.png')} 
                 />
@@ -149,7 +142,7 @@ const SignUpPage = () => {
                         />
                     {checkConfirmPassword()}
                 </VStack>
-                <AuthButton onPressHandler={handleSignUp} title='Sign Up'/>
+                <AuthButton onPressHandler={handleSignUp} title='Sign Up' isDisabled={loading} />
                 <Text style={{marginTop:'10%'}} fontSize='sm'>
                     Existing user? &nbsp;
                     <Text underline color='orange.500' onPress={() => navigation.navigate('SignIn')}>          
