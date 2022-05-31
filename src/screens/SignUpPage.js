@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image } from 'react-native';
 import { Center, VStack, Text } from 'native-base';
 import { Warning } from '../components/basic/Warning';
-import AuthButton from '../components/auth/AuthButton';
+import CustomButton from '../components/basic/CustomButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import { useAuth } from '../components/contexts/Auth';
@@ -143,7 +143,13 @@ const SignUpPage = () => {
                         />
                     {checkConfirmPassword()}
                 </VStack>
-                <AuthButton onPressHandler={handleSignUp} title='Sign Up' isDisabled={loading} />
+                <CustomButton 
+                    title='Sign Up'
+                    width='25%' 
+                    color='#f97316'// orange.500
+                    onPressHandler={handleSignUp} 
+                    isDisabled={loading}
+                />
                 <Text style={{marginTop:'10%'}} fontSize='sm'>
                     Existing user? &nbsp;
                     <Text underline color='orange.500' onPress={() => navigation.navigate('SignIn')}>          

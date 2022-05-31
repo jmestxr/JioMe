@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image } from 'react-native';
 import { Center, VStack, Text } from 'native-base';
-import AuthButton from '../components/auth/AuthButton';
+import CustomButton from '../components/basic/CustomButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import { useAuth } from '../components/contexts/Auth';
@@ -62,7 +62,14 @@ const SignInPage = () => {
                         />
                 </VStack>
 
-                <AuthButton onPressHandler={handleSignIn} title='Sign In' isDisabled={loading}/>
+
+                <CustomButton 
+                    title='Sign In'
+                    width='25%' 
+                    color='#f97316'// orange.500
+                    onPressHandler={handleSignIn} 
+                    isDisabled={loading}
+                />
 
                 <Text style={{marginTop:'10%'}} fontSize='sm'>
                     New user? &nbsp;
