@@ -9,6 +9,7 @@ import { NavigationContainer, getFocusedRouteNameFromRoute } from "@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider } from './src/components/contexts/Auth';
 import EventPage from './src/screens/EventPage';
+import DashboardWithEvents from './src/screens/DashboardWithEvents';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -40,7 +41,7 @@ const App = () => {
       <NavigationContainer>
       <AuthProvider>
         <Stack.Navigator 
-          initialRouteName="EventPage"
+          initialRouteName="DashboardWithEvents"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#ea580c', // orange.600
@@ -58,6 +59,9 @@ const App = () => {
           <Stack.Screen name="Dashboard" component={BottomTabs} 
             options={ ({ route }) => ({ headerTitle: getHeaderTitle(route), headerBackVisible:false }) } />
           <Stack.Screen name="EventPage" component={EventPage} options={{ headerShown:false }}/>
+          <Stack.Screen name="DashboardWithEvents" component={DashboardWithEvents}/>
+
+
         </Stack.Navigator>
       </AuthProvider>
     </NavigationContainer>
