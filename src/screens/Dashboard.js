@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../components/contexts/Auth";
-import { Text, HStack, Icon, Pressable, Square, PresenceTransition, View, Avatar } from "native-base"
-import { Dimensions } from "react-native";
+import { Text, HStack, View, Avatar, VStack } from "native-base"
 import { Wrapper } from "../components/basic/Wrapper";
-import { MaterialIcons } from "@native-base/icons";
+import { SquareNav } from "../components/dashboard/SquareNav";
+import { UpcomingEventCard } from "../components/events/UpcomingEventCard";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
-const windowWidth = Dimensions.get('window').width;
 
 const Dashboard = () => {
-    const [username, setUsername] = useState('')
-
     const navigation = useNavigation(); 
 
-    useEffect(() => {
-        getUsername()
-    })
+    const [username, setUsername] = useState('')
+    const [upcomingEventsId, setUpcomingEventsId] = useState([])
+    const [upcomingEventsCards, setUpcomingEventsCards] = useState([])
 
     const { user } = useAuth()
+
+    useEffect(() => {
+        getUsername();
+    }, [])
+
+
+    useEffect(() => {
+        getUpcomingEventsId().then(() => getUpcomingEventsCards()).then(cards => setUpcomingEventsCards(cards))
+    }, [upcomingEventsCards])
+
 
     const getUsername = async (e) => {
         try {
@@ -37,6 +44,50 @@ const Dashboard = () => {
         }
     }
 
+    const getUpcomingEventsId = async (e) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('upcoming_events')
+                .eq('id', user.id)
+                .single()
+            if (error) throw error
+            if (data) {
+                setUpcomingEventsId(data.upcoming_events)
+            }
+        }
+        catch (error) {
+            alert(error.error_description || error.message)
+        }
+    }
+
+    const getUpcomingEventsCards = () => {
+        return Promise.all(Object.values(upcomingEventsId).map(async (eventId, index) => {
+            try {
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('title, location')
+                    .eq('id', eventId)
+                    .single()
+                if (error) throw error
+                if (data) {
+                    return <UpcomingEventCard 
+                                name={data.title} 
+                                location={data.location} 
+                                daysToEvent='3 days' 
+                                onPressHandler={() => navigation.navigate('EventPage',  {
+                                        eventId: eventId
+                                    }
+                                )}
+                            />
+                }
+            } catch (error) {
+                alert(error.error_description || error.message);
+            }
+        }))
+    }
+    
+
     return (
         <Wrapper>
             <HStack justifyContent='space-between' alignItems='center'>
@@ -47,75 +98,15 @@ const Dashboard = () => {
             </HStack>
  
             <View width='100%' alignItems='center' marginTop='15%'>
-                <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>You have no upcoming events.</Text>
-
-                <View flexDirection='row'>
-                    <Pressable onPress={() => navigation.navigate('Marketplace')}>
-                        {({
-                        isHovered,
-                        isFocused,
-                        isPressed
-                    }) => {
-                        return <Square size={windowWidth/2.5}
-                            bg={isPressed ? "orange.200" : isHovered ? "orange.200:alpha.50" : "orange.400"}>
-
-                        <Icon as={MaterialIcons} name='shopping-cart' color='white' size={100} />
-                            <PresenceTransition 
-                                visible={isPressed} 
-                                initial={{opacity: 0}} 
-                                animate={{
-                                    opacity: 1,
-                                    transition: {
-                                    duration: 250
-                                    }
-                                }}
-                                position='absolute'
-                            >
-                                <Text fontSize="md" fontWeight='medium' color='black'>Join an event</Text>
-                            </PresenceTransition>
-                        </Square>
-                    }}
-                    </Pressable>
-
-                    {/* Invisible Square */}
-                    <Square size={windowWidth/2.5}></Square>
-                </View>
-                
-                <View flexDirection='row'>
-                    {/* Invisible Square */}
-                    <Square size={windowWidth/2.5}></Square>
-
-                    <Pressable onPress={() => navigation.navigate('Create')}>
-                        {({
-                        isHovered,
-                        isFocused,
-                        isPressed
-                    }) => {
-                        return <Square size={windowWidth/2.5}
-                            borderColor='orange.400'
-                            borderWidth={isPressed ? '0' : '1'}
-                            bg={isPressed ? "orange.200" : isHovered ? "orange.400" : "#f2f2f2"}>
-
-                        <Icon as={MaterialIcons} name='group-add' color={isPressed ? 'white' : 'orange.400'} size={100} />
-                            <PresenceTransition 
-                                visible={isPressed} 
-                                initial={{opacity: 0}} 
-                                animate={{
-                                    opacity: 1,
-                                    transition: {
-                                    duration: 250
-                                    }
-                                }}
-                                position='absolute'
-                            >
-                                <Text fontSize="md" fontWeight='medium' color='black'>Create an event</Text>
-                            </PresenceTransition>
-                        </Square>
-                    }}
-                    </Pressable>
-                </View>
+                <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>You have {upcomingEventsCards.length == 0 ? 'no' : upcomingEventsCards.length} upcoming events.</Text>
+                {upcomingEventsCards.length == 0 ? <SquareNav /> : (
+                    <VStack width='90%' space={4} alignItems='center'>
+                        {upcomingEventsCards.map((card, index) => {
+                            return card;
+                        })}
+                    </VStack>
+                )}
             </View>
-
         </Wrapper>
       )
 }
