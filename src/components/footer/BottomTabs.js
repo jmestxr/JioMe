@@ -4,6 +4,8 @@ import { View, StyleSheet } from 'react-native';
 import TabIcon from "./TabIcon";
 import Dashboard from "../../screens/Dashboard";
 import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
+import { UserProfile } from "../../screens/UserProfile";
+import { EventForm } from "../../screens/EventForm";
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
@@ -85,7 +87,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Create"
-        component={PlaceholderScreen}
+        component={EventForm}
         options={{
           tabBarLabel: 'Create Event',
           tabBarIcon: TabIcon({tabName: 'New Event', iconName:'create'})
@@ -101,7 +103,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={PlaceholderScreen}
+        component={UserProfile}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: TabIcon({tabName: 'Profile', iconName:'face'})
