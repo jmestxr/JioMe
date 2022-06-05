@@ -4,6 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import TabIcon from "./TabIcon";
 import Dashboard from "../../screens/Dashboard";
 import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
+import Wishlist from "../../screens/Wishlist";
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
@@ -93,7 +94,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Liked"
-        component={PlaceholderScreen}
+        component={Wishlist}
         options={{
           tabBarLabel: 'Liked Events',
           tabBarIcon: TabIcon({tabName: 'Wishlist', iconName:'favorite'})

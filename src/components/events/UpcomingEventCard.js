@@ -10,7 +10,7 @@ export const UpcomingEventCard = ({ name, location, daysToEvent, onPressHandler 
         isFocused,
         isPressed
     }) => {
-        return <View borderRadius={7} bgColor={isPressed ? "gray.200" : isHovered ? "gray.200" : "gray.200:alpha.40"}>
+        return <View borderRadius={5} bgColor={isPressed ? "gray.200" : isHovered ? "gray.200" : "gray.200:alpha.40"}>
             <Text fontSize='md' fontWeight='medium' textAlign='right' paddingTop='3%' paddingRight='3%'>{name}</Text>
             <VStack>
                 <HStack space={2} padding='2%' alignItems='center'>

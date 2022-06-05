@@ -42,7 +42,7 @@ const TabIcon = ({tabName, iconName}) => ({color, onPressHandler, onLongPressHan
                     _pressed={{
                       bg: "orange.600:alpha.20",
                     }}
-                    delayLongPress='300'
+                    delayLongPress={300}
                     onPress={onPressHandler}
                     onLongPress={() => { displayLabel(); onLongPressHandler();}}
                     onPressOut={hideLabel}

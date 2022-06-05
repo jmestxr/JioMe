@@ -4,28 +4,40 @@ import { Text, HStack, View, Avatar, VStack } from "native-base"
 import { Wrapper } from "../components/basic/Wrapper";
 import { SquareNav } from "../components/dashboard/SquareNav";
 import { UpcomingEventCard } from "../components/events/UpcomingEventCard";
+import { Loading } from "../components/basic/Loading";
 import { useNavigation } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
 
 const Dashboard = () => {
     const navigation = useNavigation(); 
+    const isFocused = useIsFocused();
+    const { user } = useAuth()
+
+    const [loading, setLoading] = useState(true)
 
     const [username, setUsername] = useState('')
     const [upcomingEventsId, setUpcomingEventsId] = useState([])
-    const [upcomingEventsCards, setUpcomingEventsCards] = useState([])
-
-    const { user } = useAuth()
+    const [upcomingEventsDetails, setUpcomingEventsDetails] = useState([])
 
     useEffect(() => {
-        getUsername();
-    }, [])
+        setLoading(true)
+        getUsername()
+        setUpcomingEventsId([])
+        setUpcomingEventsDetails([])
+        getUpcomingEventsId()
+            .then(() => getUpcomingEventsDetails())
+            .then(detail => setUpcomingEventsDetails(oldArray => [...oldArray, ...detail]))
+            .then(() => setLoading(false));
+        
+        // console.log(upcomingEventsDetails)
 
-
-    useEffect(() => {
-        getUpcomingEventsId().then(() => getUpcomingEventsCards()).then(cards => setUpcomingEventsCards(cards))
-    }, [upcomingEventsCards])
-
+        // return () => {
+        //     setUpcomingEventsId([])
+        //     setUpcomingEventsDetails([])
+        // };
+    }, [isFocused])
 
     const getUsername = async (e) => {
         try {
@@ -61,34 +73,25 @@ const Dashboard = () => {
         }
     }
 
-    const getUpcomingEventsCards = () => {
+    const getUpcomingEventsDetails = () => {
         return Promise.all(Object.values(upcomingEventsId).map(async (eventId, index) => {
             try {
                 const { data, error } = await supabase
                     .from('events')
-                    .select('title, location')
+                    .select('id, title, location')
                     .eq('id', eventId)
                     .single()
                 if (error) throw error
                 if (data) {
-                    return <UpcomingEventCard 
-                                name={data.title} 
-                                location={data.location} 
-                                daysToEvent='3 days' 
-                                onPressHandler={() => navigation.navigate('EventPage',  {
-                                        eventId: eventId
-                                    }
-                                )}
-                            />
+                    return data;
                 }
             } catch (error) {
                 alert(error.error_description || error.message);
             }
         }))
     }
-    
 
-    return (
+    return (loading ? <Loading /> : ( 
         <Wrapper>
             <HStack justifyContent='space-between' alignItems='center'>
                 <Text fontSize="2xl">Welcome back, {"\n"} {username}!</Text>
@@ -98,16 +101,29 @@ const Dashboard = () => {
             </HStack>
  
             <View width='100%' alignItems='center' marginTop='15%'>
-                <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>You have {upcomingEventsCards.length == 0 ? 'no' : upcomingEventsCards.length} upcoming events.</Text>
-                {upcomingEventsCards.length == 0 ? <SquareNav /> : (
+                <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
+                    You have {upcomingEventsDetails.length == 0 ? 'no' : upcomingEventsDetails.length} upcoming events.
+                    </Text>
+                {/* {upcomingEventsDetails.length == 0 ? <SquareNav /> : (
                     <VStack width='90%' space={4} alignItems='center'>
-                        {upcomingEventsCards.map((card, index) => {
-                            return card;
+                        {upcomingEventsDetails.map((detail, index) => {
+                            return <UpcomingEventCard 
+                                        key={index}
+                                        name={detail.title}
+                                        location={detail.location} 
+                                        daysToEvent='3 days' 
+                                        onPressHandler={() => navigation.navigate('EventPage',  {
+                                            eventId: detail.id
+                                            }
+                                        )}
+                                    />
                         })}
                     </VStack>
-                )}
+                )} */}
+                <SquareNav />
             </View>
         </Wrapper>
+        )   
       )
 }
 

@@ -17,10 +17,10 @@ export const SquareNav = () => {
                         isFocused,
                         isPressed
                     }) => {
-                        return <Square size={windowWidth/2.5}
+                        return <Square size={windowWidth/2.5} style={{elevation:1}}
                             bg={isPressed ? "orange.200" : isHovered ? "orange.200:alpha.50" : "orange.400"}>
 
-                        <Icon as={MaterialIcons} name='shopping-cart' color='white' size={100} />
+                        <Icon as={MaterialIcons} name='shopping-cart' color='white' size={70} />
                             <PresenceTransition 
                                 visible={isPressed} 
                                 initial={{opacity: 0}} 
@@ -32,7 +32,7 @@ export const SquareNav = () => {
                                 }}
                                 position='absolute'
                             >
-                                <Text fontSize="md" fontWeight='medium' color='black'>Join an event</Text>
+                                <Text fontWeight='medium' color='black'>Join an event</Text>
                             </PresenceTransition>
                         </Square>
                     }}
@@ -53,11 +53,12 @@ export const SquareNav = () => {
                         isPressed
                     }) => {
                         return <Square size={windowWidth/2.5}
-                            borderColor='orange.400'
-                            borderWidth={isPressed ? '0' : '1'}
+                            // borderColor='orange.400'
+                            // borderWidth={isPressed ? '0' : '1'}
+                            style={{elevation:1}}
                             bg={isPressed ? "orange.200" : isHovered ? "orange.400" : "#f2f2f2"}>
 
-                        <Icon as={MaterialIcons} name='group-add' color={isPressed ? 'white' : 'orange.400'} size={100} />
+                        <Icon as={MaterialIcons} name='group-add' color={isPressed ? 'white' : 'orange.400'} size={70} />
                             <PresenceTransition 
                                 visible={isPressed} 
                                 initial={{opacity: 0}} 
@@ -69,12 +70,13 @@ export const SquareNav = () => {
                                 }}
                                 position='absolute'
                             >
-                                <Text fontSize="md" fontWeight='medium' color='black'>Create an event</Text>
+                                <Text fontWeight='medium' color='black'>Create an event</Text>
                             </PresenceTransition>
                         </Square>
                     }}
                     </Pressable>
                 </View>
+                <View height='100'></View> 
         </View>
        
     )

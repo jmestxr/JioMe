@@ -10,12 +10,13 @@ import LinearGradient from "react-native-linear-gradient";
 import { supabase } from "../../supabaseClient";
 import { useAuth } from "../components/contexts/Auth";
 
+import { handleLikeEvent, handleUnlikeEvent } from "../functions/eventHelpers";
+
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
 const EventPage = ({ route }) => {
-
     const { user } = useAuth()
     
     const { eventId } = route.params; // the unique id of this event
@@ -23,52 +24,26 @@ const EventPage = ({ route }) => {
     const [liked, setLiked] = useState(false);
 
     // Details of this event
-    const [title, setTitle] = useState('')
-    const [location, setLocation] = useState('')
-    const [availCapacity, setAvailCapacity] = useState('')
-    const [maxCapacity, setMaxCapacity] = useState('')
-    const [description, setDescription] = useState('')
-    const [dayPeriod, setDayPeriod] = useState('') // e.g. Mon - Sat
-    const [datePeriod, setDatePeriod] = useState('') // e.g. 2 Jun 2022 - 7 Jun 2022
-    const [timePeriod, setTimePeriod] = useState('') // e.g. 1800 - 1900 hrs
+    const [eventDetails, setEventDetails] = useState({});
+
+    const [capacity, setCapacity] = useState('')
+
+    const [datetimePeriod, setDatetimePeriod] = useState({ day: '', date: '', time: '' })
+    // e.g. {day: 'Thursday', date: '2 Jun 2022', time: '1800 - 1900 hrs'}
+    // e.g. {day: 'Mon - Sat', date: '2 Jun 2022 - 7 Jun 2022', time: '1800 - 1900 hrs'}
+
 
     useEffect(() => {
         getEventDetails();
         getLikedState();
     }, [])
 
-    // If event is already liked by user, then calling this function will unlike this event (vice versa).
-    const toggleLiked = async (e) => {
-        if (liked) { // if at first, this event was liked
-            try {
-                const { data, error } = await supabase
-                    .rpc('delete_array_record', 
-                            { _table:'profiles', 
-                                _id_column:'id', 
-                                _target_column:'liked_events', 
-                                row_id:user.id, 
-                                record:eventId })
-                if (error) throw error
-            }
-            catch (error) {
-                alert(error.error_description || error.message)
-            }
+    const toggleLiked = async () => {
+        if (liked) {
+            handleUnlikeEvent(user.id, eventId);
         } else {
-            try {
-                const { data, error } = await supabase
-                    .rpc('add_array_record', 
-                            { _table:'profiles', 
-                                _id_column:'id', 
-                                _target_column:'liked_events', 
-                                row_id:user.id, 
-                                record:eventId })
-                if (error) throw error
-            }
-            catch (error) {
-                alert(error.error_description || error.message)
-            }
+            handleLikeEvent(user.id, eventId);
         }
-
         setLiked(!liked);
     }
 
@@ -99,11 +74,9 @@ const EventPage = ({ route }) => {
                 .single()
             if (error) throw error
             if (data) {
-                setTitle(data.title);
-                setLocation(data.location);
-                setAvailCapacity(data.max_capacity - data.curr_capacity);
-                setMaxCapacity(data.max_capacity);
-                setDescription(data.description);
+                console.log(data)
+                setEventDetails(data);
+                formatCapacity(data.curr_capacity, data.max_capacity);
                 formatEventPeriod(data.from_datetime, data.to_datetime);
             }
         }
@@ -123,16 +96,37 @@ const EventPage = ({ route }) => {
         const toDate = toTimeStamp.slice(0, 10);
 
         if (fromDate == toDate) { // if event only lasts within the same day
-            setDayPeriod(weekdayLong[from.getDay()]);
-            setDatePeriod(from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear());
+            setDatetimePeriod(prev => ({
+                ...prev,
+                day: weekdayLong[from.getDay()]
+            }));
+            setDatetimePeriod(prev => ({
+                ...prev,
+                date: from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear()
+            }));
         } else {
-            setDayPeriod(weekdayShort[from.getDay()] + ' - ' + weekdayShort[to.getDay()]);
-            setDatePeriod(from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear() + ' - ' + '\n' +
-                            to.getDate() + ' ' + month[to.getMonth()] + ' ' + to.getFullYear());
+            setDatetimePeriod(prev => ({
+                ...prev,
+                day: weekdayShort[from.getDay()] + ' - ' + weekdayShort[to.getDay()]
+            }));
+            setDatetimePeriod(prev => ({
+                ...prev,
+                date: from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear() + ' - ' + '\n' +
+                                to.getDate() + ' ' + month[to.getMonth()] + ' ' + to.getFullYear()
+            }));
         }
-        setTimePeriod(String(from.getUTCHours()).padStart(2, '0') + String(from.getMinutes()).padStart(2, '0') + 
-                        ' - ' + String(to.getUTCHours()).padStart(2, '0') + String(to.getMinutes()).padStart(2, '0') + ' hrs');
+        setDatetimePeriod(prev => ({
+            ...prev,
+            time: String(from.getUTCHours()).padStart(2, '0') + String(from.getMinutes()).padStart(2, '0') + 
+                            ' - ' + String(to.getUTCHours()).padStart(2, '0') + String(to.getMinutes()).padStart(2, '0') + ' hrs'
+        }));
     }
+
+    const formatCapacity = (currCapacity, maxCapacity) => {
+        const availCapacity = maxCapacity - currCapacity;
+        setCapacity(availCapacity.toString() + '/' + maxCapacity.toString() + '\n' + 'available');
+    }
+
 
     return (
         <SpecialWrapper>
@@ -168,7 +162,7 @@ const EventPage = ({ route }) => {
 
                     <View alignItems='center' style={{transform:[{translateY:-50}]}}>
                         <View style={styles.eventTitle} bgColor='white' shadow={5}>
-                            <Text textAlign='center' fontSize='2xl' color='gray.600'>{title}</Text>
+                            <Text textAlign='center' fontSize='2xl' color='gray.600'>{eventDetails.title}</Text>
                         </View>   
                     </View>
                 </View>
@@ -177,20 +171,20 @@ const EventPage = ({ route }) => {
                     <HStack justifyContent='space-between'>
                         <VStack space={2} width='30%' alignItems='center'>
                             <Icon as={Ionicons} name='location' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>{location}</Text>
+                            <Text color='gray.100' textAlign='center'>{eventDetails.location}</Text>
                         </VStack>
                 
                         <VStack space={2} width='30%' alignItems='center'>
                             <Icon as={Ionicons} name='time' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>{dayPeriod}</Text>
+                            <Text color='gray.100' textAlign='center'>{datetimePeriod.day}</Text>
                             {/* <Text color='gray.100' textAlign='center'>20 May 22 - {"\n"} 26 May 22</Text> */}
-                            <Text color='gray.100' textAlign='center'>{datePeriod}</Text>
-                            <Text color='gray.100' textAlign='center'>{timePeriod}</Text>
+                            <Text color='gray.100' textAlign='center'>{datetimePeriod.date}</Text>
+                            <Text color='gray.100' textAlign='center'>{datetimePeriod.time}</Text>
                         </VStack>
 
                         <VStack space={2} width='30%' alignItems='center'>
                             <Icon as={Ionicons} name='people' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>{availCapacity}/{maxCapacity}{"\n"}available</Text>
+                            <Text color='gray.100' textAlign='center'>{capacity}</Text>
                         </VStack>
                     </HStack>       
                 </View>
@@ -200,7 +194,7 @@ const EventPage = ({ route }) => {
             <VStack space={8} padding='5%'>
                 <Detail title="About">
                         <View>
-                            <Text>{description}</Text>
+                            <Text>{eventDetails.description}</Text>
                         </View>
                 </Detail>
 
@@ -245,8 +239,6 @@ const EventPage = ({ route }) => {
                     onPressHandler={() => alert("Pressed")}
                     isDisabled={false}
                 />
-
-                <Button onPress={getLikedState}>Press me</Button>
             </VStack>
         </SpecialWrapper>
 
