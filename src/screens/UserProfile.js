@@ -20,7 +20,7 @@ import { useNavigation, StackActions } from '@react-navigation/native';
 
 
 export const UserProfile = () => {
-  const [loggedIn, setLoggedIn] = useState(true)
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -39,11 +39,8 @@ export const UserProfile = () => {
   })
 
   const getProfile = async (e) => {
-    // async function getProfile() {
-    if (loggedIn) {
       try {
         // setLoading(true)
-        const user = supabase.auth.user()
 
         let { data, error } = await supabase
           .from('profiles')
@@ -62,7 +59,7 @@ export const UserProfile = () => {
         // setLoading(false)
       }
     }
-  }
+  
 
   function setProfile(profile) {
     setAvatar(profile.avatar_url)
@@ -72,18 +69,16 @@ export const UserProfile = () => {
   }
 
   const uploadAvatar = async (event) => {
-    if (loggedIn) {
-      // event.preventDefault()
       try {
         setUploading(true)
 
-        const user = supabase.auth.user();
+        const base64FileData = event.data
 
         const filePath = event.path;
 
         let { error: uploadError } = await supabase.storage
           .from('avatars')
-          .upload(filePath)
+          .upload(filePath, decode(base64FileData))
 
         if (uploadError) {
           console.log(uploadError)
@@ -105,7 +100,7 @@ export const UserProfile = () => {
         setUploading(false)
       }
     }
-  }
+  
 
   // function checks whether to put the default avatar or given one
   function checkAvatar() {
@@ -154,7 +149,6 @@ export const UserProfile = () => {
 
   const submitDescription = async (e) => {
     e.preventDefault()
-    if (loggedIn) {
       if (newProfDesc.length > 200) {
         alert('Your description is too long.')
       } else {
@@ -177,7 +171,7 @@ export const UserProfile = () => {
         }
       }
     }
-  }
+  
 
   // function checks whether to display an editable description box
   function checkDescriptionBox() {
@@ -243,7 +237,6 @@ export const UserProfile = () => {
 
   const handleSignOut = async (e) => {
     // e.preventDefault()
-    setLoggedIn(false)
 
     try {
       setLoading(true)
@@ -266,9 +259,7 @@ export const UserProfile = () => {
     } catch (error) {
       console.log(error)
     } finally {
-
       setLoading(false)
-      setLoggedIn(true)
 
     }
   }

@@ -57,17 +57,11 @@ export default function UploadButton(props) {
         ImagePicker.openPicker({
           width: width,
           height: height,
-          cropping: true
+          cropping: true,
+          includeBase64:true,
         }).then(image => {
-          console.log(image);
           onUpload(image);
-          const url = URL.createObjectURL(image.path)
-          console.log(url)
-
-        }).catch(e => {
-          console.log(e);
-        });
-
+        })
     }
     return (
         <View>
