@@ -18,25 +18,12 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true)
 
     const [username, setUsername] = useState('')
-    const [upcomingEventsId, setUpcomingEventsId] = useState([])
-    const [upcomingEventsDetails, setUpcomingEventsDetails] = useState([])
+    const [upcomingEventsDetails, setUpcomingEventsDetails] = useState(null)
 
     useEffect(() => {
         setLoading(true)
         getUsername()
-        setUpcomingEventsId([])
-        setUpcomingEventsDetails([])
-        getUpcomingEventsId()
-            .then(() => getUpcomingEventsDetails())
-            .then(detail => setUpcomingEventsDetails(oldArray => [...oldArray, ...detail]))
-            .then(() => setLoading(false));
-        
-        // console.log(upcomingEventsDetails)
-
-        // return () => {
-        //     setUpcomingEventsId([])
-        //     setUpcomingEventsDetails([])
-        // };
+        getUpcomingEventsDetails().then(() => setLoading(false));
     }, [isFocused])
 
     const getUsername = async (e) => {
@@ -56,39 +43,19 @@ const Dashboard = () => {
         }
     }
 
-    const getUpcomingEventsId = async (e) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('upcoming_events')
-                .eq('id', user.id)
-                .single()
-            if (error) throw error
-            if (data) {
-                setUpcomingEventsId(data.upcoming_events)
-            }
-        }
-        catch (error) {
-            alert(error.error_description || error.message)
-        }
-    }
-
-    const getUpcomingEventsDetails = () => {
-        return Promise.all(Object.values(upcomingEventsId).map(async (eventId, index) => {
+    const getUpcomingEventsDetails = async (e) => {
             try {
                 const { data, error } = await supabase
                     .from('events')
-                    .select('id, title, location')
-                    .eq('id', eventId)
-                    .single()
-                if (error) throw error
+                    .select('id, title, location, user_joinedevents!inner(*)')
+                    .eq('user_joinedevents.user_id', user.id)
+                    if (error) throw error
                 if (data) {
-                    return data;
+                    setUpcomingEventsDetails(Object.values(data));
                 }
             } catch (error) {
                 alert(error.error_description || error.message);
             }
-        }))
     }
 
     return (loading ? <Loading /> : ( 
@@ -104,7 +71,7 @@ const Dashboard = () => {
                 <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
                     You have {upcomingEventsDetails.length == 0 ? 'no' : upcomingEventsDetails.length} upcoming events.
                     </Text>
-                {/* {upcomingEventsDetails.length == 0 ? <SquareNav /> : (
+                {upcomingEventsDetails.length == 0 ? <SquareNav /> : (
                     <VStack width='90%' space={4} alignItems='center'>
                         {upcomingEventsDetails.map((detail, index) => {
                             return <UpcomingEventCard 
@@ -119,8 +86,7 @@ const Dashboard = () => {
                                     />
                         })}
                     </VStack>
-                )} */}
-                <SquareNav />
+                )}
             </View>
         </Wrapper>
         )   

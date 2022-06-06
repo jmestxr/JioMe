@@ -4,19 +4,23 @@ import { Text, View, Icon, IconButton, HStack, VStack, Avatar, Button } from "na
 import { SpecialWrapper } from "../components/eventPage/SpecialWrapper";
 import { Detail } from "../components/eventPage/Detail";
 import CustomButton from "../components/basic/CustomButton";
+import { TextCollapsible } from "../components/eventPage/TextCollapsible";
 import { MaterialIcons } from "@native-base/icons";
 import { Ionicons } from "@native-base/icons";
 import LinearGradient from "react-native-linear-gradient";
 import { supabase } from "../../supabaseClient";
+import { useIsFocused } from "@react-navigation/native";
 import { useAuth } from "../components/contexts/Auth";
 
 import { handleLikeEvent, handleUnlikeEvent } from "../functions/eventHelpers";
+
 
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
 const EventPage = ({ route }) => {
+    const isFocused = useIsFocused();
     const { user } = useAuth()
     
     const { eventId } = route.params; // the unique id of this event
@@ -32,11 +36,19 @@ const EventPage = ({ route }) => {
     // e.g. {day: 'Thursday', date: '2 Jun 2022', time: '1800 - 1900 hrs'}
     // e.g. {day: 'Mon - Sat', date: '2 Jun 2022 - 7 Jun 2022', time: '1800 - 1900 hrs'}
 
+    const [participantsAvatars, setParticipantsAvatars] = useState([])
+
 
     useEffect(() => {
-        getEventDetails();
+        getEventDetails()
+            .then(() => getParticipantsAvatars());
         getLikedState();
-    }, [])
+
+        return () => {
+            setEventDetails({});
+            setParticipantsAvatars([]);
+        };
+    }, [isFocused])
 
     const toggleLiked = async () => {
         if (liked) {
@@ -50,12 +62,11 @@ const EventPage = ({ route }) => {
     const getLikedState = async (e) => {
         try {
             const { data, count, error } = await supabase
-                .from('profiles')
-                .select('id, liked_events', { count: 'exact' })
-                .eq('id', user.id)
-                .contains('liked_events', [eventId])
+                .from('user_likedevents')
+                .select('user_id, event_id', { count: 'exact' })
+                .match({user_id: user.id, event_id: eventId})
             if (error) throw error
-            if (data) {
+            if (data) {   
                 setLiked(count == 1);
             }
         }
@@ -74,7 +85,6 @@ const EventPage = ({ route }) => {
                 .single()
             if (error) throw error
             if (data) {
-                console.log(data)
                 setEventDetails(data);
                 formatCapacity(data.curr_capacity, data.max_capacity);
                 formatEventPeriod(data.from_datetime, data.to_datetime);
@@ -83,6 +93,24 @@ const EventPage = ({ route }) => {
         catch (error) {
             alert(error.error_description || error.message)
         }
+    }
+
+    const getParticipantsAvatars = async (e) => {
+        Object.values(eventDetails.participants_id).map(async (participantId, index) => {
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('avatar_url')
+                    .eq('id', participantId)
+                    .single()
+                if (error) throw error
+                if (data) {
+                    setParticipantsAvatars(oldArray => [...oldArray, data.avatar_url])
+                }
+            } catch (error) {
+                alert(error.error_description || error.message);
+            }
+        })
     }
 
     const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
@@ -177,7 +205,6 @@ const EventPage = ({ route }) => {
                         <VStack space={2} width='30%' alignItems='center'>
                             <Icon as={Ionicons} name='time' color='white' size={65} />
                             <Text color='gray.100' textAlign='center'>{datetimePeriod.day}</Text>
-                            {/* <Text color='gray.100' textAlign='center'>20 May 22 - {"\n"} 26 May 22</Text> */}
                             <Text color='gray.100' textAlign='center'>{datetimePeriod.date}</Text>
                             <Text color='gray.100' textAlign='center'>{datetimePeriod.time}</Text>
                         </VStack>
@@ -193,42 +220,32 @@ const EventPage = ({ route }) => {
 
             <VStack space={8} padding='5%'>
                 <Detail title="About">
-                        <View>
+                        {/* <View>
                             <Text>{eventDetails.description}</Text>
-                        </View>
+                        </View> */}
+                        <TextCollapsible longText={eventDetails.description}/>
                 </Detail>
 
                 <Detail title="Participants">
-                    <View alignItems='flex-start'>
-                        <Avatar.Group _avatar={{
+                    <View alignItems='flex-start' >
+                        {/* <Avatar.Group _avatar={{
                             size: "lg"
-                            }} max={3}>
-                                <Avatar bg="green.500" source={{
-                                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
+                            }}> */}
+
+                            {participantsAvatars.map((avatarUrl, index) => {
+                                return <Avatar key={index} bg="green.500" source={{uri: avatarUrl}}>
+                                   {/* { alert(avatarUrl)} */}
+                                    AJ
+                                    </Avatar>
+                            })}
+                                {/* <Avatar bg="green.500" source={{
+                                uri: "https://srvrelwrbtcqkozbprvh.supabase.co/storage/v1/object/sign/avatars/person.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJhdmF0YXJzL3BlcnNvbi5wbmciLCJpYXQiOjE2NTQ0MzkzODgsImV4cCI6MTk2OTc5OTM4OH0.jdMY5_nMUwNyhPXD6shmATO8QG-gWU4w2f0OwCvfxwc"
                             }}>
                                 AJ
-                                </Avatar>
-                                <Avatar bg="cyan.500" source={{
-                                uri: "https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
-                            }}>
-                                TE
-                                </Avatar>
-                                <Avatar bg="indigo.500" source={{
-                                uri: "https://images.unsplash.com/photo-1614289371518-722f2615943d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
-                            }}>
-                                JB
-                                </Avatar>
-                                <Avatar bg="amber.500" source={{
-                                uri: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
-                            }}>
-                                TS
-                                </Avatar>
-                                <Avatar bg="green.500" source={{
-                                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
-                            }}>
-                                AJ
-                                </Avatar>
-                        </Avatar.Group>
+                                </Avatar> */}
+          
+                                
+                        {/* </Avatar.Group> */}
                     </View>
                 </Detail>
 
@@ -236,7 +253,7 @@ const EventPage = ({ route }) => {
                     title='Join Now!' 
                     width='100%' 
                     color='#f97316'// orange.500
-                    onPressHandler={() => alert("Pressed")}
+                    onPressHandler={() => alert("Join Event?")}
                     isDisabled={false}
                 />
             </VStack>

@@ -3,12 +3,10 @@ import { supabase } from "../../supabaseClient";
 export const handleLikeEvent = async (userId, eventId) => {
     try {
         const { data, error } = await supabase
-            .rpc('add_array_record', 
-                    { _table:'profiles', 
-                        _id_column:'id', 
-                        _target_column:'liked_events', 
-                        row_id:userId, 
-                        record:eventId })
+            .from('user_likedevents')
+            .insert([
+                { user_id: userId, event_id: eventId }
+            ])
         if (error) throw error
         if (data) return data;
     }
@@ -20,12 +18,9 @@ export const handleLikeEvent = async (userId, eventId) => {
 export const handleUnlikeEvent = async (userId, eventId) => {
     try {
         const { data, error } = await supabase
-            .rpc('delete_array_record', 
-                    { _table:'profiles', 
-                        _id_column:'id', 
-                        _target_column:'liked_events', 
-                        row_id:userId, 
-                        record:eventId })
+            .from('user_likedevents')
+            .delete()
+            .match({ user_id: userId })
         if (error) throw error
         if (data) return data;
     }
@@ -34,9 +29,26 @@ export const handleUnlikeEvent = async (userId, eventId) => {
     }
 }
 
+export const getEventCurrCapacity = async (eventId) => {
+    try {
+        const { data, count, error } = await supabase
+            .from('user_joinedevents')
+            .select('user_id, event_id', { count: 'exact' })
+            .eq({ event_id: eventId })
+        if (error) throw error
+        if (data) return count;
+    }
+    catch (error) {
+        alert(error.error_description || error.message)
+    }
+}
+
+
 
 /* TODO: 
     handleJoinEvent(participantId, eventId)
     handleQuitEvent(participantId, eventId) 
     handleDeleteEvent(organiserId, eventId) 
+    
+    * abstract common
 */

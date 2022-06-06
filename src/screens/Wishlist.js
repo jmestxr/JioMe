@@ -6,111 +6,56 @@ import { HeaderTitle } from "../components/basic/HeaderTitle";
 import { LikedEventCard } from "../components/events/LikedEventCard";
 import { Loading } from "../components/basic/Loading";
 import { useAuth } from "../components/contexts/Auth";
-import { useNavigation } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
 import { handleUnlikeEvent } from "../functions/eventHelpers";
+import { getEventCurrCapacity } from "../functions/eventHelpers";
 
 
 const Wishlist = () => { 
-    const navigation = useNavigation(); 
     const isFocused = useIsFocused();
     const { user } = useAuth();
 
     const [loading, setLoading] = useState(true)
 
     const [resetCards, setResetCards] = useState(true) // to re-render likedEventCards
-
-    // // To re-render this page
-    // const [refresh, setRefresh] = useState(1);
-    // const refreshPage = () => {
-    //     setRefresh(-refresh);
-    // }
     
-    
-    const [likedEventsId, setLikedEventsId] = useState([])
-    const [likedEventsDetails, setLikedEventsDetails] = useState([])
-
-    // useEffect(() => {
-        // setLikedEventsId([])
-        // setLikedEventsDetails([])
-    //     getLikedEventsId()
-    //         .then(() => getLikedEventsDetails())
-    //         .then(detail => setLikedEventsDetails(oldArray => [...oldArray, ...detail]))
-    //     // console.log(likedEventsDetails)
-    // }, [isFocused, refresh])
+    const [likedEventsDetails, setLikedEventsDetails] = useState(null)
 
     useEffect(() => {
         setLoading(true)
-        // setLikedEventsId([]);
-        // setLikedEventsDetails([]);
-        getLikedEventsId()
-            .then(() => getLikedEventsDetails())
-            .then(() => setLoading(false));
-
-        return () => {
-            setLikedEventsId([]);
-            setLikedEventsDetails([]);
-        };
+        getLikedEventsDetails().then(() => setLoading(false));
     }, [isFocused])
 
-    const getLikedEventsId = async (e) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('liked_events')
-                .eq('id', user.id)
-                .single()
-            if (error) throw error
-            if (data) {
-                setLikedEventsId(data.liked_events)
-            }
-        }
-        catch (error) {
-            alert(error.error_description || error.message)
-        }
-    }
 
-    // const getLikedEventsDetails = () => {
-    //     return Promise.all(Object.values(likedEventsId).map(async (eventId, index) => {
-    //         try {
-    //             const { data, error } = await supabase
-    //                 .from('events')
-    //                 .select('id, title, location')
-    //                 .eq('id', eventId)
-    //                 .single()
-    //             if (error) throw error
-    //             if (data) {
-    //                 return data;
-    //             }
-    //         } catch (error) {
-    //             alert(error.error_description || error.message);
-    //         }
-    //     }))
-    // }
-    const getLikedEventsDetails = async () => {
-        Object.values(likedEventsId).map(async (eventId, index) => {
-            try {
-                const { data, error } = await supabase
-                    .from('events')
-                    .select('id, title, location, from_datetime, to_datetime, curr_capacity, max_capacity')
-                    .eq('id', eventId)
-                    .single()
+    const getLikedEventsDetails = async (e) => {
+        try {
+            const { data, count, error } = await supabase
+                .from('events')
+                .select('id, title, location, from_datetime, to_datetime, curr_capacity, max_capacity, user_likedevents!inner(*)')
+                .eq('user_likedevents.user_id', user.id)
+            
+                // .from('user_joinedevents')
+                // .select('event_id, events!inner(*, user_likedevents!inner(*))', { count: 'exact' })
+                // .eq('user_likedevents.user_id', user.id)
+                // .eq('events.id', 'event_id')
+
+            
                 if (error) throw error
-                if (data) {
-                    setLikedEventsDetails(oldArray => [...oldArray, data])
-                }
-            } catch (error) {
-                alert(error.error_description || error.message);
+            if (data) {
+                setLikedEventsDetails(Object.values(data));
+                console.log(data)
+                console.log(count)
             }
-        })
+        } catch (error) {
+            alert(error.error_description || error.message);
+        }
     }
 
 // To unlike an event given its id
 const unLikeEventHandler = async (eventId) => {
-    handleUnlikeEvent(user.id, eventId).then((data) => {
-        setLikedEventsDetails(data);
+    handleUnlikeEvent(user.id, eventId).then(() => getLikedEventsDetails()).then(() => {
         setResetCards(!resetCards)
         alert('Removed event from wishlist.');
     });
@@ -166,15 +111,16 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
                                             title={detail.title}
                                             location={detail.location} 
                                             time={formatEventPeriod(detail.from_datetime, detail.to_datetime)}
-                                            capacity={formatAvailCapacity(detail.curr_capacity, detail.max_capacity)}
+                                            // capacity={formatAvailCapacity(detail.curr_capacity, detail.max_capacity)}
+                                            // capacity={getEventCurrCapacity(detail.id)}
                                             unlikeHandler={() => {        
                                                 unLikeEventHandler(detail.id);
-                                                // refreshPage();
                                             }}
                                         />
                             })}
                         </VStack>
-                    {/* )} */}
+                    {/* )}  */}
+                    
                 </View>
 
             </Wrapper>
