@@ -62,7 +62,13 @@ export const UserProfile = () => {
   
 
   function setProfile(profile) {
-    setAvatar(profile.avatar_url)
+    const { publicURL, error } = supabase
+      .storage
+      .from('avatars')
+      .getPublicUrl(profile.avatar_url)
+    // console.log('public url is', publicURL)
+
+    setAvatar(publicURL)
     setUsername(profile.username)
     setWebsite(profile.website)
     setProfileDescription(profile.profile_description)
