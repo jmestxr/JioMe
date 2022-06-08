@@ -4,7 +4,7 @@ import { Input, Icon } from "native-base";
 import { MaterialIcons } from "@native-base/icons";
 
 const AuthTextInput = (props) => {
-    const { placeholder, value, secureTextEntry, textHandler, iconName } = props;
+    const { placeholder, value, secureTextEntry, textHandler, iconName, editable } = props;
 
     return (
         <View style={styles.fieldBox}>
@@ -18,6 +18,7 @@ const AuthTextInput = (props) => {
                 secureTextEntry={secureTextEntry}
                 onChangeText={textHandler}
                 width='73%'
+                editable={editable}
                 />
         </View>
 
