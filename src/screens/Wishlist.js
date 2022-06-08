@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity } from "react-native";
 import { View, Text, VStack } from "native-base";
 import { Wrapper } from "../components/basic/Wrapper";
 import { HeaderTitle } from "../components/basic/HeaderTitle";
-import { LikedEventCard } from "../components/events/LikedEventCard";
+import { LikedEventCard } from "../components/eventCards/LikedEventCard";
+import { ZeroEventCard } from "../components/eventCards/ZeroEventCard";
 import { Loading } from "../components/basic/Loading";
 import { useAuth } from "../components/contexts/Auth";
 import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
 import { handleUnlikeEvent } from "../functions/eventHelpers";
-import { getEventCurrCapacity } from "../functions/eventHelpers";
+
 
 
 const Wishlist = () => { 
@@ -18,35 +18,43 @@ const Wishlist = () => {
     const { user } = useAuth();
 
     const [loading, setLoading] = useState(true)
-
-    const [resetCards, setResetCards] = useState(true) // to re-render likedEventCards
     
     const [likedEventsDetails, setLikedEventsDetails] = useState(null)
+    const [likedEventsCurrCapacity, setLikedEventsCurrCapacity] = useState(null)
 
     useEffect(() => {
         setLoading(true)
-        getLikedEventsDetails().then(() => setLoading(false));
+        getLikedEventsDetails()
+            .then(() => getLikedEventsCurrCapacity())
+            .then(() => setLoading(false));
     }, [isFocused])
 
 
     const getLikedEventsDetails = async (e) => {
         try {
-            const { data, count, error } = await supabase
+            const { data, error } = await supabase
                 .from('events')
-                .select('id, title, location, from_datetime, to_datetime, curr_capacity, max_capacity, user_likedevents!inner(*)')
-                .eq('user_likedevents.user_id', user.id)
-            
-                // .from('user_joinedevents')
-                // .select('event_id, events!inner(*, user_likedevents!inner(*))', { count: 'exact' })
-                // .eq('user_likedevents.user_id', user.id)
-                // .eq('events.id', 'event_id')
+                .select('*, user_likedevents!inner(*)')
+                .eq('user_likedevents.user_id', user.id)            
 
-            
-                if (error) throw error
+            if (error) throw error
             if (data) {
                 setLikedEventsDetails(Object.values(data));
-                console.log(data)
-                console.log(count)
+            }
+        } catch (error) {
+            alert(error.error_description || error.message);
+        }
+    }
+
+    // function to get the current capacity of each liked event
+    const getLikedEventsCurrCapacity = async (e) => {
+        try {
+            const { data, error } = await supabase
+                .rpc('getcurrcapacityofuserlikedevents', { user_id: user.id })
+            
+            if (error) throw error
+            if (data) {
+                setLikedEventsCurrCapacity(data);
             }
         } catch (error) {
             alert(error.error_description || error.message);
@@ -56,7 +64,6 @@ const Wishlist = () => {
 // To unlike an event given its id
 const unLikeEventHandler = async (eventId) => {
     handleUnlikeEvent(user.id, eventId).then(() => getLikedEventsDetails()).then(() => {
-        setResetCards(!resetCards)
         alert('Removed event from wishlist.');
     });
 }
@@ -91,40 +98,38 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
 
 
     return (loading ? <Loading /> : ( 
-        <TouchableOpacity style={{height:'100%', width:'100%'}} activeOpacity={1} onPress={() => {setResetCards(!resetCards)}}>
-
             <Wrapper>
                 <HeaderTitle title="My Liked Events" />
-
-
+                
                 <View width='100%' alignItems='center' marginTop='5%'>
                     <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
                         You have {likedEventsDetails.length == 0 ? 'no' : likedEventsDetails.length} liked events.
                     </Text>
-                    {/* {likedEventsCards.length == 0 ? <SquareNav /> : ( */}
+                    {likedEventsDetails.length == 0 ? 
+                        <ZeroEventCard 
+                            imagePath={require('../assets/liked_colored.png')} 
+                            textMessage={'Events you have liked will be' + '\n' + 'displayed here.'} /> 
+                        :
                         <VStack width='100%' space={4}>
                             {likedEventsDetails.map((detail, index) => {
                                 return <LikedEventCard 
                                             key={index}
-                                            reset={resetCards} 
                                             eventId={detail.id}
+                                            pictureURL={detail.picture_url}
                                             title={detail.title}
                                             location={detail.location} 
                                             time={formatEventPeriod(detail.from_datetime, detail.to_datetime)}
-                                            // capacity={formatAvailCapacity(detail.curr_capacity, detail.max_capacity)}
-                                            // capacity={getEventCurrCapacity(detail.id)}
+                                            capacity={formatAvailCapacity(likedEventsCurrCapacity[index].no_of_participants, detail.max_capacity)}
                                             unlikeHandler={() => {        
                                                 unLikeEventHandler(detail.id);
                                             }}
                                         />
                             })}
                         </VStack>
-                    {/* )}  */}
-                    
+                    }                     
                 </View>
 
             </Wrapper>
-        </TouchableOpacity>
     ))
 }
 

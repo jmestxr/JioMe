@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../components/contexts/Auth";
 import { Text, HStack, View, Avatar, VStack } from "native-base"
 import { Wrapper } from "../components/basic/Wrapper";
-import { SquareNav } from "../components/dashboard/SquareNav";
-import { UpcomingEventCard } from "../components/events/UpcomingEventCard";
+import { UpcomingEventCard } from "../components/eventCards/UpcomingEventCard";
+import { ZeroEventCard } from "../components/eventCards/ZeroEventCard";
 import { Loading } from "../components/basic/Loading";
 import { useNavigation } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
+import { useAuth } from "../components/contexts/Auth";
 import { supabase } from "../../supabaseClient";
 
 
@@ -70,8 +70,12 @@ const Dashboard = () => {
             <View width='100%' alignItems='center' marginTop='15%'>
                 <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
                     You have {upcomingEventsDetails.length == 0 ? 'no' : upcomingEventsDetails.length} upcoming events.
-                    </Text>
-                {upcomingEventsDetails.length == 0 ? <SquareNav /> : (
+                </Text>
+                {upcomingEventsDetails.length == 0 ? 
+                    <ZeroEventCard 
+                        imagePath={require('../assets/joined_colored.png')} 
+                        textMessage={'Events you have joined will be' + '\n' + 'displayed here.'} /> 
+                    : 
                     <VStack width='90%' space={4} alignItems='center'>
                         {upcomingEventsDetails.map((detail, index) => {
                             return <UpcomingEventCard 
@@ -86,7 +90,7 @@ const Dashboard = () => {
                                     />
                         })}
                     </VStack>
-                )}
+                }
             </View>
         </Wrapper>
         )   

@@ -42,7 +42,7 @@ const App = () => {
       <NavigationContainer>
       <AuthProvider>
         <Stack.Navigator 
-          initialRouteName="EventFormStyle"
+          initialRouteName="SignIn"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#ea580c', // orange.600

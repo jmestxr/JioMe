@@ -17,11 +17,12 @@ export const EventSelectFieldInput = () => {
         <Icon
           as={Ionicons}
           name="file-tray-stacked-outline"
-          color="gray.600"
+          color="black"
           size="lg"
         />
         <Select
           flex={1}
+          marginLeft= '0.5%'
           style={{transform: [{translateX: -1}, {translateY: -5}]}}
           borderColor="#00000000"
           selectedValue={category}

@@ -1,19 +1,15 @@
 import React from 'react';
-import {Dimensions} from 'react-native';
-import {
-  Text,
-  Center,
-  VStack,
-} from 'native-base';
+import {Dimensions, Image} from 'react-native';
+import {Text, Center, VStack} from 'native-base';
 import {Icon} from 'native-base';
 import {Wrapper} from '../components/basic/Wrapper';
 import {HeaderTitle} from '../components/basic/HeaderTitle';
 import {EventSingleFieldInput} from '../components/eventForm/EventSingleFieldInput';
 import {EventTextFieldInput} from '../components/eventForm/EventTextFieldInput';
 import {EventSelectFieldInput} from '../components/eventForm/EventSelectFieldInput';
+import {DateTimeInput} from '../components/eventForm/DateTimeInput';
 import CustomButton from '../components/basic/CustomButton';
 import {Ionicons} from '@native-base/icons';
-
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -26,7 +22,10 @@ const EventFormStyle = () => {
         height={windowHeight * 0.3}
         bgColor="gray.200:alpha.40"
         borderRadius={5}>
-        <Icon as={Ionicons} name="cloud-upload" color="gray.300" size={100} />
+        {/* <Icon as={Ionicons} name="cloud-upload" color="gray.300" size={100} /> */}
+        <Image 
+          style={{height:100, width:100, color:'gray'}}
+          source={require('../assets/upload.png')} />
         <Text fontSize="md" color="gray.300">
           Upload an image
         </Text>
@@ -47,6 +46,10 @@ const EventFormStyle = () => {
           iconName="location-outline"
         />
 
+        <DateTimeInput placeholder="Start Time" />
+
+        <DateTimeInput placeholder="End Time" />
+
         <EventSingleFieldInput
           placeholder="Capacity (includes yourself)"
           keyboardType="numeric"
@@ -54,13 +57,13 @@ const EventFormStyle = () => {
         />
       </VStack>
 
-      <CustomButton 
-        title='Create Event!' 
-        width='100%'
-        color='#f97316'// orange.500
-        onPressHandler={() => alert("Submit?")} 
-        isDisabled={false} 
-        />
+      <CustomButton
+        title="Create Event!"
+        width="100%"
+        color="#f97316" // orange.500
+        onPressHandler={() => alert('Submit?')}
+        isDisabled={false}
+      />
     </Wrapper>
   );
 };

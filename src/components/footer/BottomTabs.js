@@ -6,6 +6,8 @@ import Dashboard from "../../screens/Dashboard";
 import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
 import Wishlist from "../../screens/Wishlist";
 
+import EventFormStyle from "../../screens/EventFormStyle";
+
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.bar}>
@@ -86,7 +88,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Create"
-        component={PlaceholderScreen}
+        component={EventFormStyle}
         options={{
           tabBarLabel: 'Create Event',
           tabBarIcon: TabIcon({tabName: 'New Event', iconName:'create'})

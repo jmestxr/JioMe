@@ -1,6 +1,6 @@
 import React, {useState, useCallback} from 'react';
 import {Text, View, Icon} from 'native-base';
-import {MaterialIcons} from '@native-base/icons';
+import {MaterialIcons, Ionicons} from '@native-base/icons';
 import {TouchableOpacity} from 'react-native';
 
 
@@ -24,13 +24,13 @@ export const TextCollapsible = ({longText}) => {
       return (
         <TouchableOpacity
           activeOpacity={1}
-          style={{position: 'absolute', left: 340, top: -45}}
+          style={{position: 'absolute', left: 340, top: -43}}
           onPress={toggleNumberOfLines}>
           <Icon
             as={MaterialIcons}
             name="expand-less"
             color="gray.400"
-            size="xl"
+            size="lg"
           />
         </TouchableOpacity>
       );
@@ -38,13 +38,13 @@ export const TextCollapsible = ({longText}) => {
       return (
         <TouchableOpacity
           activeOpacity={1}
-          style={{position: 'absolute', left: 340, top: -45}}
+          style={{position: 'absolute', left: 340, top: -43}}
           onPress={toggleNumberOfLines}>
           <Icon
             as={MaterialIcons}
             name="expand-more"
             color="gray.400"
-            size="xl"
+            size="lg"
           />
         </TouchableOpacity>
       );

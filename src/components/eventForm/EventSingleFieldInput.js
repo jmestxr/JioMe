@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Keyboard, TouchableWithoutFeedback} from 'react-native';
-import {View, Input, Divider, HStack} from 'native-base';
+import {View, Input, Divider, HStack, Text} from 'native-base';
 import {Icon} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 
@@ -18,8 +18,9 @@ export const EventSingleFieldInput = ({
           paddingLeft="1%"
           paddingTop="1.5%"
           paddingBottom="1.5%"
-          alignItems="center">
-          <Icon as={Ionicons} name={iconName} color="gray.600" size="lg" />
+          justifyContent='space-between'
+          alignItems='center'>
+          <Icon as={Ionicons} name={iconName} color="black" size="lg" />
 
           <Input
             variant="unstyled"
@@ -28,7 +29,7 @@ export const EventSingleFieldInput = ({
             keyboardType={keyboardType}
             onBlur={() => setFocus(false)}
             onFocus={() => setFocus(true)}
-            width="95%"
+            width="93%"
           />
         </HStack>
         <Divider my="2" bg={focus ? 'orange.500' : 'gray.300'} />
