@@ -4,7 +4,7 @@ import {View, Divider, HStack, TextArea} from 'native-base';
 import {Icon} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 
-export const EventTextFieldInput = () => {
+export const EventTextFieldInput = ({ value, textHandler }) => {
   const [focus, setFocus] = useState();
 
   return (
@@ -30,6 +30,8 @@ export const EventTextFieldInput = () => {
               '\n' + '\n' + '\n' +
               '(Maximum 1000 characters)'
             }
+            value={value}
+            onChangeText={textHandler}
             onBlur={() => setFocus(false)}
             onFocus={() => setFocus(true)}
             _focus={{borderColor: '#00000000'}}

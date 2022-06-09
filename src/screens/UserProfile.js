@@ -13,7 +13,6 @@ import { color } from "native-base/lib/typescript/theme/styled-system";
 import { withSafeAreaInsets } from "react-native-safe-area-context";
 import { Warning } from "../components/basic/Warning";
 import { useAuth } from '../components/contexts/Auth';
-import AuthButton from "../components/auth/AuthButton";
 import { useNavigation, StackActions } from '@react-navigation/native';
 
 // import { useRef } from "react";
@@ -293,7 +292,7 @@ export const UserProfile = () => {
           Past Events Joined
         </Text>
         {checkPastEvents()}
-        <AuthButton onPressHandler={handleSignOut} title='Sign Out' isDisabled={loading} />
+        {/* <AuthButton onPressHandler={handleSignOut} title='Sign Out' isDisabled={loading} /> */}
       </VStack>
     </Wrapper>
   )

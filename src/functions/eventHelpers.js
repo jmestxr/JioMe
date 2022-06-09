@@ -50,7 +50,6 @@ export const getEventPicture = privateURL => {
     }
   } catch {
     alert(error.error_description || error.message);
-    return {uri: '../assets/logo.png'};
   }
 };
 

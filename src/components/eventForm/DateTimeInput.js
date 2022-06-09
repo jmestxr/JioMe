@@ -4,9 +4,9 @@ import {View, Input, Divider, HStack} from 'native-base';
 import {Icon} from 'native-base';
 import {Ionicons, MaterialIcons} from '@native-base/icons';
 
-export const DateTimeInput = ({ placeholder }) => {
+export const DateTimeInput = ({ placeholder, value, textHandler, onPressHandler }) => {
   return (
-    <TouchableOpacity activeOpacity={1} onPress={() => alert('boop')}>
+    <TouchableOpacity activeOpacity={1} onPress={onPressHandler}>
       <HStack
         paddingLeft="1%"
         paddingTop="1.5%"
@@ -20,6 +20,8 @@ export const DateTimeInput = ({ placeholder }) => {
           variant="unstyled"
           size="lg"
           placeholder={placeholder}
+          value={value}
+          onChangeText={textHandler}
           width="93%"
         />
       </HStack>

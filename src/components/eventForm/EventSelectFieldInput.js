@@ -8,9 +8,7 @@ import {
 import {Icon} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 
-export const EventSelectFieldInput = () => {
-  const [category, setCategory] = useState(''); // to store category chosen by user
-
+export const EventSelectFieldInput = ({ selectedValue, selectHandler }) => {
   return (
     <View>
       <HStack paddingLeft="1%" alignItems="center">
@@ -25,7 +23,7 @@ export const EventSelectFieldInput = () => {
           marginLeft= '0.5%'
           style={{transform: [{translateX: -1}, {translateY: -5}]}}
           borderColor="#00000000"
-          selectedValue={category}
+          selectedValue={selectedValue}
           borderWidth={1}
           placeholder="Category"
           size="lg"
@@ -33,7 +31,7 @@ export const EventSelectFieldInput = () => {
             bg: 'orange.200',
           }}
           mt={1}
-          onValueChange={itemValue => setCategory(itemValue)}>
+          onValueChange={itemValue => selectHandler(itemValue)}>
           <Select.Item label="Sports" value="sports" />
           <Select.Item label="Leisure" value="leisure" />
           <Select.Item label="Food" value="food" />

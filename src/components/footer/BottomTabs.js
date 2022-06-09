@@ -4,14 +4,9 @@ import { View, StyleSheet } from 'react-native';
 import TabIcon from "./TabIcon";
 import Dashboard from "../../screens/Dashboard";
 import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
-<<<<<<< HEAD
 import Wishlist from "../../screens/Wishlist";
-
-import EventFormStyle from "../../screens/EventFormStyle";
-=======
 import { UserProfile } from "../../screens/UserProfile";
-import { EventForm } from "../../screens/EventForm";
->>>>>>> userprof-and-createevent
+import EventForm from "../../screens/EventForm";
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (

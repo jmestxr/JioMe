@@ -6,6 +6,8 @@ import {Ionicons} from '@native-base/icons';
 
 export const EventSingleFieldInput = ({
   placeholder,
+  value,
+  textHandler,
   keyboardType = 'default',
   iconName,
 }) => {
@@ -26,6 +28,8 @@ export const EventSingleFieldInput = ({
             variant="unstyled"
             size="lg"
             placeholder={placeholder}
+            value={value}
+            onChangeText={textHandler}
             keyboardType={keyboardType}
             onBlur={() => setFocus(false)}
             onFocus={() => setFocus(true)}
