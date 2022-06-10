@@ -13,8 +13,6 @@ import {
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './src/components/contexts/Auth';
 
-import UserProfileStyle from './src/screens/UserProfileStyle';
-
 // LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 // LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -139,10 +137,6 @@ const App = () => {
               name="EventPage"
               component={EventPage}
               options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="UserProfileStyle"
-              component={UserProfileStyle}
             />
           </Stack.Navigator>
         </AuthProvider>

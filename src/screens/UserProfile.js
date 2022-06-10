@@ -1,257 +1,119 @@
-import React, { useState, useEffect } from "react";
-import { Wrapper } from "../components/basic/Wrapper";
-import { Text, VStack, Box, IconButton, HStack, Icon, Input, TextArea, ScrollView } from "native-base";
-import Avatar from "../components/basic/Avatar";
-import UploadButton from "../components/auth/UploadButton";
-import { supabase } from "../../supabaseClient";
-import { decode } from 'base64-arraybuffer'
-import { findLastValidBreakpoint, stylingProps } from "native-base/lib/typescript/theme/tools";
-import { ImageBackground, Image } from "react-native";
-import { MaterialIcons } from "@native-base/icons";
-import AuthTextInput from "../components/auth/AuthTextInput";
-import { color } from "native-base/lib/typescript/theme/styled-system";
-import { withSafeAreaInsets } from "react-native-safe-area-context";
-import { Warning } from "../components/basic/Warning";
-import { useAuth } from '../components/contexts/Auth';
+import React, {useState, useEffect} from 'react';
+import {
+  Avatar,
+  Center,
+  Text,
+  Icon,
+  HStack,
+  VStack,
+  View,
+  IconButton,
+} from 'native-base';
+import {MaterialIcons, FontAwesome} from '@native-base/icons';
+import {SpecialWrapper} from '../components/eventPage/SpecialWrapper';
+import Background from '../components/eventPage/Background';
+import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
+import {EssentialDetail} from '../components/basic/EssentialDetail';
+import {TouchableOpacity} from 'react-native';
+import {useAuth} from '../components/contexts/Auth';
+import {useIsFocused} from '@react-navigation/native';
+import {supabase} from '../../supabaseClient';
+import {decode} from 'base64-arraybuffer';
+import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
+import CustomButton from '../components/basic/CustomButton';
 import { useNavigation, StackActions } from '@react-navigation/native';
 
-// import { useRef } from "react";
-
-
-export const UserProfile = () => {
-  const { user } = useAuth();
-
-  const [loading, setLoading] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [avatar, setAvatar] = useState("")
-  const [username, setUsername] = useState("")
-  const [website, setWebsite] = useState("")
-  const [profileDescription, setProfileDescription] = useState("")
-  const [newProfDesc, setNewProfDesc] = useState("")
-  const [editing, setEditing] = useState(false)
-  // let editing = false;
+const UserProfile = () => {
+  const {user} = useAuth();
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
 
+  const [reRender, setReRender] = useState(1); // to rerender profile page (not the correct way to do so though)
+
+  const [profileDetails, setProfileDetails] = useState({
+    username: '',
+    avatar_url: '', // avatar private url
+    profile_description: '',
+  });
+
   useEffect(() => {
-    // let flag = true;
-    getProfile()
-  })
+    getProfileDetails();
+  }, [reRender, isFocused]);
 
-  const getProfile = async (e) => {
-      try {
-        // setLoading(true)
-
-        let { data, error } = await supabase
-          .from('profiles')
-          .select(`username, website, avatar_url, profile_description`)
-          .eq('id', user.id)
-          .single()
-
-        if (error) {
-          console.log(error)
-          // throw error
-        }
-        setProfile(data)
-      } catch (error) {
-        console.log('error', error.message)
-      } finally {
-        // setLoading(false)
-      }
-    }
-  
-
-  function setProfile(profile) {
-    const { publicURL, error } = supabase
-      .storage
-      .from('avatars')
-      .getPublicUrl(profile.avatar_url)
-    // console.log('public url is', publicURL)
-
-    setAvatar(publicURL)
-    setUsername(profile.username)
-    setWebsite(profile.website)
-    setProfileDescription(profile.profile_description)
-  }
-
-  const uploadAvatar = async (event) => {
-      try {
-        setUploading(true)
-
-        const base64FileData = event.data
-
-        const filePath = event.path;
-
-        let { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, decode(base64FileData))
-
-        if (uploadError) {
-          console.log(uploadError)
-          // throw uploadError
-        }
-
-        let { error: updateError } = await supabase.from('profiles').upsert({
-          id: user.id,
-          avatar_url: filePath,
-        })
-
-        if (updateError) {
-          console.log(updateError)
-          // throw updateError
-        }
-      } catch (error) {
-        alert(error.message)
-      } finally {
-        setUploading(false)
-      }
-    }
-  
-
-  // function checks whether to put the default avatar or given one
-  function checkAvatar() {
-    if (avatar == null || avatar == "") {
-      return <Avatar source={require('../assets/profile.png')} size={200} />
-      return <Image
-        style={{ width: 200, height: 200 }}
-        resizeMode={"contain"}
-        borderRadius={100}
-        source={require('../assets/profile.png')}
-      />
-    } else {
-      return <Avatar source={{ uri: avatar }} size={200} />
-      return <Image
-        source={{
-          uri: avatar
-        }}
-        style={{ height: 200, width: 200 }}
-        resizeMode={"contain"}
-        borderRadius={100}
-      />
-    }
-  }
-
-  // function checks whether to display the edit or save icon
-  function checkButtonIcon() {
-    if (editing) {
-      return <IconButton onPress={submitDescription} size="lg" _icon={{
-        as: MaterialIcons,
-        name: "save",
-        color: "#e8ab8b"
-      }} ></IconButton>
-    } else {
-      return <IconButton onPress={switchEditingState} size="lg" _icon={{
-        as: MaterialIcons,
-        name: "edit",
-        color: "#e8ab8b"
-      }} ></IconButton>
-    }
-  }
-
-  function switchEditingState() {
-    setNewProfDesc(profileDescription)
-    setEditing(!editing);
-  }
-
-  const submitDescription = async (e) => {
-    e.preventDefault()
-      if (newProfDesc.length > 200) {
-        alert('Your description is too long.')
-      } else {
-        const user = supabase.auth.user();
-        try {
-          setUploading(true)
-          let { error: updateError } = await supabase.from('profiles').upsert({
-            id: user.id,
-            profile_description: newProfDesc,
-          })
-          switchEditingState()
-          if (updateError) {
-            console.log(updateError)
-            // throw updateError
-          }
-        } catch (error) {
-          alert(error.message)
-        } finally {
-          setUploading(false)
-        }
-      }
-    }
-  
-
-  // function checks whether to display an editable description box
-  function checkDescriptionBox() {
-    // console.log('check desc')
-    if (editing) {
-      return <ScrollView><Box borderColor="#ea580c" borderWidth={7} width={300} height="150" bg="#e8ab8b" _text={{
-        fontSize: "md",
-        fontWeight: "medium",
-        letterSpacing: "lg"
-      }}
-      >
-        <TextArea
-          borderColor="#e8ab8b"
-          size='md'
-          h="full"
-          placeholder="Enter a New Description"
-          placeholderTextColor="black"
-          defaultValue={newProfDesc}
-          value={newProfDesc}
-          onChangeText={setNewProfDesc}
-          _text={{
-            fontSize: "md",
-            fontWeight: "medium",
-            letterSpacing: "lg",
-          }}
-        />
-      </Box>
-      </ScrollView>
-    } else {
-      return <ScrollView><Box borderColor="#e8ab8b" borderWidth={7} width={300} height={150} bg="#e8ab8b" _text={{
-        fontSize: "md",
-        fontWeight: "medium",
-        letterSpacing: "lg"
-      }}>
-        <ScrollView>
-          <Text>
-            {profileDescription}
-          </Text>
-        </ScrollView>
-      </Box>
-      </ScrollView>
-    }
-  }
-
-  // function checks how many characters they can input
-  function checkCharacters() {
-    if (editing) {
-      let remaining = 200 - newProfDesc.length;
-      return <Warning warningMessage={remaining < 0 ? "Description is too long" : remaining + " characters remaining."} />
-    }
-  }
-
-  // function arranges the past events
-  function checkPastEvents() {
-    return <ScrollView><Box borderColor="#e8ab8b" borderWidth={7} width={300} height={150} bg="#e8ab8b" _text={{
-      fontSize: "md",
-      fontWeight: "medium",
-      letterSpacing: "lg"
-    }}>
-    </Box>
-    </ScrollView>
-  }
-
-  const handleSignOut = async (e) => {
-    // e.preventDefault()
-
+  const getProfileDetails = async e => {
     try {
-      setLoading(true)
-      const pushAction = StackActions.push('SignIn');
-      navigation.dispatch(pushAction)
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        alert('Error signing out')
-      } else {
+      // setLoading(true)
 
+      let {data, error} = await supabase
+        .from('profiles')
+        .select(`username, avatar_url, profile_description`)
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setProfileDetails(data);
+      }
+    } catch (error) {
+      console.log('error', error.message);
+    } finally {
+      // setLoading(false)
+    }
+  };
+
+  const handleUploadAvatar = async image => {
+    try {
+      //   setUploading(true)
+
+      const base64FileData = image.data;
+
+      const filePath = image.path;
+
+      let {error: uploadError} = await supabase.storage
+        .from('avatars')
+        .upload(filePath, decode(base64FileData));
+
+      if (uploadError) throw uploadError;
+
+      let {error: updateError} = await supabase.from('profiles').upsert({
+        id: user.id,
+        avatar_url: filePath,
+      });
+
+      if (updateError) throw updateError;
+    } catch (error) {
+      setReRender(reRender * -1); // to render the existing avatar again
+      console.log(error.message);
+      alert('Error in uploading profile picture!');
+    } finally {
+      //   setUploading(false)
+    }
+  };
+
+  const getAvatarPrivateUrl = () => {
+    try {
+      if (profileDetails.avatar_url == '') return '';
+
+      const {publicURL, error} = supabase.storage
+        .from('avatars')
+        .getPublicUrl(profileDetails.avatar_url);
+      if (error) throw error;
+      if (publicURL) return publicURL;
+    } catch (error) {
+      alert(error.error_description || error.message);
+    }
+  };
+
+  const handleSignOut = async e => {
+    // e.preventDefault()
+    try {
+      // setLoading(true)
+      const {error} = await supabase.auth.signOut();
+      if (error) {
+        alert('Error signing out');
+      } else {
+        const pushAction = StackActions.push('SignIn');
+        navigation.dispatch(pushAction);
       }
       // setUploading(false)
       // setAvatar("")
@@ -260,40 +122,99 @@ export const UserProfile = () => {
       // setProfileDescription("")
       // setNewProfDesc("")
       // setEditing(false)
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
-      setLoading(false)
-
+      // setLoading(false)
     }
-  }
-  return (
-    <Wrapper>
-      <VStack space={4} alignItems='center'>
-        {checkAvatar()}
-        <UploadButton onUpload={uploadAvatar} height={300} width={300}/>
-        <Text fontSize='3xl' alignItems='center' bold={true}>
-          {username}
-        </Text>
-        <HStack alignItems='center'>
-          {/* Invisible icon */}
-          <Icon size="5xl" _icon={{
+  };
 
-          }} ></Icon>
-          <Text fontSize='xl' alignItems='center'>
-            Description
+  return (
+    <SpecialWrapper>
+      <Background fromColor="#a1a1aa" toColor="#f2f2f2">
+        <IconButton
+          position="absolute"
+          style={{transform: [{translateX: 350}, {translateY: 5}]}}
+          bgColor="gray.300:alpha.50"
+          icon={<Icon as={MaterialIcons} name="edit" color="gray.600" />}
+          borderRadius="full"
+          _icon={{
+            size: 'xl',
+          }}
+          _hover={{
+            bg: 'gray.300:alpha.20',
+          }}
+          _pressed={{
+            bg: 'gray.300:alpha.20',
+          }}
+          onPress={() => alert('Edit description?')}
+        />
+        <Center paddingTop="15%">
+          <ProfileAvatar
+            imageInputHandler={handleUploadAvatar}
+            existingAvatarUrl={getAvatarPrivateUrl()}
+            reRender={reRender}
+          />
+
+          <Text marginTop="2%" fontSize="2xl">
+            {profileDetails.username}
           </Text>
-          {checkButtonIcon()}
-        </HStack>
-        {checkDescriptionBox()}
-        {checkCharacters()}
-        <Text fontSize='xl' alignItems='center'>
-          Past Events Joined
+          <Text color="gray.600" maxWidth="50%" italic>
+            {'"' + profileDetails.profile_description + '"'}
+          </Text>
+
+          <View flexDirection="row" marginTop="5%">
+            <HStack justifyContent="space-evenly">
+              <EssentialDetail
+                width="45%"
+                iconName="mail-outline"
+                iconColor="gray.800">
+                <Text textAlign="center">tan_xing_rong@hotmail.com</Text>
+              </EssentialDetail>
+
+              <EssentialDetail
+                width="45%"
+                iconName="call-outline"
+                iconColor="gray.800">
+                <Text textAlign="center">+65 9742 8002</Text>
+              </EssentialDetail>
+            </HStack>
+          </View>
+        </Center>
+      </Background>
+
+      <VStack space={3} marginTop="10%" padding="5%">
+        <Text fontWeight="medium" fontSize="lg">
+          Past Events Joined:
         </Text>
-        {checkPastEvents()}
-        {/* <AuthButton onPressHandler={handleSignOut} title='Sign Out' isDisabled={loading} /> */}
+        {/* To render past events in avatar form: */}
+        {/* <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
+          <TouchableOpacity activeOpacity={0.8} style={{padding: '1%'}}>
+            <Avatar size="lg">PE</Avatar>
+          </TouchableOpacity>
+        </HStack> */}
+
+        <ZeroEventCard
+          imagePath={require('../assets/baby.png')}
+          imageWidth={150}
+          imageHeight={150}
+          textMessage={
+            'You have not completed any events.' + '\n' + 'Join one now!'
+          }
+        />
       </VStack>
-    </Wrapper>
-  )
-}
+
+      <Center>
+        <CustomButton
+          title="Sign Out"
+          width="25%"
+          color="#f97316" // orange.500
+          onPressHandler={handleSignOut}
+          // isDisabled={loading}
+        />
+      </Center>
+    </SpecialWrapper>
+  );
+};
+
+export default UserProfile;
