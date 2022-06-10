@@ -53,9 +53,37 @@ export const getEventPicture = privateURL => {
   }
 };
 
+export const handleJoinEvent = async (userId, eventId) => {
+  try {
+    const {data, error} = await supabase
+      .from('user_joinedevents')
+      .insert([{user_id: userId, event_id: eventId}]);
+    if (error) throw error;
+    if (data) {
+      alert('You have joined this event.')
+    }
+  } catch (error) {
+    alert(error.error_description || error.message);
+  }
+};
+
+export const handleQuitEvent = async (userId, eventId) => {
+  try {
+    const {data, error} = await supabase
+      .from('user_joinedevents')
+      .delete()
+      .match({user_id: userId, event_id: eventId});
+    if (error) throw error;
+    if (data) {
+      alert('You have quitted this event.')
+    }
+  } catch (error) {
+    alert(error.error_description || error.message);
+  }
+};
+
+
 /* TODO: 
-    handleJoinEvent(participantId, eventId)
-    handleQuitEvent(participantId, eventId) 
     handleDeleteEvent(organiserId, eventId) 
     
     * abstract common

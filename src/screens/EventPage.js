@@ -15,6 +15,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useAuth } from "../components/contexts/Auth";
 
 import { handleLikeEvent, handleUnlikeEvent, getEventPicture } from "../functions/eventHelpers";
+import { handleJoinEvent } from "../functions/eventHelpers";
 
 
 const windowHeight = Dimensions.get('window').height;
@@ -258,7 +259,7 @@ const EventPage = ({ route }) => {
                     title='Join Now!' 
                     width='100%' 
                     color='#f97316'// orange.500
-                    onPressHandler={() => alert("Join Event?")}
+                    onPressHandler={handleJoinEvent}
                     isDisabled={false}
                 />
             </VStack>
