@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Dimensions, ImageBackground, StyleSheet} from 'react-native';
 import { Text, View, Icon, IconButton, HStack, VStack} from "native-base";
 import { SpecialWrapper } from "../components/eventPage/SpecialWrapper";
+import { EssentialDetail } from "../components/basic/EssentialDetail";
 import { Detail } from "../components/eventPage/Detail";
 import CustomButton from "../components/basic/CustomButton";
 import { TextCollapsible } from "../components/eventPage/TextCollapsible";
@@ -178,21 +179,21 @@ const EventPage = ({ route }) => {
 
     return (
         <SpecialWrapper>
-            <ImageBackground style={{backgroundColor:'#fb923c'}}>
+            <ImageBackground style={{backgroundColor:'#f97316'}}>
                 <View width='100%' alignItems='center'>
                     <ImageBackground
                         style={{height:windowHeight*0.35, width:'100%'}}
                         source={getEventPicture(eventDetails.picture_url)}
                     >
                         <LinearGradient 
-                            colors={['#00000000', '#fb923c']} 
+                            colors={['#00000000', '#f97316']} 
                             style={{height : '100%', width : '100%'}}>
                         </LinearGradient>
                         <IconButton position='absolute' style={{transform:[{translateX:350}, {translateY:5}]}} bgColor='gray.300:alpha.50'
                             icon={<Icon as={MaterialIcons} name={liked ? 'favorite' : 'favorite-outline'} color={liked ? 'red.500' : 'white'} />}
                             borderRadius="full"
                             _icon={{
-                                size: "2xl"
+                                size: "xl"
                             }} 
                             _hover={{
                             bg: "red.300:alpha.20",
@@ -205,35 +206,42 @@ const EventPage = ({ route }) => {
                         />
                     </ImageBackground>
 
-                    <View alignItems='center' style={{transform:[{translateY:-50}]}}>
-                        <View style={styles.eventTitle} bgColor='white' shadow={5}>
-                            <Text textAlign='center' fontSize='2xl' color='gray.600'>{eventDetails.title}</Text>
+                    <View alignItems='center'>
+                        <View style={styles.eventTitle} bgColor='white'>
+                            <Text textAlign='center' fontSize='2xl'>{eventDetails.title}</Text>
                         </View>   
                     </View>
                 </View>
 
-                <View style={{transform:[{translateY:-20}]}} padding='3%'>
+                <View marginTop='5%' marginBottom='3%'  padding='3%'>
                     <HStack justifyContent='space-between'>
-                        <VStack space={2} width='30%' alignItems='center'>
-                            <Icon as={Ionicons} name='location' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>{eventDetails.location}</Text>
-                        </VStack>
-                
-                        <VStack space={2} width='30%' alignItems='center'>
-                            <Icon as={Ionicons} name='time' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>{datetimePeriod.day}</Text>
-                            <Text color='gray.100' textAlign='center'>{datetimePeriod.date}</Text>
-                            <Text color='gray.100' textAlign='center'>{datetimePeriod.time}</Text>
-                        </VStack>
+                        <EssentialDetail 
+                            width='30%'
+                            iconName='location'
+                            iconColor='white'>
+                             <Text color='white' textAlign="center">{eventDetails.location}</Text>
+                        </EssentialDetail>
 
-                        <VStack space={2} width='30%' alignItems='center'>
-                            <Icon as={Ionicons} name='people' color='white' size={65} />
-                            <Text color='gray.100' textAlign='center'>
+                        <EssentialDetail 
+                            width='30%'
+                            iconName='time'
+                            iconColor='white'>
+                            <Text color='white' textAlign='center'>{datetimePeriod.day}</Text>
+                            <Text color='white' textAlign='center'>{datetimePeriod.date}</Text>
+                            <Text color='white' textAlign='center'>{datetimePeriod.time}</Text>
+                        </EssentialDetail>
+                        
+                        <EssentialDetail 
+                            width='30%'
+                            iconName='people'
+                            iconColor='white'>
+                            <Text color='white' textAlign='center'>
                                 {formatAvailCapacity(currCapacity, eventDetails.max_capacity)}
                             </Text>
-                        </VStack>
+                        </EssentialDetail>
                     </HStack>       
                 </View>
+                
 
             </ImageBackground>
 
@@ -264,10 +272,10 @@ const EventPage = ({ route }) => {
 const styles = StyleSheet.create({
     eventTitle:{
         maxWidth:'80%', 
-        paddingTop:'2%',
-        paddingBottom:'2%',
-        paddingLeft:'5%',
-        paddingRight:'5%',
+        paddingTop:'3%',
+        paddingBottom:'3%',
+        paddingLeft:'7%',
+        paddingRight:'7%',
         alignSelf:'flex-start',
     }
 

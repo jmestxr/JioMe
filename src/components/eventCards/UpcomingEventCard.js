@@ -11,17 +11,17 @@ export const UpcomingEventCard = ({ name, location, daysToEvent, onPressHandler 
         isFocused,
         isPressed
     }) => {
-        return <View borderRadius={5} bgColor={isPressed ? "gray.200" : isHovered ? "gray.200" : "gray.200:alpha.40"}>
-            <Text fontSize='md' fontWeight='medium' textAlign='right' paddingTop='3%' paddingRight='3%'>{name}</Text>
+        return <View bgColor={isPressed ? "gray.200" : isHovered ? "gray.200" : "gray.200:alpha.40"}>
+            <Text fontSize='md' textAlign='right' paddingTop='3%' paddingRight='3%'>{name}</Text>
             <VStack marginTop='3%'>
                 <HStack space={2} padding='2%' alignItems='center'>
-                        <Icon as={Ionicons} name={isPressed ? "location" : isHovered ? "location" :'location-outline'} color={isPressed ? "orange.600:alpha.70" : isHovered ? "orange.600" :'orange.600'} size='2xl' />
-                        <Text color='gray.600' fontWeight='medium' flex={1} flexWrap='wrap'>{location}</Text>
+                        <Icon as={Ionicons} name='location-outline' color='orange.600' size='2xl' />
+                        <Text flex={1} flexWrap='wrap'>{location}</Text>
                 </HStack>
                 <HStack space={2} padding='2%' alignItems='center'>
-                        <Icon as={Ionicons} name={isPressed ? "alarm" : isHovered ? "alarm" :'alarm-outline'} color={isPressed ? "orange.600:alpha.70" : isHovered ? "orange.600" :'orange.600'} size='2xl' />
+                        <Icon as={Ionicons} name='alarm-outline' color='orange.600' size='2xl' />
                         {/* TODO: reminder of days to event; hours if 24h prior */}
-                        <Text color='gray.600' fontWeight='medium' flex={1} flexWrap='wrap'>Starts in {daysToEvent} time</Text>
+                        <Text flex={1} flexWrap='wrap'>Starts in {daysToEvent} time</Text>
                 </HStack>
             </VStack>
             <UpcomingEventCardButtons />

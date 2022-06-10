@@ -68,12 +68,14 @@ const Dashboard = () => {
             </HStack>
  
             <View width='100%' alignItems='center' marginTop='15%'>
-                <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
+                <Text fontSize="lg" fontWeight='medium' marginBottom='3%'>
                     You have {upcomingEventsDetails.length == 0 ? 'no' : upcomingEventsDetails.length} upcoming events.
                 </Text>
                 {upcomingEventsDetails.length == 0 ? 
                     <ZeroEventCard 
                         imagePath={require('../assets/joined_colored.png')} 
+                        imageWidth={225}
+                        imageHeight={225}
                         textMessage={'Events you have joined will be' + '\n' + 'displayed here.'} /> 
                     : 
                     <VStack width='90%' space={4} alignItems='center'>

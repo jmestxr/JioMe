@@ -185,7 +185,7 @@ const EventForm = () => {
 
   return (
     <Wrapper>
-      <HeaderTitle title="New Event" />
+      {/* <HeaderTitle title="New Event" /> */}
 
       <EventPictureInput
         imageInputHandler={image => setEventDetail('eventPicture', image)}

@@ -99,15 +99,17 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
 
     return (loading ? <Loading /> : ( 
             <Wrapper>
-                <HeaderTitle title="My Liked Events" />
+                {/* <HeaderTitle title="My Liked Events" /> */}
                 
                 <View width='100%' alignItems='center' marginTop='5%'>
-                    <Text fontSize="lg" fontWeight='semibold' marginBottom='3%'>
+                    <Text fontSize="lg" fontWeight='medium' marginBottom='3%'>
                         You have {likedEventsDetails.length == 0 ? 'no' : likedEventsDetails.length} liked events.
                     </Text>
                     {likedEventsDetails.length == 0 ? 
                         <ZeroEventCard 
                             imagePath={require('../assets/liked_colored.png')} 
+                            imageWidth={225}
+                            imageHeight={225}
                             textMessage={'Events you have liked will be' + '\n' + 'displayed here.'} /> 
                         :
                         <VStack width='100%' space={4}>

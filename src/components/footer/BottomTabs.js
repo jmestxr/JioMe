@@ -7,6 +7,7 @@ import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
 import Wishlist from "../../screens/Wishlist";
 import { UserProfile } from "../../screens/UserProfile";
 import EventForm from "../../screens/EventForm";
+import UserProfileStyle from "../../screens/UserProfileStyle";
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
@@ -104,7 +105,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={UserProfile}
+        component={UserProfileStyle}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: TabIcon({tabName: 'Profile', iconName:'face'})

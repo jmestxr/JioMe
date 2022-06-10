@@ -57,8 +57,7 @@ export const TextCollapsible = ({longText}) => {
       <TouchableOpacity activeOpacity={1} onPress={toggleNumberOfLines}>
         <Text
           onTextLayout={onTextLayout}
-          numberOfLines={textShown ? undefined : 4}
-          color="gray.600">
+          numberOfLines={textShown ? undefined : 4}>
           {longText}
         </Text>
 

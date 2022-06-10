@@ -1,21 +1,20 @@
 import React from 'react';
 import {Image} from 'react-native';
-import {View, Text} from 'native-base';
+import {Text, Center} from 'native-base';
 
 export const ZeroEventCard = props => {
-  const {imagePath, textMessage} = props;
+  const {imagePath, imageWidth, imageHeight, textMessage} = props;
 
   return (
-    <View marginTop="15%">
-      <Image style={{width: 225, height: 225, opacity:0.6}} source={imagePath} />
+    <Center marginTop='3%'>
+      <Image style={{width: imageWidth, height: imageHeight, opacity:0.8}} source={imagePath} />
       <Text
-        color='gray.600'
-        fontSize="md"
-        fontWeight='semibold'
         textAlign="center"
+        fontSize='md'
+        fontWeight="medium"
         marginTop="5%">
         {textMessage}
       </Text>
-    </View>
+    </Center>
   );
 };

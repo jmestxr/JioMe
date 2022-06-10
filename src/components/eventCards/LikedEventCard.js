@@ -45,7 +45,6 @@ export const LikedEventCard = props => {
             <View flex={1} padding="1%">
               <Text
                 fontSize="md"
-                fontWeight="medium"
                 textAlign="right"
                 padding="3%"
                 paddingBottom="0%">
@@ -54,14 +53,12 @@ export const LikedEventCard = props => {
               <HStack space={2} padding="3%" alignItems="center">
                 <Icon
                   as={Ionicons}
-                  name="location"
-                  color="orange.600:alpha.70"
+                  name="location-outline"
+                  color="orange.600"
                   size="xl"
                 />
                 <Text
                   fontSize="xs"
-                  color="gray.600"
-                  fontWeight="medium"
                   flex={1}
                   flexWrap="wrap"
                   numberOfLines={1}>
@@ -71,14 +68,12 @@ export const LikedEventCard = props => {
               <HStack space={2} padding="3%" alignItems="center">
                 <Icon
                   as={Ionicons}
-                  name="time"
-                  color="orange.600:alpha.70"
+                  name="time-outline"
+                  color="orange.600"
                   size="xl"
                 />
                 <Text
                   fontSize="xs"
-                  color="gray.600"
-                  fontWeight="medium"
                   flex={1}
                   flexWrap="wrap">
                   {time}
@@ -87,14 +82,12 @@ export const LikedEventCard = props => {
               <HStack space={2} padding="3%" alignItems="center">
                 <Icon
                   as={Ionicons}
-                  name="people"
-                  color="orange.600:alpha.70"
+                  name="people-outline"
+                  color="orange.600"
                   size="xl"
                 />
                 <Text
                   fontSize="xs"
-                  color="gray.600"
-                  fontWeight="medium"
                   flex={1}
                   flexWrap="wrap">
                   {capacity}
@@ -115,11 +108,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flex: 1,
-    borderTopLeftRadius: 5, // must be same as parent's borderRadius
-    borderBottomLeftRadius: 5, // must be same as parent's borderRadius
   },
   cardView: {
     flexDirection: 'row',
-    borderRadius: 5,
   },
 });
