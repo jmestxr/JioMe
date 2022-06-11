@@ -3,7 +3,7 @@ import { useDisclose, Stagger, IconButton, Icon, HStack, Center } from "native-b
 import {MaterialIcons, Ionicons} from '@native-base/icons';
 
 export const LikedEventCardButtons = (props) => {
-  const { unlikeHandler } = props;
+  const { unlikeHandler, joinEventHandler } = props;
 
     const {
       isOpen,
@@ -58,7 +58,7 @@ export const LikedEventCardButtons = (props) => {
               colorScheme="emerald" 
               borderRadius="full" 
               icon={<Icon as={MaterialIcons} size='xs' name="person-add" color="white" />}
-              onPress={() => alert("Join event?")}
+              onPress={joinEventHandler}
               />
           </Stagger>
 

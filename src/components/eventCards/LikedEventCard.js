@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import { getEventPicture } from '../../functions/eventHelpers';
 
 export const LikedEventCard = props => {
-  const {eventId, pictureURL, title, location, time, capacity, unlikeHandler} = props;
+  const {eventId, pictureURL, title, location, time, capacity, unlikeHandler, joinEventHandler} = props;
 
   const navigation = useNavigation();
 
@@ -95,7 +95,7 @@ export const LikedEventCard = props => {
               </HStack>
             </View>
 
-            <LikedEventCardButtons unlikeHandler={unlikeHandler} />
+            <LikedEventCardButtons unlikeHandler={unlikeHandler} joinEventHandler={joinEventHandler} />
           </View>
         );
       }}

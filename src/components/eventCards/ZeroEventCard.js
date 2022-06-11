@@ -11,7 +11,6 @@ export const ZeroEventCard = props => {
       <Text
         textAlign="center"
         fontSize='md'
-        fontWeight="medium"
         marginTop="5%">
         {textMessage}
       </Text>

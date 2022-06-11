@@ -9,7 +9,7 @@ import { useAuth } from "../components/contexts/Auth";
 import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
-import { handleUnlikeEvent } from "../functions/eventHelpers";
+import { handleUnlikeEvent, handleJoinEvent } from "../functions/eventHelpers";
 
 
 
@@ -63,9 +63,12 @@ const Wishlist = () => {
 
 // To unlike an event given its id
 const unLikeEventHandler = async (eventId) => {
-    handleUnlikeEvent(user.id, eventId).then(() => getLikedEventsDetails()).then(() => {
-        alert('Removed event from wishlist.');
-    });
+    handleUnlikeEvent(user.id, eventId).then(() => getLikedEventsDetails());
+}
+
+// To join an event given its id
+const joinEventHandler = async (eventId) => {
+    handleJoinEvent(user.id, eventId);
 }
 
 const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
@@ -125,6 +128,7 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
                                             unlikeHandler={() => {        
                                                 unLikeEventHandler(detail.id);
                                             }}
+                                            joinEventHandler={() => joinEventHandler(detail.id)}
                                         />
                             })}
                         </VStack>

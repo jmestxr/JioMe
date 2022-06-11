@@ -4,14 +4,14 @@ import { Wrapper } from "../components/basic/Wrapper";
 import { UpcomingEventCard } from "../components/eventCards/UpcomingEventCard";
 import { ZeroEventCard } from "../components/eventCards/ZeroEventCard";
 import { Loading } from "../components/basic/Loading";
-import { useNavigation } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
 import { useAuth } from "../components/contexts/Auth";
 import { supabase } from "../../supabaseClient";
 
+import { handleQuitEvent } from "../functions/eventHelpers";
+
 
 const Dashboard = () => {
-    const navigation = useNavigation(); 
     const isFocused = useIsFocused();
     const { user } = useAuth()
 
@@ -58,6 +58,11 @@ const Dashboard = () => {
             }
     }
 
+    // To unlike an event given its id
+    const quitEventHandler = async (eventId) => {
+        handleQuitEvent(user.id, eventId).then(() => getUpcomingEventsDetails());
+    }
+
     return (loading ? <Loading /> : ( 
         <Wrapper>
             <HStack justifyContent='space-between' alignItems='center'>
@@ -82,13 +87,11 @@ const Dashboard = () => {
                         {upcomingEventsDetails.map((detail, index) => {
                             return <UpcomingEventCard 
                                         key={index}
+                                        id={detail.id}
                                         name={detail.title}
                                         location={detail.location} 
                                         daysToEvent='3 days' 
-                                        onPressHandler={() => navigation.navigate('EventPage',  {
-                                            eventId: detail.id
-                                            }
-                                        )}
+                                        quitEventHandler={() => quitEventHandler(detail.id)}
                                     />
                         })}
                     </VStack>

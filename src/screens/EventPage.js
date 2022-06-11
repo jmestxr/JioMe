@@ -259,7 +259,7 @@ const EventPage = ({ route }) => {
                     title='Join Now!' 
                     width='100%' 
                     color='#f97316'// orange.500
-                    onPressHandler={handleJoinEvent}
+                    onPressHandler={() => handleJoinEvent(user.id, eventId)}
                     isDisabled={false}
                 />
             </VStack>

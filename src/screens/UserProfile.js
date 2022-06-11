@@ -9,7 +9,7 @@ import {
   View,
   IconButton,
 } from 'native-base';
-import {MaterialIcons, FontAwesome} from '@native-base/icons';
+import {MaterialIcons} from '@native-base/icons';
 import {SpecialWrapper} from '../components/eventPage/SpecialWrapper';
 import Background from '../components/eventPage/Background';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
@@ -21,7 +21,7 @@ import {supabase} from '../../supabaseClient';
 import {decode} from 'base64-arraybuffer';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import CustomButton from '../components/basic/CustomButton';
-import { useNavigation, StackActions } from '@react-navigation/native';
+import {useNavigation, StackActions} from '@react-navigation/native';
 
 const UserProfile = () => {
   const {user} = useAuth();
