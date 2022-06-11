@@ -4,6 +4,7 @@ import { Center, VStack, Text } from 'native-base';
 import { Warning } from '../components/basic/Warning';
 import CustomButton from '../components/basic/CustomButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
+import { FocusAwareStatusBar } from '../components/basic/FocusAwareStatusBar';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import { useAuth } from '../components/contexts/Auth';
 import { supabase } from '../../supabaseClient';
@@ -107,6 +108,7 @@ const SignUpPage = () => {
 
     return (
             <Center height='100%' width='100%'>
+                <FocusAwareStatusBar barStyle="dark-content" backgroundColor='#f2f2f2' />
                 <Image 
                     style={{width: 225, height: 225}}
                     source={require('../assets/logo.png')} 

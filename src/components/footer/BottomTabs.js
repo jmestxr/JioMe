@@ -1,18 +1,19 @@
-import React from "react";
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet } from 'react-native';
-import TabIcon from "./TabIcon";
-import Dashboard from "../../screens/Dashboard";
-import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
-import Wishlist from "../../screens/Wishlist";
-import EventForm from "../../screens/EventForm";
-import UserProfile from "../../screens/UserProfile";
+import React from 'react';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {View, StyleSheet} from 'react-native';
+import TabIcon from './TabIcon';
+import Dashboard from '../../screens/Dashboard';
+import {PlaceholderScreen} from '../../screens/PlaceholderScreen';
+import Wishlist from '../../screens/Wishlist';
+import EventForm from '../../screens/EventForm';
+import UserProfile from '../../screens/UserProfile';
+import EventPage from '../../screens/EventPage';
 
-const CustomTabBar = ({ state, descriptors, navigation }) => {
+const CustomTabBar = ({state, descriptors, navigation}) => {
   return (
     <View style={styles.bar}>
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
+        const {options} = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
@@ -33,7 +34,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
           if (!isFocused && !event.defaultPrevented) {
             // The `merge: true` option makes sure that the params inside the tab screen are preserved
-            navigation.navigate({ name: route.name, merge: true });
+            navigation.navigate({name: route.name, merge: true});
           }
         };
 
@@ -44,46 +45,43 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           });
         };
 
-        return (
-            <BarIcon 
-              color={isFocused ? 'orange.600' : 'gray.600'}
-              onPressHandler={onPress}
-              onLongPressHandler={onLongPress}
-            />
+        return route.name == 'EventPage' ? null : (
+          <BarIcon
+            color={isFocused ? 'orange.600' : 'gray.600'}
+            onPressHandler={onPress}
+            onLongPressHandler={onLongPress}
+          />
         );
       })}
     </View>
   );
-}
-
+};
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
   return (
-    <Tab.Navigator 
-    tabBar={props => <CustomTabBar {...props} />}
-    screenOptions={{
-        headerShown:false,
-        
-      }}
-     >
-       <Tab.Screen
+    <Tab.Navigator
+      tabBar={props => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Tab.Screen
         name="Home"
         component={Dashboard}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: TabIcon({tabName: 'Home', iconName:'home'})
-          }}
-        />
+          tabBarIcon: TabIcon({tabName: 'Home', iconName: 'home'}),
+        }}
+      />
 
       <Tab.Screen
         name="Marketplace"
         component={PlaceholderScreen}
         options={{
           tabBarLabel: 'Marketplace',
-          tabBarIcon: TabIcon({tabName: 'Marketplace', iconName:'store'}),
-          title:'Marketplace'
+          tabBarIcon: TabIcon({tabName: 'Marketplace', iconName: 'store'}),
+          title: 'Marketplace',
         }}
       />
       <Tab.Screen
@@ -91,7 +89,7 @@ const BottomTabs = () => {
         component={EventForm}
         options={{
           tabBarLabel: 'Create Event',
-          tabBarIcon: TabIcon({tabName: 'New Event', iconName:'create'})
+          tabBarIcon: TabIcon({tabName: 'New Event', iconName: 'create'}),
         }}
       />
       <Tab.Screen
@@ -99,7 +97,7 @@ const BottomTabs = () => {
         component={Wishlist}
         options={{
           tabBarLabel: 'Liked Events',
-          tabBarIcon: TabIcon({tabName: 'Wishlist', iconName:'favorite'})
+          tabBarIcon: TabIcon({tabName: 'Wishlist', iconName: 'favorite'}),
         }}
       />
       <Tab.Screen
@@ -107,25 +105,33 @@ const BottomTabs = () => {
         component={UserProfile}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: TabIcon({tabName: 'Profile', iconName:'face'})
+          tabBarIcon: TabIcon({tabName: 'Profile', iconName: 'face'}),
+        }}
+      />
+      <Tab.Screen
+        name="EventPage"
+        component={EventPage}
+        options={{
+          tabBarLabel: undefined,
+          tabBarIcon: undefined,
         }}
       />
     </Tab.Navigator>
   );
-}
+};
 
 const styles = StyleSheet.create({
   bar: {
-    flexDirection:'row', 
-    justifyContent:'space-around',
-    alignItems:'center',
-    backgroundColor:'#f2f2f2', 
-    height:'10%', 
-    borderTopLeftRadius:30,
-    borderTopRightRadius:30,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    height: '10%',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     elevation: 8, // shadow for android
     // overflow: 'hidden'
-  }
+  },
 });
 
 export default BottomTabs;

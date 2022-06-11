@@ -5,7 +5,7 @@ import { HeaderTitle } from "../components/basic/HeaderTitle";
 
 export const PlaceholderScreen = () => { 
     return (
-        <Wrapper>
+        <Wrapper statusBarColor='#ea580c'>
             <HeaderTitle title="Placeholder title" />
         </Wrapper>
     )

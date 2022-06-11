@@ -64,7 +64,7 @@ const Dashboard = () => {
     }
 
     return (loading ? <Loading /> : ( 
-        <Wrapper>
+        <Wrapper contentViewStyle={{width:'95%', paddingTop:'3%'}} statusBarColor='#ea580c'>
             <HStack justifyContent='space-between' alignItems='center'>
                 <Text fontSize="2xl">Welcome back, {"\n"} {username}!</Text>
                 <Avatar bg="gray.300" size="xl" marginRight="3%" source={{uri: ''}}>

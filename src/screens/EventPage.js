@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Dimensions, ImageBackground, StyleSheet} from 'react-native';
-import { Text, View, Icon, IconButton, HStack, VStack} from "native-base";
-import { SpecialWrapper } from "../components/eventPage/SpecialWrapper";
+import { Text, View, Icon, IconButton, HStack, VStack, Center} from "native-base";
+import { Wrapper } from "../components/basic/Wrapper";
 import { EssentialDetail } from "../components/basic/EssentialDetail";
 import { Detail } from "../components/eventPage/Detail";
 import CustomButton from "../components/basic/CustomButton";
@@ -179,7 +179,7 @@ const EventPage = ({ route }) => {
 
 
     return (
-        <SpecialWrapper>
+        <Wrapper contentViewStyle={{width:'100%'}} statusBarColor='#f97316'>
             <ImageBackground style={{backgroundColor:'#f97316'}}>
                 <View width='100%' alignItems='center'>
                     <ImageBackground
@@ -254,16 +254,17 @@ const EventPage = ({ route }) => {
                 <Detail title="Participants">
                     <AvatarsCollapsible avatarUrls={participantsAvatars} />
                 </Detail>
-
+            </VStack>
+            
+            <Center>
                 <CustomButton 
                     title='Join Now!' 
-                    width='100%' 
+                    width='95%' 
                     color='#f97316'// orange.500
                     onPressHandler={() => handleJoinEvent(user.id, eventId)}
-                    isDisabled={false}
-                />
-            </VStack>
-        </SpecialWrapper>
+                    isDisabled={false}/>
+            </Center>
+        </Wrapper>
 
 
 

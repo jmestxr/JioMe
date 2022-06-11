@@ -3,6 +3,7 @@ import { Image } from 'react-native';
 import { Center, VStack, Text } from 'native-base';
 import CustomButton from '../components/basic/CustomButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
+import { FocusAwareStatusBar } from '../components/basic/FocusAwareStatusBar';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import { useAuth } from '../components/contexts/Auth';
 
@@ -40,6 +41,7 @@ const SignInPage = () => {
         
     return (
         <Center height='100%' width='100%'>
+                <FocusAwareStatusBar barStyle="dark-content" backgroundColor='#f2f2f2' />
                 <Image 
                     style={{width: 225, height: 225, marginBottom:'0%'}}
                     source={require('../assets/logo.png')} 

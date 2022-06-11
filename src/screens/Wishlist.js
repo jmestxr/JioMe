@@ -101,7 +101,7 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
 
 
     return (loading ? <Loading /> : ( 
-            <Wrapper>
+            <Wrapper contentViewStyle={{width:'95%', paddingTop:'3%'}} statusBarColor='#ea580c'>
                 {/* <HeaderTitle title="My Liked Events" /> */}
                 
                 <View width='100%' alignItems='center' marginTop='5%'>

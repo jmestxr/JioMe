@@ -184,14 +184,16 @@ const EventForm = () => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper
+      contentViewStyle={{width: '95%', paddingTop: '3%'}}
+      statusBarColor="#ea580c">
       {/* <HeaderTitle title="New Event" /> */}
 
       <EventPictureInput
         imageInputHandler={image => setEventDetail('eventPicture', image)}
       />
 
-      <VStack marginTop="2%">
+      <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
         <EventSingleFieldInput
           placeholder="Title"
           value={eventDetails.title}

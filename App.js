@@ -1,11 +1,10 @@
 import 'react-native-url-polyfill/auto';
 import React from 'react';
 import {LogBox} from 'react-native';
-import {NativeBaseProvider, extendTheme} from 'native-base';
+import {NativeBaseProvider, extendTheme, View} from 'native-base';
 import SignInPage from './src/screens/SignInPage';
 import SignUpPage from './src/screens/SignUpPage';
 import BottomTabs from './src/components/footer/BottomTabs';
-import EventPage from './src/screens/EventPage';
 import {
   NavigationContainer,
   getFocusedRouteNameFromRoute,
@@ -88,6 +87,8 @@ function getHeaderTitle(route) {
       return 'Wishlist';
     case 'Profile':
       return 'User Profile';
+    case 'EventPage':
+      return 'Event Page';
   }
 }
 
@@ -103,7 +104,6 @@ const App = () => {
             screenOptions={{
               headerStyle: {
                 backgroundColor: '#ea580c', // orange.600
-                opacity: 0.5,
                 // backgroundColor:'#f2f2f2',
               },
               headerTintColor: '#fff',
@@ -113,6 +113,7 @@ const App = () => {
                 fontSize: 18,
                 fontFamily: 'body'
               },
+              headerShadowVisible:false,
             }}>
             <Stack.Screen
               name="SignIn"
@@ -130,13 +131,9 @@ const App = () => {
               options={({route}) => ({
                 headerTitle: getHeaderTitle(route),
                 headerBackVisible: false,
-                headerShown: getFocusedRouteNameFromRoute(route) != 'Profile',
+                headerShown: getFocusedRouteNameFromRoute(route) != 'Profile' &&
+                              getFocusedRouteNameFromRoute(route) != 'EventPage' ,
               })}
-            />
-            <Stack.Screen
-              name="EventPage"
-              component={EventPage}
-              options={{headerShown: false}}
             />
           </Stack.Navigator>
         </AuthProvider>

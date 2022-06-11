@@ -10,7 +10,7 @@ import {
   IconButton,
 } from 'native-base';
 import {MaterialIcons} from '@native-base/icons';
-import {SpecialWrapper} from '../components/eventPage/SpecialWrapper';
+import { Wrapper } from '../components/basic/Wrapper';
 import Background from '../components/eventPage/Background';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
 import {EssentialDetail} from '../components/basic/EssentialDetail';
@@ -130,7 +130,7 @@ const UserProfile = () => {
   };
 
   return (
-    <SpecialWrapper>
+    <Wrapper contentViewStyle={{width:'100%'}} statusBarColor='#a1a1aa'>
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
         <IconButton
           position="absolute"
@@ -213,7 +213,7 @@ const UserProfile = () => {
           // isDisabled={loading}
         />
       </Center>
-    </SpecialWrapper>
+    </Wrapper>
   );
 };
 
