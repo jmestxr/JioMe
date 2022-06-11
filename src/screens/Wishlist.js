@@ -110,7 +110,7 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
                     </Text>
                     {likedEventsDetails.length == 0 ? 
                         <ZeroEventCard 
-                            imagePath={require('../assets/liked_colored.png')} 
+                            imagePath={require('../assets/koala_like.png')} 
                             imageWidth={225}
                             imageHeight={225}
                             textMessage={'Events you have liked will be' + '\n' + 'displayed here.'} /> 

@@ -195,7 +195,7 @@ const UserProfile = () => {
         </HStack> */}
 
         <ZeroEventCard
-          imagePath={require('../assets/baby.png')}
+          imagePath={require('../assets/koala_baby.png')}
           imageWidth={150}
           imageHeight={150}
           textMessage={

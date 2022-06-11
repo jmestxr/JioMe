@@ -47,7 +47,7 @@ const Dashboard = () => {
             try {
                 const { data, error } = await supabase
                     .from('events')
-                    .select('id, title, location, user_joinedevents!inner(*)')
+                    .select('id, title, location, from_datetime, to_datetime, user_joinedevents!inner(*)')
                     .eq('user_joinedevents.user_id', user.id)
                     if (error) throw error
                 if (data) {
@@ -61,6 +61,28 @@ const Dashboard = () => {
     // To unlike an event given its id
     const quitEventHandler = async (eventId) => {
         handleQuitEvent(user.id, eventId).then(() => getUpcomingEventsDetails());
+    }
+
+    // calculate exact difference in hours (timestamp2 - timestamp1)
+    const getHourDifference = (timestamp1, timestamp2) => {
+        const dt1 = new Date(timestamp1);
+        const dt2 = new Date(timestamp2);
+        let hourDiff =(dt2.getTime() - dt1.getTime()) / 1000;
+        hourDiff /= (60 * 60);
+        return hourDiff > 0 ? Math.abs(hourDiff) + 8 : -(Math.abs(hourDiff) + 8); // +8 for GMT+8 time
+
+    }
+
+    // for display on UpcomingEventCard
+    const displayTimeDifference = (hourDifference) => {
+        if (Math.abs(hourDifference) > 24) {
+            return hourDifference > 0 
+                ? Math.floor(hourDifference / 24).toString() + ' days'
+                : (Math.ceil(hourDifference / 24).toString()) + ' days'
+        }
+        return hourDifference > 0 
+            ? Math.floor(hourDifference).toString() + ' hours' + ' days'
+            : (Math.ceil(hourDifference).toString() + ' hours') + ' days'
     }
 
     return (loading ? <Loading /> : ( 
@@ -78,19 +100,20 @@ const Dashboard = () => {
                 </Text>
                 {upcomingEventsDetails.length == 0 ? 
                     <ZeroEventCard 
-                        imagePath={require('../assets/joined_colored.png')} 
+                        imagePath={require('../assets/koala_join.png')} 
                         imageWidth={225}
                         imageHeight={225}
                         textMessage={'Events you have joined will be' + '\n' + 'displayed here.'} /> 
                     : 
                     <VStack width='90%' space={4} alignItems='center'>
                         {upcomingEventsDetails.map((detail, index) => {
-                            return <UpcomingEventCard 
+                            // {displayTimeDifference(getHourDifference(detail.from_datetime, Date.now()))}
+                            return <UpcomingEventCard
                                         key={index}
                                         id={detail.id}
                                         name={detail.title}
                                         location={detail.location} 
-                                        daysToEvent='3 days' 
+                                        daysToEvent={displayTimeDifference(getHourDifference(Date.now(), detail.from_datetime))}
                                         quitEventHandler={() => quitEventHandler(detail.id)}
                                     />
                         })}
