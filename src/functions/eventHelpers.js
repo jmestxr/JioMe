@@ -1,4 +1,5 @@
 import {supabase} from '../../supabaseClient';
+import {getLocalDateTimeNow} from './helpers';
 
 export const handleLikeEvent = async (userId, eventId) => {
   try {
@@ -36,7 +37,7 @@ export const getEventCurrCapacity = async eventId => {
     const {data, count, error} = await supabase
       .from('user_joinedevents')
       .select('user_id, event_id', {count: 'exact'})
-      .eq({event_id: eventId});
+      .eq('user_joinedevents.event_id', eventId);
     if (error) throw error;
     if (data) return count;
   } catch (error) {
@@ -54,20 +55,25 @@ export const getEventPicture = privateURL => {
     if (publicURL) {
       return {uri: publicURL};
     }
-  } catch {
+  } catch (error) {
     console.log(error.error_description || error.message);
   }
 };
 
 export const handleJoinEvent = async (userId, eventId) => {
-  checkIfJoinedEventAlready(userId, eventId).then(value => {
+  hasJoinedEvent(userId, eventId).then(value => {
     if (value > 0) {
       alert('You have already joined this event.');
     } else {
-      joinEvent(userId, eventId);
-      alert('You have joined this event.');
+      eventIsOver(eventId).then(value => {
+        if (value > 0) {
+          alert('This event is already over. Sorry!');
+        } else {
+          joinEvent(userId, eventId);
+        }
+      });
     }
-  })
+  });
 };
 
 export const handleQuitEvent = async (userId, eventId) => {
@@ -78,18 +84,18 @@ export const handleQuitEvent = async (userId, eventId) => {
       .match({user_id: userId, event_id: eventId});
     if (error) throw error;
     if (data) {
-      alert('You have quitted this event.')
+      alert('You have quitted this event.');
     }
   } catch (error) {
     console.log(error.error_description || error.message);
   }
 };
 
+// HELPER FUNCTIONS
 
-// helper functions
-const checkIfJoinedEventAlready = async (userId, eventId) => {
+const hasJoinedEvent = async (userId, eventId) => {
   try {
-    const { data, count, error } = await supabase
+    const {data, count, error} = await supabase
       .from('user_joinedevents')
       .select('user_id, event_id', {count: 'exact'})
       .match({user_id: userId, event_id: eventId});
@@ -97,9 +103,24 @@ const checkIfJoinedEventAlready = async (userId, eventId) => {
     if (error) throw error;
     if (data) return count;
   } catch (error) {
-    console.log(error.error_description || error.message)
+    console.log(error.error_description || error.message);
   }
-}
+};
+
+// function returns count = 1 if event is over; else return 0
+const eventIsOver = async eventId => {
+  try {
+    const {data, count, error} = await supabase
+      .from('events')
+      .select('id, to_datetime', {count: 'exact'})
+      .eq('id', eventId)
+      .lt('to_datetime', getLocalDateTimeNow());
+    if (error) throw error;
+    if (data) return count;
+  } catch (error) {
+    console.log(error.error_description || error.message);
+  }
+};
 
 const joinEvent = async (userId, eventId) => {
   try {
@@ -109,9 +130,9 @@ const joinEvent = async (userId, eventId) => {
     if (error) throw error;
     if (data) return data;
   } catch (error) {
-    console.log(error.error_description || error.message)
+    console.log(error.error_description || error.message);
   }
-}
+};
 
 /* TODO: 
     handleDeleteEvent(organiserId, eventId) 

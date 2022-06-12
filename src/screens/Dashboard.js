@@ -9,6 +9,7 @@ import { useAuth } from "../components/contexts/Auth";
 import { supabase } from "../../supabaseClient";
 
 import { handleQuitEvent } from "../functions/eventHelpers";
+import { getLocalDateTimeNow } from "../functions/helpers";
 
 
 const Dashboard = () => {
@@ -49,6 +50,7 @@ const Dashboard = () => {
                     .from('events')
                     .select('id, title, location, from_datetime, to_datetime, user_joinedevents!inner(*)')
                     .eq('user_joinedevents.user_id', user.id)
+                    .gte('to_datetime', getLocalDateTimeNow());
                     if (error) throw error
                 if (data) {
                     setUpcomingEventsDetails(Object.values(data));

@@ -10,7 +10,7 @@ import {
   IconButton,
 } from 'native-base';
 import {MaterialIcons} from '@native-base/icons';
-import { Wrapper } from '../components/basic/Wrapper';
+import {Wrapper} from '../components/basic/Wrapper';
 import Background from '../components/eventPage/Background';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
 import {EssentialDetail} from '../components/basic/EssentialDetail';
@@ -22,6 +22,8 @@ import {decode} from 'base64-arraybuffer';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import CustomButton from '../components/basic/CustomButton';
 import {useNavigation, StackActions} from '@react-navigation/native';
+import {getEventPicture} from '../functions/eventHelpers';
+import { getLocalDateTimeNow } from '../functions/helpers';
 
 const UserProfile = () => {
   const {user} = useAuth();
@@ -35,9 +37,11 @@ const UserProfile = () => {
     avatar_url: '', // avatar private url
     profile_description: '',
   });
+  const [pastEventsDetails, setPastEventsDetails] = useState([]);
 
   useEffect(() => {
     getProfileDetails();
+    getPastEventsDetails();
   }, [reRender, isFocused]);
 
   const getProfileDetails = async e => {
@@ -104,6 +108,23 @@ const UserProfile = () => {
     }
   };
 
+  const getPastEventsDetails = async e => {
+    try {
+      const {data, error} = await supabase
+        .from('events')
+        .select('*, user_joinedevents!inner(*)')
+        .eq('user_joinedevents.user_id', user.id)
+        .lt('to_datetime', getLocalDateTimeNow());
+
+      if (error) throw error;
+      if (data) {
+        setPastEventsDetails(Object.values(data));
+      }
+    } catch (error) {
+      alert(error.error_description || error.message);
+    }
+  };
+
   const handleSignOut = async e => {
     // e.preventDefault()
     try {
@@ -130,7 +151,7 @@ const UserProfile = () => {
   };
 
   return (
-    <Wrapper contentViewStyle={{width:'100%'}} statusBarColor='#a1a1aa'>
+    <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#a1a1aa">
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
         <IconButton
           position="absolute"
@@ -188,20 +209,37 @@ const UserProfile = () => {
           Past Events Joined:
         </Text>
         {/* To render past events in avatar form: */}
-        {/* <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
-          <TouchableOpacity activeOpacity={0.8} style={{padding: '1%'}}>
-            <Avatar size="lg">PE</Avatar>
-          </TouchableOpacity>
-        </HStack> */}
-
-        <ZeroEventCard
-          imagePath={require('../assets/koala_baby.png')}
-          imageWidth={150}
-          imageHeight={150}
-          textMessage={
-            'You have not completed any events.' + '\n' + 'Join one now!'
-          }
-        />
+        {pastEventsDetails.length == 0 ? (
+          <ZeroEventCard
+            imagePath={require('../assets/koala_baby.png')}
+            imageWidth={150}
+            imageHeight={150}
+            textMessage={
+              'You have not completed any events.' + '\n' + 'Join one now!'
+            }
+          />
+        ) : (
+          <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
+            {pastEventsDetails.map((detail, index) => {
+              return (
+                <TouchableOpacity 
+                  activeOpacity={0.5} 
+                  style={{padding: '1%'}} 
+                  onPress={() =>
+                    navigation.navigate('EventPage', {
+                      eventId: detail.id,
+                    })
+                  }>
+                  <Avatar
+                    source={getEventPicture(detail.picture_url)}
+                    size="lg">
+                    PE
+                  </Avatar>
+                </TouchableOpacity>
+              );
+            })}
+          </HStack>
+        )}
       </VStack>
 
       <Center>
