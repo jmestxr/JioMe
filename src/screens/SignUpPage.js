@@ -40,8 +40,9 @@ const SignUpPage = () => {
 
        // Redirect user to Dashboard
        // Should there be a confirmation page to await confirmation of email?
-       const pushAction = StackActions.push('Dashboard');
+       const pushAction = StackActions.push('SignIn');
        navigation.dispatch(pushAction);
+       alert('Please proceed to sign in.')
        if (error) throw error
      } catch (error) {
        alert(error.error_description || error.message)
@@ -73,7 +74,10 @@ const SignUpPage = () => {
             .select('*', { count: 'exact' })
             .eq('username', username)
         
-        if (password.length < 8) {
+        if (username.length == 0) {
+            alert('Error: Please enter a username.')
+        }
+        else if (password.length < 8) {
             alert('Error: Your password should have at least 8 characters.')
         } else if (password != confirmpassword) {
             alert('Error: Your passwords do not match.')
