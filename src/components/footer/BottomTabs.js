@@ -7,6 +7,7 @@ import { PlaceholderScreen } from "../../screens/PlaceholderScreen";
 import Wishlist from "../../screens/Wishlist";
 import { UserProfile } from "../../screens/UserProfile";
 import EventForm from "../../screens/EventForm";
+import { Marketplace } from "../../screens/Marketplace";
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
@@ -79,7 +80,7 @@ const BottomTabs = () => {
 
       <Tab.Screen
         name="Marketplace"
-        component={PlaceholderScreen}
+        component={Marketplace}
         options={{
           tabBarLabel: 'Marketplace',
           tabBarIcon: TabIcon({tabName: 'Marketplace', iconName:'store'}),
