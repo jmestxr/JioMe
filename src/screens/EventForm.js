@@ -109,8 +109,12 @@ const EventForm = () => {
             picture_url: eventDetails.eventPicture.path,
           },
         ]);
+        if (error) {
+          throw error
+        }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
+        throw error
       } finally {
         setLoading(false);
       }

@@ -65,7 +65,7 @@ export const UserProfile = () => {
       .storage
       .from('avatars')
       .getPublicUrl(profile.avatar_url)
-    // console.log('public url is', publicURL)
+    console.log('public url is', publicURL)
 
     setAvatar(publicURL)
     setUsername(profile.username)
