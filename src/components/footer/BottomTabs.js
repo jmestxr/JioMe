@@ -8,6 +8,7 @@ import Wishlist from '../../screens/Wishlist';
 import EventForm from '../../screens/EventForm';
 import UserProfile from '../../screens/UserProfile';
 import EventPage from '../../screens/EventPage';
+import EventEditForm from '../../screens/EventEditForm';
 
 const CustomTabBar = ({state, descriptors, navigation}) => {
   return (
@@ -45,7 +46,7 @@ const CustomTabBar = ({state, descriptors, navigation}) => {
           });
         };
 
-        return route.name == 'EventPage' ? null : (
+        return (route.name == 'EventPage' || route.name == 'EventEditForm')  ? null : (
           <BarIcon
             color={isFocused ? 'orange.600' : 'gray.600'}
             onPressHandler={onPress}
@@ -111,6 +112,14 @@ const BottomTabs = () => {
       <Tab.Screen
         name="EventPage"
         component={EventPage}
+        options={{
+          tabBarLabel: undefined,
+          tabBarIcon: undefined,
+        }}
+      />
+      <Tab.Screen
+        name="EventEditForm"
+        component={EventEditForm}
         options={{
           tabBarLabel: undefined,
           tabBarIcon: undefined,

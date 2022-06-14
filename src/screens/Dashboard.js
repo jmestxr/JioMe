@@ -19,7 +19,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true)
 
     const [username, setUsername] = useState('')
-    const [upcomingEventsDetails, setUpcomingEventsDetails] = useState(null)
+    const [upcomingEventsDetails, setUpcomingEventsDetails] = useState([])
 
     useEffect(() => {
         setLoading(true)
@@ -46,14 +46,26 @@ const Dashboard = () => {
 
     const getUpcomingEventsDetails = async (e) => {
             try {
-                const { data, error } = await supabase
+                setUpcomingEventsDetails([])
+
+                let { data: participatingData, error: participatingError } = await supabase
                     .from('events')
                     .select('id, title, location, from_datetime, to_datetime, user_joinedevents!inner(*)')
                     .eq('user_joinedevents.user_id', user.id)
                     .gte('to_datetime', getLocalDateTimeNow());
-                    if (error) throw error
-                if (data) {
-                    setUpcomingEventsDetails(Object.values(data));
+                if (participatingError) throw participatingError
+                if (participatingData) {
+                    setUpcomingEventsDetails(prevArr => [...prevArr, ...Object.values(participatingData)]);
+                }
+
+                let { data: organisingData, error: organisingError } = await supabase
+                    .from('events')
+                    .select('id, title, location, from_datetime, to_datetime')
+                    .eq('organiser_id', user.id)
+                    .gte('to_datetime', getLocalDateTimeNow());
+                if (organisingError) throw organisingError
+                if (organisingData) {
+                    setUpcomingEventsDetails(prevArr => [...prevArr, ...Object.values(organisingData)]);
                 }
             } catch (error) {
                 alert(error.error_description || error.message);
@@ -65,13 +77,13 @@ const Dashboard = () => {
         handleQuitEvent(user.id, eventId).then(() => getUpcomingEventsDetails());
     }
 
-    // calculate exact difference in hours (timestamp2 - timestamp1)
-    const getHourDifference = (timestamp1, timestamp2) => {
-        const dt1 = new Date(timestamp1);
-        const dt2 = new Date(timestamp2);
-        let hourDiff =(dt2.getTime() - dt1.getTime()) / 1000;
+    // calculate exact difference in hours (timestamp - now)
+    const getHourDifference = (now, givenTimestamp) => {
+        const nowDt = new Date(now);
+        const givenDt = new Date(givenTimestamp);
+        let hourDiff =(givenDt.getTime() - nowDt.getTime()) / 1000;
         hourDiff /= (60 * 60);
-        return hourDiff > 0 ? Math.abs(hourDiff) + 8 : -(Math.abs(hourDiff) + 8); // +8 for GMT+8 time
+        return hourDiff > 0 ? Math.abs(hourDiff) + 8 : -Math.abs(hourDiff);
 
     }
 
@@ -79,12 +91,12 @@ const Dashboard = () => {
     const displayTimeDifference = (hourDifference) => {
         if (Math.abs(hourDifference) > 24) {
             return hourDifference > 0 
-                ? Math.floor(hourDifference / 24).toString() + ' days'
-                : (Math.ceil(hourDifference / 24).toString()) + ' days'
+                ? 'Starts in ' + Math.floor(hourDifference / 24).toString() + ' days'
+                : 'Ongoing'
         }
         return hourDifference > 0 
-            ? Math.floor(hourDifference).toString() + ' hours' + ' days'
-            : (Math.ceil(hourDifference).toString() + ' hours') + ' days'
+            ? 'Starts in ' + Math.floor(hourDifference).toString() + ' hours'
+            : 'Ongoing'
     }
 
     return (loading ? <Loading /> : ( 
@@ -115,7 +127,7 @@ const Dashboard = () => {
                                         id={detail.id}
                                         name={detail.title}
                                         location={detail.location} 
-                                        daysToEvent={displayTimeDifference(getHourDifference(Date.now(), detail.from_datetime))}
+                                        daysToEvent={displayTimeDifference(getHourDifference(getLocalDateTimeNow(), detail.from_datetime))}
                                         quitEventHandler={() => quitEventHandler(detail.id)}
                                     />
                         })}

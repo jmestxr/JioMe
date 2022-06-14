@@ -56,11 +56,11 @@ export const UpcomingEventCard = props => {
                 />
                 {/* TODO: reminder of days to event; hours if 24h prior */}
                 <Text flex={1} flexWrap="wrap">
-                  Starts in {daysToEvent} time
+                  {daysToEvent}
                 </Text>
               </HStack>
             </VStack>
-            <UpcomingEventCardButtons quitEventHandler={quitEventHandler} />
+            {/* <UpcomingEventCardButtons quitEventHandler={quitEventHandler} /> */}
           </View>
         );
       }}

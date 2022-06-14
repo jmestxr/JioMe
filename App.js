@@ -89,6 +89,8 @@ function getHeaderTitle(route) {
       return 'User Profile';
     case 'EventPage':
       return 'Event Page';
+    case 'EventEditForm':
+      return 'Edit Event';
   }
 }
 
@@ -132,7 +134,7 @@ const App = () => {
                 headerTitle: getHeaderTitle(route),
                 headerBackVisible: false,
                 headerShown: getFocusedRouteNameFromRoute(route) != 'Profile' &&
-                              getFocusedRouteNameFromRoute(route) != 'EventPage' ,
+                              getFocusedRouteNameFromRoute(route) != 'EventPage',
               })}
             />
           </Stack.Navigator>

@@ -10,7 +10,7 @@ import {
 import {Ionicons} from '@native-base/icons';
 import {LikedEventCardButtons} from './LikedEventCardButtons';
 import {useNavigation} from '@react-navigation/native';
-import { getEventPicture } from '../../functions/eventHelpers';
+import { getPublicURL } from '../../functions/helpers';
 
 export const LikedEventCard = props => {
   const {eventId, pictureURL, title, location, time, capacity, unlikeHandler, joinEventHandler} = props;
@@ -38,7 +38,7 @@ export const LikedEventCard = props => {
             <View width="45%">
               <Image
                   style={[styles.img, {opacity: isPressed ? 0.8 : 1}]}
-                  source={getEventPicture(pictureURL)}
+                  source={getPublicURL(pictureURL, 'eventpics')}
                 />    
             </View>
 

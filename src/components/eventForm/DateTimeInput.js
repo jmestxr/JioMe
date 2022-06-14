@@ -16,7 +16,7 @@ export const DateTimeInput = ({ placeholder, value, textHandler, onPressHandler 
         <Icon as={Ionicons} name="time-outline" color="black" size="lg" />
 
         <Input
-          isDisabled={true}
+          editable={false}
           variant="unstyled"
           size="lg"
           placeholder={placeholder}

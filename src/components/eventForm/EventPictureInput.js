@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dimensions, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import {Center, Text} from 'native-base';
 import {Ionicons} from '@native-base/icons';
@@ -6,8 +6,12 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 const windowHeight = Dimensions.get('window').height;
 
-export const EventPictureInput = ({ imageInputHandler }) => {
+export const EventPictureInput = ({ imageInputHandler, existingPictureUrl }) => {
   const [uri, setUri] = useState(undefined);
+
+  useEffect(() => {
+    setUri(existingPictureUrl);
+  }, [existingPictureUrl])
 
   const pickPicture = () => {
     ImagePicker.openPicker({
@@ -16,7 +20,6 @@ export const EventPictureInput = ({ imageInputHandler }) => {
       cropping: true,
       includeBase64: true,
     }).then(image => {
-      console.log('image is ', image)
       setUri(image.path);
       imageInputHandler(image);
     });

@@ -22,13 +22,16 @@ import {decode} from 'base64-arraybuffer';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import CustomButton from '../components/basic/CustomButton';
 import {useNavigation, StackActions} from '@react-navigation/native';
-import {getEventPicture} from '../functions/eventHelpers';
-import { getLocalDateTimeNow } from '../functions/helpers';
+import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
+import {HeaderButton} from '../components/basic/HeaderButton';
 
 const UserProfile = () => {
   const {user} = useAuth();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
+
+  // Get signOut function from the auth context
+  const { signOut } = useAuth()
 
   const [reRender, setReRender] = useState(1); // to rerender profile page (not the correct way to do so though)
 
@@ -110,18 +113,36 @@ const UserProfile = () => {
 
   const getPastEventsDetails = async e => {
     try {
-      const {data, error} = await supabase
+      setPastEventsDetails([])
+      
+      let {data: participatedData, error: participatedError} = await supabase
         .from('events')
         .select('*, user_joinedevents!inner(*)')
         .eq('user_joinedevents.user_id', user.id)
         .lt('to_datetime', getLocalDateTimeNow());
 
-      if (error) throw error;
-      if (data) {
-        setPastEventsDetails(Object.values(data));
+      if (participatedError) throw participatedError;
+      if (participatedData) {
+        setPastEventsDetails(prevArr => [
+          ...prevArr,
+          ...Object.values(participatedData),
+        ]);
+      }
+
+      let {data: organisedData, error: organisedError} = await supabase
+        .from('events')
+        .select('*')
+        .eq('organiser_id', user.id)
+        .lt('to_datetime', getLocalDateTimeNow());
+      if (organisedError) throw organisedError;
+      if (organisedData) {
+        setPastEventsDetails(prevArr => [
+          ...prevArr,
+          ...Object.values(organisedData),
+        ]);
       }
     } catch (error) {
-      alert(error.error_description || error.message);
+      console.log(error.error_description || error.message);
     }
   };
 
@@ -129,7 +150,11 @@ const UserProfile = () => {
     // e.preventDefault()
     try {
       // setLoading(true)
-      const {error} = await supabase.auth.signOut();
+
+
+      // Calls `signIn` function from the context
+      const { error } = await signOut()
+
       if (error) {
         alert('Error signing out');
       } else {
@@ -153,23 +178,12 @@ const UserProfile = () => {
   return (
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#a1a1aa">
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
-        <IconButton
-          position="absolute"
-          style={{transform: [{translateX: 350}, {translateY: 5}]}}
-          bgColor="gray.300:alpha.50"
+        <HeaderButton
+          onPressHandler={() => alert('Edit description?')}
+          xShift={350}
           icon={<Icon as={MaterialIcons} name="edit" color="gray.600" />}
-          borderRadius="full"
-          _icon={{
-            size: 'xl',
-          }}
-          _hover={{
-            bg: 'gray.300:alpha.20',
-          }}
-          _pressed={{
-            bg: 'gray.300:alpha.20',
-          }}
-          onPress={() => alert('Edit description?')}
         />
+
         <Center paddingTop="15%">
           <ProfileAvatar
             imageInputHandler={handleUploadAvatar}
@@ -190,14 +204,14 @@ const UserProfile = () => {
                 width="45%"
                 iconName="mail-outline"
                 iconColor="gray.800">
-                <Text textAlign="center">tan_xing_rong@hotmail.com</Text>
+                <Text textAlign="center">(Your email here)</Text>
               </EssentialDetail>
 
               <EssentialDetail
                 width="45%"
                 iconName="call-outline"
                 iconColor="gray.800">
-                <Text textAlign="center">+65 9742 8002</Text>
+                <Text textAlign="center">+65 (Your phone no here)</Text>
               </EssentialDetail>
             </HStack>
           </View>
@@ -222,16 +236,16 @@ const UserProfile = () => {
           <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
             {pastEventsDetails.map((detail, index) => {
               return (
-                <TouchableOpacity 
-                  activeOpacity={0.5} 
-                  style={{padding: '1%'}} 
+                <TouchableOpacity
+                  activeOpacity={0.5}
+                  style={{padding: '1%'}}
                   onPress={() =>
                     navigation.navigate('EventPage', {
                       eventId: detail.id,
                     })
                   }>
                   <Avatar
-                    source={getEventPicture(detail.picture_url)}
+                    source={getPublicURL(detail.picture_url, 'eventpics')}
                     size="lg">
                     PE
                   </Avatar>

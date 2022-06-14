@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Center, VStack} from 'native-base';
 import {Wrapper} from '../components/basic/Wrapper';
 import {EventPictureInput} from '../components/eventForm/EventPictureInput';
@@ -14,8 +14,9 @@ import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import { MONTH } from '../constants/constants';
 
-const EventForm = () => {
+const EventEditForm = ({route}) => {
   const {user} = useAuth();
+  const {eventId} = route.params; // the unique id of this event
 
   const [loading, setLoading] = useState(false);
   // const [uploadingPic, setUploadingPic] = useState(false);
@@ -26,16 +27,22 @@ const EventForm = () => {
     category: '',
     description: '',
     location: '',
-    startDate: new Date(),
-    endDate: new Date(),
-    capacity: 0,
-    eventPicture: '',
+    from_datetime: new Date(),
+    to_datetime: new Date(),
+    max_capacity: 0,
+    picture_url: '', // url of existing picture
   });
+
+  const [eventPicture, setEventPicture] = useState(''); // The new picture uploaded
 
   const [startDateString, setStartDateString] = useState(''); // for display and insert into database
   const [endDateString, setEndDateString] = useState(''); // for display and insert into database
   const [startOpen, setStartOpen] = useState(false); // open date picker for start date
   const [endOpen, setEndOpen] = useState(false); // open date picker for end date
+
+  useEffect(() => {
+    getEventDetails();
+  }, [eventId]);
 
   const setEventDetail = (detail, value) => {
     setEventDetails(prevState => ({
@@ -44,27 +51,47 @@ const EventForm = () => {
     }));
   };
 
-  const handleUploadPic = async image => {
-    if (eventDetails.eventPicture == '') {
-      alert('Please upload an image.');
-      return false;
-    } else {
-      try {
-        const base64FileData = image.data;
-
-        const filePath = image.path;
-
-        let {error: uploadError} = await supabase.storage
-          .from('eventpics')
-          .upload(filePath, decode(base64FileData));
-
-        if (uploadError) throw uploadError;
-        else return true;
-      } catch (error) {
-        console.log(error);
-        alert('We have encountered an error uploading the image. Try again.');
-        return false;
+  const getEventDetails = async e => {
+    try {
+      const {data, error} = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+      if (error) throw error;
+      if (data) {
+        setEventDetail('title', data.title);
+        setEventDetail('category', data.category);
+        setEventDetail('description', data.description);
+        setEventDetail('location', data.location);
+        setEventDetail('from_datetime', new Date(data.from_datetime));
+        setEventDetail('to_datetime', new Date(data.to_datetime));
+        setEventDetail('max_capacity', data.max_capacity);
+        setEventDetail('picture_url', data.picture_url);
+        setStartDateString(formatDateTimeUTC(new Date(data.from_datetime)));
+        setEndDateString(formatDateTimeUTC(new Date(data.to_datetime)));
       }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUpdatePic = async image => {
+    try {
+      const base64FileData = image.data;
+
+      const filePath = image.path;
+
+      let {error: uploadError} = await supabase.storage
+        .from('eventpics')
+        .upload(filePath, decode(base64FileData));
+
+      if (uploadError) throw uploadError;
+      else return true;
+    } catch (error) {
+      console.log(error);
+      alert('We have encountered an error updating the image. Try again.');
+      return false;
     }
   };
 
@@ -87,7 +114,7 @@ const EventForm = () => {
   };
 
   // function stores event details in supabase
-  const handleUploadEventDetails = async e => {
+  const handleUpdateEventDetails = async e => {
     if (eventDetails.title == '') {
       alert('Please insert a title');
     } else if (eventDetails.location == '') {
@@ -102,27 +129,26 @@ const EventForm = () => {
       alert('Description is too long');
     } else {
       try {
-        const {data, error} = await supabase.from('events').insert([
-          {
-            created_at: new Date(),
-            organiser_id: user.id,
+        const {data, error} = await supabase
+          .from('events')
+          .update({
             title: eventDetails.title,
             category: eventDetails.category,
             description: eventDetails.description,
             location: eventDetails.location,
             from_datetime: startDateString,
             to_datetime: endDateString,
-            max_capacity: eventDetails.capacity,
-            picture_url: eventDetails.eventPicture.path,
-          },
-        ]);
-        if (error) throw error;
+            max_capacity: eventDetails.max_capacity,
+            picture_url: eventPicture == '' ? eventDetails.picture_url : eventPicture.path,
+          })
+          .match({id: eventId});
+        if (error) throw error
         else {
-          alert('Event successfully created.');
+          alert('Event details are updated.')
         }
       } catch (error) {
         console.log(error);
-        alert('We have encountered uploading the event details. Try again.');
+        alert('We have encountered updating the event details. Try again.');
       }
       // TO BE COMPLETED
       // Useful information:
@@ -153,17 +179,38 @@ const EventForm = () => {
     }
   };
 
-
   // function handles the Event Creation
-  const handleCreateEvent = async e => {
+  const handleEditEvent = async e => {
     setLoading(true);
-    handleUploadPic(eventDetails.eventPicture).then(result => {
-      if (result) {
-        handleUploadEventDetails().then(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
+    if (eventPicture != '') {
+      // picture is updated
+      handleUpdatePic(eventPicture)
+        .then((result) => {
+          if (result) {
+            handleUpdateEventDetails().then(() => setLoading(false))
+          } else {
+            setLoading(false)
+          }
+          })
+    } else {
+      handleUpdateEventDetails().then(() => setLoading(false));
+    }
+  };
+
+  const formatDateTimeUTC = date => {
+    return (
+      date.getDate() +
+      ' ' +
+      MONTH[date.getMonth()] +
+      ' ' +
+      date.getFullYear() +
+      ' ' +
+      (date.getUTCHours() % 12) +
+      ':' +
+      (date.getMinutes() < 10 ? '00' : date.getMinutes()) +
+      ' ' +
+      (date.getHours() > 11 ? 'PM' : 'AM')
+    );
   };
 
   const formatDateTime = date => {
@@ -186,10 +233,9 @@ const EventForm = () => {
     <Wrapper
       contentViewStyle={{width: '95%', paddingTop: '3%'}}
       statusBarColor="#ea580c">
-      {/* <HeaderTitle title="New Event" /> */}
-
       <EventPictureInput
-        imageInputHandler={image => setEventDetail('eventPicture', image)}
+        imageInputHandler={image => setEventPicture(image)}
+        existingPictureUrl={eventDetails.picture_url}
       />
 
       <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
@@ -226,15 +272,15 @@ const EventForm = () => {
         <DatePicker
           modal
           open={startOpen}
-          date={eventDetails.startDate}
+          date={eventDetails.from_datetime}
           minimumDate={new Date()}
           minuteInterval={15}
           onConfirm={date => {
             setStartOpen(false);
-            setEventDetail('startDate', date);
+            setEventDetail('from_datetime', date);
             setStartDateString(formatDateTime(date));
-            if (date > eventDetails.endDate) {
-              setEventDetail('endDate', new Date());
+            if (date > eventDetails.to_datetime) {
+              setEventDetail('to_datetime', new Date());
               setEndDateString('');
             }
           }}
@@ -252,12 +298,12 @@ const EventForm = () => {
         <DatePicker
           modal
           open={endOpen}
-          date={eventDetails.endDate}
-          minimumDate={eventDetails.startDate}
+          date={eventDetails.to_datetime}
+          minimumDate={eventDetails.from_datetime}
           minuteInterval={15}
           onConfirm={date => {
             setEndOpen(false);
-            setEventDetail('endDate', date);
+            setEventDetail('to_datetime', date);
             // console.log(date.getMonth())
             setEndDateString(formatDateTime(date));
           }}
@@ -268,22 +314,22 @@ const EventForm = () => {
 
         <EventSingleFieldInput
           placeholder="Capacity (does not include yourself)"
-          value={eventDetails.capacity}
-          textHandler={value => setEventDetail('capacity', value)}
+          value={eventDetails.max_capacity.toString()}
+          textHandler={value => setEventDetail('max_capacity', value)}
           keyboardType="numeric"
           iconName="people-outline"
         />
       </VStack>
 
       <CustomButton
-        title="Create Event!"
+        title="Edit Event"
         width="100%"
-        color="#f97316" // orange.500
-        onPressHandler={handleCreateEvent}
+        color="#fb923c" // orange.400
+        onPressHandler={handleEditEvent}
         isDisabled={false}
       />
     </Wrapper>
   );
 };
 
-export default EventForm;
+export default EventEditForm;

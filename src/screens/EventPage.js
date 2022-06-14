@@ -1,50 +1,52 @@
 import React, {useState, useEffect} from 'react';
-import {Dimensions, ImageBackground, StyleSheet} from 'react-native';
 import {
-  Text,
-  View,
-  Icon,
-  IconButton,
-  HStack,
-  VStack,
-  Center,
-  Button,
-} from 'native-base';
+  Image,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import {Text, View, Icon, HStack, VStack, Center, Avatar} from 'native-base';
 import {Wrapper} from '../components/basic/Wrapper';
 import {EssentialDetail} from '../components/basic/EssentialDetail';
 import {Detail} from '../components/eventPage/Detail';
 import CustomButton from '../components/basic/CustomButton';
+import {HeaderButton} from '../components/basic/HeaderButton';
 import {TextCollapsible} from '../components/eventPage/TextCollapsible';
 import {AvatarsCollapsible} from '../components/eventPage/AvatarsCollapsible';
 import {MaterialIcons} from '@native-base/icons';
-import {Ionicons} from '@native-base/icons';
 import LinearGradient from 'react-native-linear-gradient';
 import {supabase} from '../../supabaseClient';
 import {useIsFocused} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../components/contexts/Auth';
 
-import { WINDOW_HEIGHT } from '../constants/constants';
+import {MONTH, WEEKDAY_LONG, WEEKDAY_SHORT, WINDOW_HEIGHT} from '../constants/constants';
 import {
   handleLikeEvent,
   handleUnlikeEvent,
-  getEventPicture,
+  hasJoinedEvent,
+  handleJoinEvent,
+  handleQuitEvent,
+  getEventCurrCapacity,
+  handleDeleteEvent,
 } from '../functions/eventHelpers';
-import {handleJoinEvent} from '../functions/eventHelpers';
-import {getLocalDateTimeNow} from '../functions/helpers';
-
+import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
   const {user} = useAuth();
 
   const {eventId} = route.params; // the unique id of this event
 
   const [liked, setLiked] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   // Details of this event
   const [eventDetails, setEventDetails] = useState({
     title: '',
     description: '',
+    category: '',
     location: '',
     from_datetime: '',
     to_datetime: '',
@@ -62,13 +64,16 @@ const EventPage = ({route}) => {
   // e.g. {day: 'Thursday', date: '2 Jun 2022', time: '1800 - 1900 hrs'}
   // e.g. {day: 'Mon - Sat', date: '2 Jun 2022 - 7 Jun 2022', time: '1800 - 1900 hrs'}
 
+  const [organiserDetails, setOrganiserDetails] = useState({});
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
 
   useEffect(() => {
     getEventDetails()
-      .then(() => getCurrCapacity())
+      .then(() => getEventCurrCapacity(eventId))
+      .then(currCap => setCurrCapacity(currCap))
       .then(() => getParticipantsAvatars());
     getLikedState();
+    getJoinedState();
   }, [isFocused]);
 
   // this function is called when 'liked button' is pressed
@@ -97,32 +102,31 @@ const EventPage = ({route}) => {
     }
   };
 
+  // function to get the user's joined status of this event (whether user has joined it or not as of current state)
+  const getJoinedState = async e => {
+    hasJoinedEvent(user.id, eventId).then(value => setJoined(value > 0));
+
+  };
+
   const getEventDetails = async e => {
     try {
       const {data, error} = await supabase
         .from('events')
-        .select('*')
+        .select(
+          `
+          *,
+          profiles!events_organiser_id_fkey (
+            *
+          )
+        `,
+        )
         .eq('id', eventId)
         .single();
       if (error) throw error;
       if (data) {
         setEventDetails(data);
+        setOrganiserDetails(data.profiles);
         formatEventPeriod(data.from_datetime, data.to_datetime);
-      }
-    } catch (error) {
-      alert(error.error_description || error.message);
-    }
-  };
-
-  const getCurrCapacity = async e => {
-    try {
-      const {data, count, error} = await supabase
-        .from('user_joinedevents')
-        .select('user_id, event_id', {count: 'exact'})
-        .match({event_id: eventId});
-      if (error) throw error;
-      if (data) {
-        setCurrCapacity(count);
       }
     } catch (error) {
       alert(error.error_description || error.message);
@@ -146,32 +150,28 @@ const EventPage = ({route}) => {
     }
   };
 
-  const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
-    const weekdayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const weekdayLong = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
-    const month = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+  const joinEventHandler = async () => {
+    handleJoinEvent(user.id, eventId)
+      .then(() => getEventDetails()) // update
+      .then(() => getCurrCapacity()) // update
+      .then(() => getParticipantsAvatars()) // update
+      .then(() => getJoinedState()); // update
+  };
 
+  const quitEventHandler = async () => {
+    handleQuitEvent(user.id, eventId)
+      .then(() => getEventDetails()) // update
+      .then(() => getCurrCapacity()) // update
+      .then(() => getParticipantsAvatars()) // update
+      .then(() => getJoinedState()); // update
+  };
+
+  const deleteEventHandler = async () => {
+    handleDeleteEvent(eventId)
+      .then(() => navigation.navigate('Marketplace'))
+  };
+
+  const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
     const from = new Date(fromTimeStamp);
     const to = new Date(toTimeStamp);
     const fromDate = fromTimeStamp.slice(0, 10);
@@ -181,35 +181,35 @@ const EventPage = ({route}) => {
       // if event only lasts within the same day
       setDatetimePeriod(prev => ({
         ...prev,
-        day: weekdayLong[from.getDay()],
+        day: WEEKDAY_LONG[from.getDay()],
       }));
       setDatetimePeriod(prev => ({
         ...prev,
         date:
           from.getDate() +
           ' ' +
-          month[from.getMonth()] +
+          MONTH[from.getMonth()] +
           ' ' +
           from.getFullYear(),
       }));
     } else {
       setDatetimePeriod(prev => ({
         ...prev,
-        day: weekdayShort[from.getDay()] + ' - ' + weekdayShort[to.getDay()],
+        day: WEEKDAY_SHORT[from.getDay()] + ' - ' + WEEKDAY_SHORT[to.getDay()],
       }));
       setDatetimePeriod(prev => ({
         ...prev,
         date:
           from.getDate() +
           ' ' +
-          month[from.getMonth()] +
+          MONTH[from.getMonth()] +
           ' ' +
           from.getFullYear() +
           ' - ' +
           '\n' +
           to.getDate() +
           ' ' +
-          month[to.getMonth()] +
+          MONTH[to.getMonth()] +
           ' ' +
           to.getFullYear(),
       }));
@@ -243,14 +243,27 @@ const EventPage = ({route}) => {
         <View width="100%" alignItems="center">
           <ImageBackground
             style={{height: WINDOW_HEIGHT * 0.35, width: '100%'}}
-            source={getEventPicture(eventDetails.picture_url)}>
+            source={getPublicURL(eventDetails.picture_url, 'eventpics')}>
             <LinearGradient
               colors={['#00000000', '#f97316']}
               style={{height: '100%', width: '100%'}}></LinearGradient>
-            <IconButton
-              position="absolute"
-              style={{transform: [{translateX: 350}, {translateY: 5}]}}
-              bgColor="gray.300:alpha.50"
+
+            {/* Only allow the organiser to edit event */}
+            {organiserDetails.id == user.id ? (
+              <HeaderButton
+                onPressHandler={() =>
+                  navigation.navigate('EventEditForm', {
+                    eventId: eventId,
+                  })
+                }
+                xShift={295}
+                icon={<Icon as={MaterialIcons} name="edit" color="white" />}
+              />
+            ) : null}
+
+            <HeaderButton
+              onPressHandler={toggleLiked}
+              xShift={350}
               icon={
                 <Icon
                   as={MaterialIcons}
@@ -258,30 +271,22 @@ const EventPage = ({route}) => {
                   color={liked ? 'red.500' : 'white'}
                 />
               }
-              borderRadius="full"
-              _icon={{
-                size: 'xl',
-              }}
-              _hover={{
-                bg: 'red.300:alpha.20',
-              }}
-              _pressed={{
-                bg: 'red.300:alpha.20',
-              }}
-              onPress={toggleLiked}
             />
           </ImageBackground>
 
-          <View alignItems="center">
-            <View style={styles.eventTitle} bgColor="white">
+          <Center>
+            <View style={styles.eventTitle} alignItems='center' bgColor="white">
               <Text textAlign="center" fontSize="2xl">
                 {eventDetails.title}
               </Text>
             </View>
-          </View>
+            <Text color="white" marginTop="2%" italic>
+              {'Category: ' + eventDetails.category}
+            </Text>
+          </Center>
         </View>
 
-        <View marginTop="5%" marginBottom="3%" padding="3%">
+        <View marginTop="3%" marginBottom="3%" padding="3%">
           <HStack justifyContent="space-between">
             <EssentialDetail width="30%" iconName="location" iconColor="white">
               <Text color="white" textAlign="center">
@@ -315,8 +320,33 @@ const EventPage = ({route}) => {
           <TextCollapsible longText={eventDetails.description} />
         </Detail>
 
+        <Detail title="Organiser">
+          <Avatar>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => alert(organiserDetails.username)}>
+              <Avatar
+                bg="orange.500"
+                source={getPublicURL(
+                  organiserDetails.avatar_url,
+                  'avatars',
+                )}></Avatar>
+            </TouchableOpacity>
+          </Avatar>
+        </Detail>
+
         <Detail title="Participants">
-          <AvatarsCollapsible avatarUrls={participantsAvatars} />
+          {participantsAvatars.length == 0 ? (
+            <Center>
+              <Image
+                style={{height: 130, width: 130}}
+                source={require('../assets/koala_sad.png')}
+              />
+              <Text>No participants at the moment...</Text>
+            </Center>
+          ) : (
+            <AvatarsCollapsible avatarUrls={participantsAvatars} />
+          )}
         </Detail>
       </VStack>
 
@@ -328,12 +358,28 @@ const EventPage = ({route}) => {
             color="#a1a1aa" // gray.400
             isDisabled={true}
           />
-        ) : (
+        ) : organiserDetails.id == user.id ? ( // user is organiser
           <CustomButton
+              title="Delete Event"
+              width="95%"
+              color="#ef4444" // red.500
+              onPressHandler={deleteEventHandler}
+              isDisabled={false}
+            />
+        ) : joined ? ( // user is already participant
+          <CustomButton
+            title="Quit"
+            width="95%"
+            color="#ef4444" // red.500
+            onPressHandler={quitEventHandler}
+            isDisabled={false}
+          />
+        ) : (
+          <CustomButton // user is not participant/organiser
             title="Join Now!"
             width="95%"
             color="#f97316" // orange.500
-            onPressHandler={() => handleJoinEvent(user.id, eventId)}
+            onPressHandler={joinEventHandler}
             isDisabled={false}
           />
         )}
@@ -349,7 +395,6 @@ const styles = StyleSheet.create({
     paddingBottom: '2.5%',
     paddingLeft: '5%',
     paddingRight: '5%',
-    alignSelf: 'flex-start',
   },
 });
 
