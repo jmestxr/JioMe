@@ -23,7 +23,7 @@ const EventFormat = (props) => {
     }
 
     return (<Box alignItems="center">
-        <Pressable width={"full"} onPress={() => console.log("I'm Pressed")} rounded="8" overflow="hidden" borderWidth="1" borderColor="coolGray.300" maxW="96" shadow="3" bg="coolGray.100" p="5">
+        <Pressable width={"full"} onPress={() => console.log("TODO: Direct to Event's screen.")} rounded="8" overflow="hidden" borderWidth="1" borderColor="coolGray.300" maxW="96" shadow="3" bg="coolGray.100" p="5">
             <Box height={250}>
                 <VStack height={"100%"} width="100%" space={2} alignItems="center">
                 {/* <EventPictureFormat source = {{ uri: publicURL }} height={"65%"} width={"100%"}/> */}
