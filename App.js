@@ -12,6 +12,8 @@ import {
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './src/components/contexts/Auth';
 
+import { MarketplaceEventCard } from './src/components/eventCards/MarketplaceEventCard';
+
 // LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 // LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -102,7 +104,7 @@ const App = () => {
       <NavigationContainer>
         <AuthProvider>
           <Stack.Navigator
-            initialRouteName="SignIn"
+            initialRouteName="MarketplaceEventCard"
             screenOptions={{
               headerStyle: {
                 backgroundColor: '#ea580c', // orange.600
@@ -136,6 +138,10 @@ const App = () => {
                 headerShown: getFocusedRouteNameFromRoute(route) != 'Profile' &&
                               getFocusedRouteNameFromRoute(route) != 'EventPage',
               })}
+            />
+            <Stack.Screen
+              name="MarketplaceEventCard"
+              component={MarketplaceEventCard}
             />
           </Stack.Navigator>
         </AuthProvider>
