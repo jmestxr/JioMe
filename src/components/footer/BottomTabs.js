@@ -9,6 +9,7 @@ import EventForm from '../../screens/EventForm';
 import UserProfile from '../../screens/UserProfile';
 import EventPage from '../../screens/EventPage';
 import EventEditForm from '../../screens/EventEditForm';
+import { Marketplace } from "../../screens/Marketplace";
 
 const CustomTabBar = ({state, descriptors, navigation}) => {
   return (
@@ -78,7 +79,7 @@ const BottomTabs = () => {
 
       <Tab.Screen
         name="Marketplace"
-        component={PlaceholderScreen}
+        component={Marketplace}
         options={{
           tabBarLabel: 'Marketplace',
           tabBarIcon: TabIcon({tabName: 'Marketplace', iconName: 'store'}),
