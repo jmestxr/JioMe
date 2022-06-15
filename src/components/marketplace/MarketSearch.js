@@ -1,46 +1,88 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Input, Icon, Box } from "native-base";
-import { MaterialIcons } from "@native-base/icons";
+import React, {useState} from 'react';
+import {StyleSheet, Keyboard, TouchableWithoutFeedback} from 'react-native';
+import {
+  Input,
+  Icon,
+  HStack,
+  Divider,
+  View,
+  Select,
+} from 'native-base';
+import {Ionicons} from '@native-base/icons';
 
-const MarketSearch = (props) => {
-    const { placeholder, value, textHandler } = props;
+const MarketSearch = props => {
+  const {
+    placeholder,
+    searchValue,
+    searchHandler,
+    selectedValue,
+    filterHandler,
+  } = props;
 
-    return (
-        <Box alignItems="center">
-      <Input 
-      mx="20%" 
-      _focus={{borderColor:'orange.500'}}
-      placeholder={placeholder} 
-      w="100%"
-      value={value}
-      onChangeText={textHandler} />
-    </Box>
-        // <View style={styles.fieldBox}>
-        //     <Icon as={MaterialIcons} name={iconName} color='black' size='lg' marginRight={'3%'}  />
-        //     <Input
-        //         variant='underlined'
-        //         size='lg'
-        //         _focus={{borderColor:'orange.500'}}
-        //         placeholder={placeholder}
-        //         value={value}
-        //         secureTextEntry={secureTextEntry}
-        //         onChangeText={textHandler}
-        //         width='73%'
-        //         editable={editable}
-        //         />
-        // </View>
+  const [focus, setFocus] = useState();
 
-    )
-}
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View>
+        <HStack
+          paddingLeft="1%"
+          paddingBottom="1.5%"
+          justifyContent="space-between"
+          alignItems="center">
+          <Icon as={Ionicons} name="search-outline" color="black" size="lg" />
+
+          <Input
+            size="lg"
+            variant="unstyled"
+            _focus={{borderColor: 'orange.500'}}
+            placeholder={placeholder}
+            w="85%"
+            onBlur={() => setFocus(false)}
+            onFocus={() => setFocus(true)}
+            value={searchValue}
+            onChangeText={searchHandler}
+          />
+
+          <Icon as={Ionicons} name="filter-outline" color="black" size="lg" />
+
+          <Select
+            position="absolute" // to position Select over the filter icon
+            width={24} // to position Select over the filter icon
+            height={20} // to position Select over the filter icon
+            marginLeft="81%" // to position Select over the filter icon
+            marginBottom="50%" // to position Select over the filter icon
+            bgColor="#00000000" // to hide
+            borderColor="#00000000" // to hide
+            selectedValue={selectedValue}
+            // placeholder="All"
+            // _placeholder
+            // size="lg"
+            _selectedItem={{
+              bg: 'orange.200',
+            }}
+            onValueChange={filterHandler}>
+            <Select.Item label="All Categories" value="all" />
+            <Select.Item label="Sports" value="sports" />
+            <Select.Item label="Leisure" value="leisure" />
+            <Select.Item label="Food" value="food" />
+            <Select.Item label="Music" value="music" />
+            <Select.Item label="Study" value="study" />
+            <Select.Item label="Nature" value="nature" />
+            <Select.Item label="Extreme" value="extreme" />
+            <Select.Item label="Others" value="others" />
+          </Select>
+        </HStack>
+        <Divider bg={focus ? 'orange.500' : 'gray.300'} />
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
 
 const styles = StyleSheet.create({
-    fieldBox: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-      flexWrap:'wrap'
-    }
-})
+  selectPopUp: {
+    width: 24,
+    height: 20,
+  },
+});
 
 export default MarketSearch;

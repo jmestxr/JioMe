@@ -2,16 +2,49 @@ import {Image, StyleSheet} from 'react-native';
 import {View, Text, HStack, Pressable, Icon, VStack} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import React from 'react';
-import { CardButton } from './CardButton';
+import {getPublicURL} from '../../functions/helpers';
+import {MONTH, WEEKDAY_LONG} from '../../constants/constants';
+import { useNavigation } from '@react-navigation/native';
 
-export const MarketplaceEventCard = () => {
+export const MarketplaceEventCard = props => {
+  const {eventDetails} = props;
+
+  const navigation = useNavigation();
+
+  const formatDateTime = timestamp => {
+    const dt = new Date(timestamp);
+    const date = timestamp.slice(0, 10);
+
+    const timeString =
+      String(dt.getUTCHours()).padStart(2, '0') +
+      String(dt.getMinutes()).padStart(2, '0');
+
+    return (
+      WEEKDAY_LONG[dt.getDay()] +
+      ',' +
+      '\n' +
+      dt.getDate() +
+      ' ' +
+      MONTH[dt.getMonth()] +
+      ' ' +
+      dt.getFullYear() +
+      ' ' +
+      '(' +
+      timeString +
+      ' hrs)'
+    );
+  };
+
   return (
     <Pressable
       width="49%"
-      height={350}
+      height={330}
       marginBottom="2%"
-      // ================= INPUT NAVIGATION HERE ================= //
-      onPress={() => alert('navigate to event page')}> 
+      onPress={() =>
+        navigation.navigate('EventPage', {
+          eventId: eventDetails.id,
+        })
+      }>
       {({isHovered, isFocused, isPressed}) => {
         return (
           <View
@@ -23,19 +56,18 @@ export const MarketplaceEventCard = () => {
                 ? 'gray.200'
                 : 'gray.200:alpha.40'
             }>
-            <View height="55%">
+            <View height="53%">
               <Image
                 style={[styles.img, {opacity: isPressed ? 0.8 : 1}]}
-                source={require('../../assets/sentosa.jpg')}
+                source={getPublicURL(eventDetails.picture_url, 'eventpics')}
               />
             </View>
-            <CardButton buttonColor='emerald.400' iconName='person-add' onPressColor='emerald' onPressHandler={() => alert('Join event handler')} />
 
             <VStack space={3} flex={1} padding="5%">
               <View>
-                <Text fontSize="md">Event Title</Text>
+                <Text fontSize="md">{eventDetails.title}</Text>
                 <Text fontSize="xs" italic>
-                  by User123
+                  by {eventDetails.profiles.username}
                 </Text>
               </View>
               <HStack alignItems="center" justifyContent="space-between">
@@ -48,7 +80,7 @@ export const MarketplaceEventCard = () => {
                   />
                 </View>
                 <View width="80%">
-                  <Text fontSize="xs">Sports</Text>
+                  <Text fontSize="xs">{eventDetails.category}</Text>
                 </View>
               </HStack>
               <HStack justifyContent="space-between">
@@ -62,7 +94,9 @@ export const MarketplaceEventCard = () => {
                 </View>
                 <View width="80%">
                   <Text fontSize="xs">
-                    Starts Monday,{'\n'}27 Jun 2022 (1700 hrs)
+                    {'Starts' +
+                      ' ' +
+                      formatDateTime(eventDetails.from_datetime)}
                   </Text>
                 </View>
               </HStack>

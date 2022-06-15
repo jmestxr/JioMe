@@ -104,7 +104,7 @@ const App = () => {
       <NavigationContainer>
         <AuthProvider>
           <Stack.Navigator
-            initialRouteName="MarketplaceEventCard"
+            initialRouteName="SignIn"
             screenOptions={{
               headerStyle: {
                 backgroundColor: '#ea580c', // orange.600

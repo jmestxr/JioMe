@@ -16,6 +16,7 @@ export const getLocalDateTime = (date) => {
 // function returns public url of picture given its private url (from supabase)
 export const getPublicURL = (privateURL, bucketName) => {
   try {
+    if (privateURL == '') return {uri: ''};
     const {publicURL, error} = supabase.storage
       .from(bucketName)
       .getPublicUrl(privateURL);

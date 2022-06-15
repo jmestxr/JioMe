@@ -1,19 +1,22 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
-import {
-  View,
-  Text,
-  HStack,
-  Icon,
-  Pressable,
-} from 'native-base';
+import {View, Text, HStack, Icon, Pressable} from 'native-base';
 import {Ionicons} from '@native-base/icons';
-import {LikedEventCardButtons} from './LikedEventCardButtons';
 import {useNavigation} from '@react-navigation/native';
-import { getPublicURL } from '../../functions/helpers';
+import {getPublicURL} from '../../functions/helpers';
+import {CardButton} from './CardButton';
 
 export const LikedEventCard = props => {
-  const {eventId, pictureURL, title, location, time, capacity, unlikeHandler, joinEventHandler} = props;
+  const {
+    eventId,
+    pictureURL,
+    title,
+    location,
+    time,
+    capacity,
+    unlikeHandler,
+    joinEventHandler,
+  } = props;
 
   const navigation = useNavigation();
 
@@ -37,9 +40,9 @@ export const LikedEventCard = props => {
             }>
             <View width="45%">
               <Image
-                  style={[styles.img, {opacity: isPressed ? 0.8 : 1}]}
-                  source={getPublicURL(pictureURL, 'eventpics')}
-                />    
+                style={[styles.img, {opacity: isPressed ? 0.8 : 1}]}
+                source={getPublicURL(pictureURL, 'eventpics')}
+              />
             </View>
 
             <View flex={1} padding="1%">
@@ -57,11 +60,7 @@ export const LikedEventCard = props => {
                   color="orange.600"
                   size="xl"
                 />
-                <Text
-                  fontSize="xs"
-                  flex={1}
-                  flexWrap="wrap"
-                  numberOfLines={1}>
+                <Text fontSize="xs" flex={1} flexWrap="wrap" numberOfLines={1}>
                   {location}
                 </Text>
               </HStack>
@@ -72,10 +71,7 @@ export const LikedEventCard = props => {
                   color="orange.600"
                   size="xl"
                 />
-                <Text
-                  fontSize="xs"
-                  flex={1}
-                  flexWrap="wrap">
+                <Text fontSize="xs" flex={1} flexWrap="wrap">
                   {time}
                 </Text>
               </HStack>
@@ -86,16 +82,23 @@ export const LikedEventCard = props => {
                   color="orange.600"
                   size="xl"
                 />
-                <Text
-                  fontSize="xs"
-                  flex={1}
-                  flexWrap="wrap">
+                <Text fontSize="xs" flex={1} flexWrap="wrap">
                   {capacity}
                 </Text>
               </HStack>
             </View>
-
-            <LikedEventCardButtons unlikeHandler={unlikeHandler} joinEventHandler={joinEventHandler} />
+            <CardButton
+              buttonColor="emerald.500"
+              iconName="person-add"
+              xShift={0.5}
+              onPressHandler={joinEventHandler}
+            />
+            <CardButton
+              buttonColor="red.400"
+              iconName="delete"
+              xShift={8}
+              onPressHandler={unlikeHandler}
+            />
           </View>
         );
       }}

@@ -10,6 +10,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
 import { handleUnlikeEvent, handleJoinEvent } from "../functions/eventHelpers";
+import { MONTH } from "../constants/constants";
 
 
 
@@ -72,8 +73,6 @@ const joinEventHandler = async (eventId) => {
 }
 
 const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
-    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
     const from = new Date(fromTimeStamp);
     const to = new Date(toTimeStamp);
     const fromDate = fromTimeStamp.slice(0, 10);
@@ -84,12 +83,12 @@ const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
 
 
     if (fromDate == toDate) { // if event only lasts within the same day
-        return from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear() + '\n' +
+        return from.getDate() + ' ' + MONTH[from.getMonth()] + ' ' + from.getFullYear() + '\n' +
                 '(' + fromTimeString + ' - ' + toTimeString + ' hrs)';
     } else {
-        return from.getDate() + ' ' + month[from.getMonth()] + ' ' + from.getFullYear() + ' (' + fromTimeString + ' hrs)' +
+        return from.getDate() + ' ' + MONTH[from.getMonth()] + ' ' + from.getFullYear() + ' (' + fromTimeString + ' hrs)' +
                 ' - ' + '\n' +
-                to.getDate() + ' ' + month[to.getMonth()] + ' ' + to.getFullYear() +
+                to.getDate() + ' ' + MONTH[to.getMonth()] + ' ' + to.getFullYear() +
                 ' (' + toTimeString + ' hrs)';
     }
 }

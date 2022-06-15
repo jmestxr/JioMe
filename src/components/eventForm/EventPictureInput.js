@@ -3,8 +3,8 @@ import {Dimensions, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import {Center, Text} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import ImagePicker from 'react-native-image-crop-picker';
+import { WINDOW_HEIGHT } from '../../constants/constants';
 
-const windowHeight = Dimensions.get('window').height;
 
 export const EventPictureInput = ({ imageInputHandler, existingPictureUrl }) => {
   const [uri, setUri] = useState(undefined);
@@ -54,7 +54,7 @@ export const EventPictureInput = ({ imageInputHandler, existingPictureUrl }) => 
 const styles = StyleSheet.create({
   frame: {
     width: '100%',
-    height: windowHeight * 0.3,
+    height: WINDOW_HEIGHT * 0.3,
     borderRadius: 5,
   },
 });
