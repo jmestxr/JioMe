@@ -8,11 +8,14 @@ import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import MarketSearch from '../components/marketplace/MarketSearch';
 import {MarketplaceEventCard} from '../components/eventCards/MarketplaceEventCard';
 import {getLocalDateTimeNow} from '../functions/helpers';
+import { useIsFocused } from '@react-navigation/native';
 
 export const Marketplace = () => {
   const {user} = useAuth();
 
-  const [loading, setLoading] = useState(true);
+  const isFocused = useIsFocused();
+
+  const [loading, setLoading] = useState(false);
   const [filtering, setFiltering] = useState(false);
   const [searching, setSearching] = useState(false);
   const [availableEvents, setAvailableEvents] = useState([]);
@@ -25,15 +28,14 @@ export const Marketplace = () => {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    // let flag = true;
-    if (loading) {
-      getEvents().then(() => setLoading(false));
-    }
-  }, []);
+      setFilter('all')
+      setSearch('')
+      getEvents()
+  }, [isFocused]);
 
   const getEvents = async e => {
     try {
-      // setLoading(true)
+      setLoading(true)
 
       let {data, error} = await supabase
         .from('events')
@@ -59,7 +61,7 @@ export const Marketplace = () => {
     } catch (error) {
       console.log('error', error.message);
     } finally {
-      // setLoading(false)
+      setLoading(false)
     }
   };
 

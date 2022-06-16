@@ -109,7 +109,7 @@ const EventPage = ({route}) => {
         setLiked(count == 1);
       }
     } catch (error) {
-      alert(error.error_description || error.message);
+      console.log(error.error_description || error.message);
     }
   };
 
@@ -145,7 +145,7 @@ const EventPage = ({route}) => {
         formatEventPeriod(data.from_datetime, data.to_datetime);
       }
     } catch (error) {
-      alert(error.error_description || error.message);
+      console.log(error.error_description || error.message);
     }
   };
 
@@ -166,7 +166,7 @@ const EventPage = ({route}) => {
         setParticipantsAvatars(data);
       }
     } catch (error) {
-      alert(error.error_description || error.message);
+      console.log(error.error_description || error.message);
     }
   };
 
