@@ -125,7 +125,7 @@ const isParticipant = async (userId, eventId) => {
 };
 
 // function returns count = 1 if user is organiser; else return 0
-const isOrganiser = async (userId, eventId) => {
+export const isOrganiser = async (userId, eventId) => {
   try {
     const {data, count, error} = await supabase
       .from('events')
@@ -139,7 +139,7 @@ const isOrganiser = async (userId, eventId) => {
 };
 
 // function returns count = 1 if event is over; else return 0
-const eventIsOver = async eventId => {
+export const eventIsOver = async eventId => {
   try {
     const {data, count, error} = await supabase
       .from('events')
@@ -154,7 +154,7 @@ const eventIsOver = async eventId => {
 };
 
 // function returns count = 1 if event is full; else return 0
-const eventIsFull = async (eventId, currCapacity) => {
+export const eventIsFull = async (eventId, currCapacity) => {
   try {
     const {data, count, error} = await supabase
       .from('events')

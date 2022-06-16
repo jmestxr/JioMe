@@ -20,7 +20,13 @@ import {useIsFocused} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../components/contexts/Auth';
 
-import {MONTH, WEEKDAY_LONG, WEEKDAY_SHORT, WINDOW_HEIGHT} from '../constants/constants';
+import {
+  MONTH,
+  PROFILE_DEFAULT_IMAGE,
+  WEEKDAY_LONG,
+  WEEKDAY_SHORT,
+  WINDOW_HEIGHT,
+} from '../constants/constants';
 import {
   handleLikeEvent,
   handleUnlikeEvent,
@@ -29,6 +35,8 @@ import {
   handleQuitEvent,
   getEventCurrCapacity,
   handleDeleteEvent,
+  isOrganiser,
+  eventIsOver,
 } from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 
@@ -41,6 +49,8 @@ const EventPage = ({route}) => {
 
   const [liked, setLiked] = useState(false);
   const [joined, setJoined] = useState(false);
+
+  const [canEdit, setCanEdit] = useState(false);
 
   // Details of this event
   const [eventDetails, setEventDetails] = useState({
@@ -74,6 +84,7 @@ const EventPage = ({route}) => {
       .then(() => getParticipantsAvatars());
     getLikedState();
     getJoinedState();
+    getEditPermission();
   }, [isFocused]);
 
   // this function is called when 'liked button' is pressed
@@ -105,8 +116,13 @@ const EventPage = ({route}) => {
   // function to get the user's joined status of this event (whether user has joined it or not as of current state)
   const getJoinedState = async e => {
     hasJoinedEvent(user.id, eventId).then(value => setJoined(value > 0));
-
   };
+
+  // Can edit event only if the user is the organiser and event is not yet over
+  const getEditPermission = async () => {
+    Promise.all([isOrganiser(user.id, eventId), eventIsOver(eventId)])
+              .then(results => setCanEdit(results[0] == 1 && results[1] == 0))
+  }
 
   const getEventDetails = async e => {
     try {
@@ -133,6 +149,10 @@ const EventPage = ({route}) => {
     }
   };
 
+  const getOrganiserAvatarPublicURL = () => {
+    return getPublicURL(organiserDetails.avatar_url, 'avatars');
+  };
+
   // function stores list of avatar private URLS in participantsAvatars
   const getParticipantsAvatars = async e => {
     try {
@@ -153,22 +173,21 @@ const EventPage = ({route}) => {
   const joinEventHandler = async () => {
     handleJoinEvent(user.id, eventId)
       .then(() => getEventDetails()) // update
-      .then(() => getCurrCapacity()) // update
+      .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
-      .then(() => getJoinedState()); // update
+      .then(() => getJoinedState()) // update
   };
 
   const quitEventHandler = async () => {
     handleQuitEvent(user.id, eventId)
       .then(() => getEventDetails()) // update
-      .then(() => getCurrCapacity()) // update
+      .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
       .then(() => getJoinedState()); // update
   };
 
   const deleteEventHandler = async () => {
-    handleDeleteEvent(eventId)
-      .then(() => navigation.navigate('Marketplace'))
+    handleDeleteEvent(eventId).then(() => navigation.navigate('Marketplace'));
   };
 
   const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
@@ -248,8 +267,7 @@ const EventPage = ({route}) => {
               colors={['#00000000', '#f97316']}
               style={{height: '100%', width: '100%'}}></LinearGradient>
 
-            {/* Only allow the organiser to edit event */}
-            {organiserDetails.id == user.id ? (
+            {canEdit ? (
               <HeaderButton
                 onPressHandler={() =>
                   navigation.navigate('EventEditForm', {
@@ -275,7 +293,7 @@ const EventPage = ({route}) => {
           </ImageBackground>
 
           <Center>
-            <View style={styles.eventTitle} alignItems='center' bgColor="white">
+            <View style={styles.eventTitle} alignItems="center" bgColor="white">
               <Text textAlign="center" fontSize="2xl">
                 {eventDetails.title}
               </Text>
@@ -326,11 +344,12 @@ const EventPage = ({route}) => {
               activeOpacity={0.5}
               onPress={() => alert(organiserDetails.username)}>
               <Avatar
-                bg="orange.500"
-                source={getPublicURL(
-                  organiserDetails.avatar_url,
-                  'avatars',
-                )}></Avatar>
+                bg={getOrganiserAvatarPublicURL().uri ? 'orange.500' : 'white'}
+                source={
+                  getOrganiserAvatarPublicURL().uri
+                    ? getOrganiserAvatarPublicURL()
+                    : {uri: PROFILE_DEFAULT_IMAGE}
+                }></Avatar>
             </TouchableOpacity>
           </Avatar>
         </Detail>
@@ -360,12 +379,12 @@ const EventPage = ({route}) => {
           />
         ) : organiserDetails.id == user.id ? ( // user is organiser
           <CustomButton
-              title="Delete Event"
-              width="95%"
-              color="#ef4444" // red.500
-              onPressHandler={deleteEventHandler}
-              isDisabled={false}
-            />
+            title="Delete Event"
+            width="95%"
+            color="#ef4444" // red.500
+            onPressHandler={deleteEventHandler}
+            isDisabled={false}
+          />
         ) : joined ? ( // user is already participant
           <CustomButton
             title="Quit"

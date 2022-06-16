@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {TouchableOpacity} from 'react-native';
+import {TouchableOpacity, Image} from 'react-native';
 import {View, VStack, Avatar} from 'native-base';
-import {supabase} from '../../../supabaseClient';
+import { getPublicURL } from '../../functions/helpers';
+import { PROFILE_DEFAULT_IMAGE } from '../../constants/constants';
 
 export const AvatarsCollapsible = props => {
   const {avatarUrls} = props;
@@ -15,9 +16,7 @@ export const AvatarsCollapsible = props => {
         list of avatar private URLs (given in avatarUrlList) */
   const renderAvatars = (startIndex, endIndex) => {
     return avatarUrlList.slice(startIndex, endIndex).map((data, index) => {
-      const {publicURL, error} = supabase.storage
-        .from('avatars')
-        .getPublicUrl(data.avatar_url);
+      const avatar_publicURL = getPublicURL(data.avatar_url, 'avatars');
 
       return (
         <Avatar>
@@ -26,8 +25,8 @@ export const AvatarsCollapsible = props => {
             onPress={() => alert(data.username)}>
             <Avatar
               key={index}
-              bg="orange.500"
-              source={{uri: publicURL}}></Avatar>
+              bg={avatar_publicURL.uri ? "orange.500" : '#f2f2f2'}
+              source={avatar_publicURL.uri ? avatar_publicURL : {uri: PROFILE_DEFAULT_IMAGE}}></Avatar>
           </TouchableOpacity>
         </Avatar>
       );

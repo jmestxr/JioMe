@@ -1,4 +1,7 @@
-import {Dimensions} from 'react-native';
+import {Dimensions, Image} from 'react-native';
+import profileDefaultImage from '../assets/profile_default.png';
+
+export const PROFILE_DEFAULT_IMAGE = Image.resolveAssetSource(profileDefaultImage).uri;
 
 export const WINDOW_HEIGHT = Dimensions.get('window').height;
 export const WINDOW_WIDTH = Dimensions.get('window').width;
