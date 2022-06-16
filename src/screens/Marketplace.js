@@ -113,6 +113,7 @@ export const Marketplace = () => {
   // }
 
   const filterEvents = async event => {
+    console.log(event)
     // function filterEvents (event) {
     setFiltering(true);
     console.log(event);
@@ -160,7 +161,7 @@ export const Marketplace = () => {
         )
         .gte('to_datetime', getLocalDateTimeNow())
         .eq('category', event)
-        .filter(x => x.title.toLowerCase().includes(search.toLowerCase()));
+        data = data.filter(x => x.title.toLowerCase().includes(search.toLowerCase()));
       if (data) {
         let list = data.sort((a, b) => a.from_datetime > b.from_datetime);
         setAvailableEvents(list);
