@@ -180,7 +180,7 @@ export const Marketplace = () => {
   return loading || filtering || searching ? (
     <Loading />
   ) : (
-    <Wrapper contentViewStyle={{width: '97%', paddingTop: '3%'}}>
+    <Wrapper contentViewStyle={{width: '97%', paddingTop: '3%'}} statusBarColor="#ea580c">
       <Center>
         <HStack space={2} justifyContent="space-between" alignItems="center">
           <MarketSearch

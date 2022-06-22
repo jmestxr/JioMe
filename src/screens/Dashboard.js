@@ -21,7 +21,8 @@ const Dashboard = () => {
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
   const [profileDetails, setProfileDetails] = useState([]);
-  const [upcomingEventsDetails, setUpcomingEventsDetails] = useState([]);
+  const [upcomingEventsParticipatedDetails, setUpcomingEventsParticipatedDetails] = useState([]);
+  const [upcomingEventsOrganisedDetails, setUpcomingEventsOrganisedDetails] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -77,8 +78,6 @@ const Dashboard = () => {
 
   const getUpcomingEventsDetails = async e => {
     try {
-      setUpcomingEventsDetails([]);
-
       let {data: participatingData, error: participatingError} = await supabase
         .from('events')
         .select(
@@ -88,10 +87,7 @@ const Dashboard = () => {
         .gte('to_datetime', getLocalDateTimeNow());
       if (participatingError) throw participatingError;
       if (participatingData) {
-        setUpcomingEventsDetails(prevArr => [
-          ...prevArr,
-          ...Object.values(participatingData),
-        ]);
+        setUpcomingEventsParticipatedDetails(participatingData)
       }
 
       let {data: organisingData, error: organisingError} = await supabase
@@ -101,10 +97,7 @@ const Dashboard = () => {
         .gte('to_datetime', getLocalDateTimeNow());
       if (organisingError) throw organisingError;
       if (organisingData) {
-        setUpcomingEventsDetails(prevArr => [
-          ...prevArr,
-          ...Object.values(organisingData),
-        ]);
+       setUpcomingEventsOrganisedDetails(organisingData)
       }
     } catch (error) {
       alert(error.error_description || error.message);
@@ -159,12 +152,12 @@ const Dashboard = () => {
       <View width="100%" alignItems="center" marginTop="10%">
         <Text fontSize="lg" fontWeight="medium" marginBottom="3%">
           You have{' '}
-          {upcomingEventsDetails.length == 0
+          {upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length == 0
             ? 'no'
-            : upcomingEventsDetails.length}{' '}
+            : upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length}{' '}
           upcoming events.
         </Text>
-        {upcomingEventsDetails.length == 0 ? (
+        {upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length == 0 ? (
           <ZeroEventCard
             imagePath={require('../assets/koala_join.png')}
             imageWidth={225}
@@ -175,7 +168,24 @@ const Dashboard = () => {
           />
         ) : (
           <VStack width="90%" space={4} alignItems="center">
-            {upcomingEventsDetails.map((detail, index) => {
+            {upcomingEventsParticipatedDetails.map((detail, index) => {
+              return (
+                <UpcomingEventCard
+                  key={index}
+                  id={detail.id}
+                  name={detail.title}
+                  location={detail.location}
+                  daysToEvent={displayTimeDifference(
+                    getHourDifference(
+                      getLocalDateTimeNow(),
+                      detail.from_datetime,
+                    ),
+                  )}
+                  quitEventHandler={() => quitEventHandler(detail.id)}
+                />
+              );
+            })}
+            {upcomingEventsOrganisedDetails.map((detail, index) => {
               return (
                 <UpcomingEventCard
                   key={index}

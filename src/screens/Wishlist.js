@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, VStack } from "native-base";
 import { Wrapper } from "../components/basic/Wrapper";
-import { HeaderTitle } from "../components/basic/HeaderTitle";
 import { LikedEventCard } from "../components/eventCards/LikedEventCard";
 import { ZeroEventCard } from "../components/eventCards/ZeroEventCard";
 import { Loading } from "../components/basic/Loading";
@@ -51,7 +50,7 @@ const Wishlist = () => {
     const getLikedEventsCurrCapacity = async (e) => {
         try {
             const { data, error } = await supabase
-                .rpc('getcurrcapacityofuserlikedevents', { user_id: user.id })
+                .rpc('getcurrcapacityofuserlikedevents', { _user_id: user.id })
             
             if (error) throw error
             if (data) {

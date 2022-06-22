@@ -40,7 +40,8 @@ const UserProfile = () => {
     avatar_url: '', // avatar private url
     profile_description: '',
   });
-  const [pastEventsDetails, setPastEventsDetails] = useState([]);
+  const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] = useState([]);
+  const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState([]);
 
   useEffect(() => {
     getProfileDetails();
@@ -99,8 +100,6 @@ const UserProfile = () => {
 
   const getPastEventsDetails = async e => {
     try {
-      setPastEventsDetails([])
-      
       let {data: participatedData, error: participatedError} = await supabase
         .from('events')
         .select('*, user_joinedevents!inner(*)')
@@ -109,10 +108,7 @@ const UserProfile = () => {
 
       if (participatedError) throw participatedError;
       if (participatedData) {
-        setPastEventsDetails(prevArr => [
-          ...prevArr,
-          ...Object.values(participatedData),
-        ]);
+        setPastEventsParticipatedDetails(participatedData)
       }
 
       let {data: organisedData, error: organisedError} = await supabase
@@ -122,13 +118,10 @@ const UserProfile = () => {
         .lt('to_datetime', getLocalDateTimeNow());
       if (organisedError) throw organisedError;
       if (organisedData) {
-        setPastEventsDetails(prevArr => [
-          ...prevArr,
-          ...Object.values(organisedData),
-        ]);
+        setPastEventsOrganisedDetails(organisedData)
       }
     } catch (error) {
-      console.log(error.error_description || error.message);
+      console.log(error)
     }
   };
 
@@ -210,7 +203,7 @@ const UserProfile = () => {
           Past Events Joined:
         </Text>
         {/* To render past events in avatar form: */}
-        {pastEventsDetails.length == 0 ? (
+        {pastEventsParticipatedDetails.length + pastEventsOrganisedDetails.length == 0 ? (
           <ZeroEventCard
             imagePath={require('../assets/koala_baby.png')}
             imageWidth={150}
@@ -221,7 +214,26 @@ const UserProfile = () => {
           />
         ) : (
           <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
-            {pastEventsDetails.map((detail, index) => {
+            {pastEventsParticipatedDetails.map((detail, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.5}
+                  style={{padding: '1%'}}
+                  onPress={() =>
+                    navigation.navigate('EventPage', {
+                      eventId: detail.id,
+                    })
+                  }>
+                  <Avatar
+                    source={getPublicURL(detail.picture_url, 'eventpics')}
+                    size="lg">
+                    PE
+                  </Avatar>
+                </TouchableOpacity>
+              );
+            })}
+            {pastEventsOrganisedDetails.map((detail, index) => {
               return (
                 <TouchableOpacity
                   key={index}
