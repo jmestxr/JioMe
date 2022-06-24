@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {Wrapper} from '../components/basic/Wrapper';
-import {Loading} from '../components/basic/Loading';
 import {Text, HStack, Center} from 'native-base';
 import {supabase} from '../../supabaseClient';
 import {useAuth} from '../components/contexts/Auth';
@@ -9,6 +8,7 @@ import MarketSearch from '../components/marketplace/MarketSearch';
 import {MarketplaceEventCard} from '../components/eventCards/MarketplaceEventCard';
 import {getLocalDateTimeNow} from '../functions/helpers';
 import { useIsFocused } from '@react-navigation/native';
+import { LoadingPage } from '../components/basic/LoadingPage';
 
 export const Marketplace = () => {
   const {user} = useAuth();
@@ -178,7 +178,7 @@ export const Marketplace = () => {
   };
 
   return loading || filtering || searching ? (
-    <Loading />
+    <LoadingPage />
   ) : (
     <Wrapper contentViewStyle={{width: '97%', paddingTop: '3%'}} statusBarColor="#ea580c">
       <Center>
@@ -212,8 +212,8 @@ export const Marketplace = () => {
         <Center marginTop="30%">
           <ZeroEventCard
             imagePath={require('../assets/koala_sad.png')}
-            imageWidth={225}
-            imageHeight={225}
+            imageWidth={175}
+            imageHeight={175}
           />
           <Text style={{transform: [{translateY: -50}]}} fontSize="md">
             No available events currently. Sorry!

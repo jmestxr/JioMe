@@ -40,6 +40,8 @@ import {
 } from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
+import {Loading} from '../components/basic/Loading';
+import { LoadingPage } from '../components/basic/LoadingPage';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -48,9 +50,11 @@ const EventPage = ({route}) => {
 
   const {eventId} = route.params; // the unique id of this event
 
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [loadingEventHandler, setLoadingEventHandler] = useState(false);
+
   const [liked, setLiked] = useState(false);
   const [joined, setJoined] = useState(false);
-
   const [canEdit, setCanEdit] = useState(false);
 
   // Details of this event
@@ -79,13 +83,15 @@ const EventPage = ({route}) => {
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
 
   useEffect(() => {
+    setLoadingPage(true)
     getEventDetails()
       .then(() => getEventCurrCapacity(eventId))
       .then(currCap => setCurrCapacity(currCap))
-      .then(() => getParticipantsAvatars());
-    getLikedState();
-    getJoinedState();
-    getEditPermission();
+      .then(() => getParticipantsAvatars())
+      .then(() => getLikedState())
+      .then(() => getJoinedState())
+      .then(() => getEditPermission())
+      .then(() => setLoadingPage(false))
   }, [isFocused]);
 
   // this function is called when 'liked button' is pressed
@@ -173,19 +179,23 @@ const EventPage = ({route}) => {
   };
 
   const joinEventHandler = async () => {
+    setLoadingEventHandler(true);
     handleJoinEvent(user.id, eventId)
       .then(() => getEventDetails()) // update
       .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
-      .then(() => getJoinedState()); // update
+      .then(() => getJoinedState()) // update
+      .then(() => setLoadingEventHandler(false));
   };
 
   const quitEventHandler = async () => {
+    setLoadingEventHandler(true);
     handleQuitEvent(user.id, eventId)
       .then(() => getEventDetails()) // update
       .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
-      .then(() => getJoinedState()); // update
+      .then(() => getJoinedState()) // update
+      .then(() => setLoadingEventHandler(false));
   };
 
   const deleteEventHandler = async () => {
@@ -258,7 +268,7 @@ const EventPage = ({route}) => {
     );
   };
 
-  return (
+  return ( loadingPage ? <LoadingPage /> :
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#f97316">
       <ImageBackground style={{backgroundColor: '#f97316'}}>
         <View width="100%" alignItems="center">
@@ -391,12 +401,14 @@ const EventPage = ({route}) => {
             modalButtonTitle="Quit"
             modalButtonColor="#ef4444" // red.500
             confirmHandler={quitEventHandler}
+            isLoading={loadingEventHandler}
           />
         ) : (
           <CustomModal // user is not participant/organiser
             modalButtonTitle="Join Now!"
             modalButtonColor="#f97316" // orange.500
             confirmHandler={joinEventHandler}
+            isLoading={loadingEventHandler}
           />
         )}
       </Center>

@@ -12,7 +12,7 @@ import {
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './src/components/contexts/Auth';
 
-import {CustomModal} from './src/components/basic/CustomModal';
+import {LoadingPage} from './src/components/basic/LoadingPage';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -140,8 +140,8 @@ const App = () => {
               })}
             />
             <Stack.Screen
-              name="CustomModal"
-              component={CustomModal}
+              name="LoadingPage"
+              component={LoadingPage}
               options={{headerShown: false}}
             />
           </Stack.Navigator>

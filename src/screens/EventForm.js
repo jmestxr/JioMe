@@ -280,7 +280,7 @@ const EventForm = () => {
         width="100%"
         color="#f97316" // orange.500
         onPressHandler={handleCreateEvent}
-        isDisabled={false}
+        isDisabled={loading}
       />
     </Wrapper>
   );

@@ -326,7 +326,7 @@ const EventEditForm = ({route}) => {
         width="100%"
         color="#fb923c" // orange.400
         onPressHandler={handleEditEvent}
-        isDisabled={false}
+        isDisabled={loading}
       />
     </Wrapper>
   );

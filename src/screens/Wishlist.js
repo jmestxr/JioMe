@@ -3,13 +3,13 @@ import { View, Text, VStack } from "native-base";
 import { Wrapper } from "../components/basic/Wrapper";
 import { LikedEventCard } from "../components/eventCards/LikedEventCard";
 import { ZeroEventCard } from "../components/eventCards/ZeroEventCard";
-import { Loading } from "../components/basic/Loading";
 import { useAuth } from "../components/contexts/Auth";
 import { useIsFocused } from "@react-navigation/native";
 import { supabase } from "../../supabaseClient";
 
 import { handleUnlikeEvent, handleJoinEvent } from "../functions/eventHelpers";
 import { MONTH } from "../constants/constants";
+import { LoadingPage } from "../components/basic/LoadingPage";
 
 
 
@@ -98,7 +98,7 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
 }
 
 
-    return (loading ? <Loading /> : ( 
+    return (loading ? <LoadingPage /> : ( 
             <Wrapper contentViewStyle={{width:'95%', paddingTop:'3%'}} statusBarColor='#ea580c'>
                 {/* <HeaderTitle title="My Liked Events" /> */}
                 

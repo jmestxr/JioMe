@@ -24,6 +24,7 @@ import CustomButton from '../components/basic/CustomButton';
 import {useNavigation, StackActions} from '@react-navigation/native';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {HeaderButton} from '../components/basic/HeaderButton';
+import { LoadingPage } from '../components/basic/LoadingPage';
 
 const UserProfile = () => {
   const {user} = useAuth();
@@ -33,6 +34,7 @@ const UserProfile = () => {
   // Get signOut function from the auth context
   const { signOut } = useAuth()
 
+  const [loadingPage, setLoadingPage] = useState(false)
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
   const [profileDetails, setProfileDetails] = useState({
@@ -43,9 +45,13 @@ const UserProfile = () => {
   const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] = useState([]);
   const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState([]);
 
+  const [loadingSignOut, setLoadingSignOut] = useState(false)
+
   useEffect(() => {
-    getProfileDetails();
-    getPastEventsDetails();
+    setLoadingPage(true);
+    getProfileDetails()
+      .then(() => getPastEventsDetails())
+      .then(() => setLoadingPage(false))
   }, [reRender, isFocused]);
 
   const getProfileDetails = async e => {
@@ -128,7 +134,7 @@ const UserProfile = () => {
   const handleSignOut = async e => {
     // e.preventDefault()
     try {
-      // setLoading(true)
+      setLoadingSignOut(true)
 
 
       // Calls `signIn` function from the context
@@ -150,11 +156,11 @@ const UserProfile = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      // setLoading(false)
+      setLoadingSignOut(false)
     }
   };
 
-  return (
+  return ( loadingPage ? <LoadingPage /> :
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#a1a1aa">
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
         <HeaderButton
@@ -262,7 +268,7 @@ const UserProfile = () => {
           width="25%"
           color="#f97316" // orange.500
           onPressHandler={handleSignOut}
-          // isDisabled={loading}
+          isDisabled={loadingSignOut}
         />
       </Center>
     </Wrapper>

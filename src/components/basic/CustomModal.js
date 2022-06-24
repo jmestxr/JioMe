@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal} from 'react-native';
-import {Icon, Text, Pressable, Center, HStack, VStack} from 'native-base';
+import {Icon, Text, Pressable, Center, HStack, VStack, View} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import CustomButton from './CustomButton';
-import { Warning } from './Warning';
+import {Warning} from './Warning';
 
 export const CustomModal = props => {
   const {
@@ -11,13 +11,25 @@ export const CustomModal = props => {
     modalButtonColor,
     confirmHandler,
     showWarning = false,
+    isLoading = false,
   } = props;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading]);
+
+  const handleConfirm = () => {
+    confirmHandler()
+      .then(() => setModalVisible(false))
+  }
+
   return (
     <Center width="100%">
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
@@ -30,18 +42,17 @@ export const CustomModal = props => {
                 Are you sure?
               </Text>
               {showWarning ? (
-                <Center marginTop='2%'>
-                <Warning textColor='rose.600' warningMessage="This action is irreversible." />
+                <Center marginTop="2%">
+                  <Warning
+                    textColor="rose.600"
+                    warningMessage="This action is irreversible."
+                  />
                 </Center>
               ) : null}
             </Center>
 
             <HStack space={7}>
-              <Pressable
-                onPress={() => {
-                  confirmHandler();
-                  setModalVisible(false);
-                }}>
+              <Pressable onPress={handleConfirm}>
                 {({isPressed}) => {
                   return (
                     <Icon
@@ -82,7 +93,7 @@ export const CustomModal = props => {
         width="95%"
         color={modalButtonColor}
         onPressHandler={() => setModalVisible(true)}
-        isDisabled={false}
+        isDisabled={loading}
       />
     </Center>
   );

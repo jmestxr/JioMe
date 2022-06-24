@@ -3,13 +3,13 @@ import {Text, HStack, View, VStack} from 'native-base';
 import {Wrapper} from '../components/basic/Wrapper';
 import {UpcomingEventCard} from '../components/eventCards/UpcomingEventCard';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
-import {Loading} from '../components/basic/Loading';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
 import {useIsFocused} from '@react-navigation/native';
 import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import {handleQuitEvent} from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
+import { LoadingPage } from '../components/basic/LoadingPage';
 
 
 const Dashboard = () => {
@@ -131,7 +131,7 @@ const Dashboard = () => {
   };
 
   return loading ? (
-    <Loading />
+    <LoadingPage />
   ) : (
     <Wrapper
       contentViewStyle={{width: '95%', paddingTop: '3%'}}
