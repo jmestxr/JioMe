@@ -39,6 +39,7 @@ import {
   eventIsOver,
 } from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
+import {CustomModal} from '../components/basic/CustomModal';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -120,9 +121,10 @@ const EventPage = ({route}) => {
 
   // Can edit event only if the user is the organiser and event is not yet over
   const getEditPermission = async () => {
-    Promise.all([isOrganiser(user.id, eventId), eventIsOver(eventId)])
-              .then(results => setCanEdit(results[0] == 1 && results[1] == 0))
-  }
+    Promise.all([isOrganiser(user.id, eventId), eventIsOver(eventId)]).then(
+      results => setCanEdit(results[0] == 1 && results[1] == 0),
+    );
+  };
 
   const getEventDetails = async e => {
     try {
@@ -175,7 +177,7 @@ const EventPage = ({route}) => {
       .then(() => getEventDetails()) // update
       .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
-      .then(() => getJoinedState()) // update
+      .then(() => getJoinedState()); // update
   };
 
   const quitEventHandler = async () => {
@@ -378,28 +380,23 @@ const EventPage = ({route}) => {
             isDisabled={true}
           />
         ) : organiserDetails.id == user.id ? ( // user is organiser
-          <CustomButton
-            title="Delete Event"
-            width="95%"
-            color="#ef4444" // red.500
-            onPressHandler={deleteEventHandler}
-            isDisabled={false}
+          <CustomModal
+            modalButtonTitle="Delete Event"
+            modalButtonColor="#ef4444" // red.500
+            confirmHandler={deleteEventHandler}
+            showWarning={true}
           />
         ) : joined ? ( // user is already participant
-          <CustomButton
-            title="Quit"
-            width="95%"
-            color="#ef4444" // red.500
-            onPressHandler={quitEventHandler}
-            isDisabled={false}
+          <CustomModal
+            modalButtonTitle="Quit"
+            modalButtonColor="#ef4444" // red.500
+            confirmHandler={quitEventHandler}
           />
         ) : (
-          <CustomButton // user is not participant/organiser
-            title="Join Now!"
-            width="95%"
-            color="#f97316" // orange.500
-            onPressHandler={joinEventHandler}
-            isDisabled={false}
+          <CustomModal // user is not participant/organiser
+            modalButtonTitle="Join Now!"
+            modalButtonColor="#f97316" // orange.500
+            confirmHandler={joinEventHandler}
           />
         )}
       </Center>

@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import React from 'react';
 import {LogBox} from 'react-native';
-import {NativeBaseProvider, extendTheme, View} from 'native-base';
+import {NativeBaseProvider, extendTheme} from 'native-base';
 import SignInPage from './src/screens/SignInPage';
 import SignUpPage from './src/screens/SignUpPage';
 import BottomTabs from './src/components/footer/BottomTabs';
@@ -11,6 +11,8 @@ import {
 } from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './src/components/contexts/Auth';
+
+import {CustomModal} from './src/components/basic/CustomModal';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -136,6 +138,11 @@ const App = () => {
                 headerShown: getFocusedRouteNameFromRoute(route) != 'Profile' &&
                               getFocusedRouteNameFromRoute(route) != 'EventPage',
               })}
+            />
+            <Stack.Screen
+              name="CustomModal"
+              component={CustomModal}
+              options={{headerShown: false}}
             />
           </Stack.Navigator>
         </AuthProvider>
