@@ -14,6 +14,8 @@ import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import { MONTH } from '../constants/constants';
 
+import Toast from 'react-native-toast-message';
+
 const EventForm = () => {
   const {user} = useAuth();
 
@@ -46,7 +48,10 @@ const EventForm = () => {
 
   const handleUploadPic = async image => {
     if (eventDetails.eventPicture == '') {
-      alert('Please upload an image.');
+      Toast.show({
+        type: 'error',
+        text1: 'Please upload an image.',
+      });
       return false;
     } else {
       try {
@@ -62,7 +67,10 @@ const EventForm = () => {
         else return true;
       } catch (error) {
         console.log(error);
-        alert('We have encountered an error uploading the image. Try again.');
+        Toast.show({
+          type: 'error',
+          text1: 'We have encountered an error uploading the image. Please upload the image again or try again later.',
+        });
         return false;
       }
     }
@@ -89,17 +97,35 @@ const EventForm = () => {
   // function stores event details in supabase
   const handleUploadEventDetails = async e => {
     if (eventDetails.title == '') {
-      alert('Please insert a title');
+      Toast.show({
+        type: 'error',
+        text1: 'Please insert a title.',
+      });
     } else if (eventDetails.location == '') {
-      alert('Please insert a location');
+      Toast.show({
+        type: 'error',
+        text1: 'Please insert a location.',
+      });
     } else if (startDateString == '') {
-      alert('Please enter a start date');
+      Toast.show({
+        type: 'error',
+        text1: 'Please enter a start date.',
+      });
     } else if (endDateString == '') {
-      alert('Please enter an end date');
+      Toast.show({
+        type: 'error',
+        text1: 'Please enter an end date.',
+      });
     } else if (eventDetails.category == '') {
-      alert('Please select a category');
+      Toast.show({
+        type: 'error',
+        text1: 'Please select a category.',
+      });
     } else if (eventDetails.description.length > 1000) {
-      alert('Description is too long');
+      Toast.show({
+        type: 'error',
+        text1: 'Description is too long.',
+      });
     } else {
       try {
         const {data, error} = await supabase.from('events').insert([
@@ -118,11 +144,17 @@ const EventForm = () => {
         ]);
         if (error) throw error;
         else {
-          alert('Event successfully created.');
+          Toast.show({
+            type: 'success',
+            text1: 'Event successfully created.',
+          });
         }
       } catch (error) {
         console.log(error);
-        alert('We have encountered uploading the event details. Try again.');
+        Toast.show({
+          type: 'error',
+          text1: 'We have encountered an error uploading the event details. Please try again later.',
+        });
       }
       // TO BE COMPLETED
       // Useful information:

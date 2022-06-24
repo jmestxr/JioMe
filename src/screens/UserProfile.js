@@ -26,6 +26,8 @@ import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {HeaderButton} from '../components/basic/HeaderButton';
 import { LoadingPage } from '../components/basic/LoadingPage';
 
+import Toast from 'react-native-toast-message';
+
 const UserProfile = () => {
   const {user} = useAuth();
   const isFocused = useIsFocused();
@@ -98,7 +100,10 @@ const UserProfile = () => {
     } catch (error) {
       setReRender(reRender * -1); // to render the existing avatar again
       console.log(error.message);
-      alert('Error in uploading profile picture!');
+      Toast.show({
+        type: 'error',
+        text1: 'Error encountered in uploading profile picture. Please upload the image again or try again later.',
+      });
     } finally {
       //   setUploading(false)
     }
@@ -155,6 +160,10 @@ const UserProfile = () => {
       // setEditing(false)
     } catch (error) {
       console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error encountered in signing out. Please try again later.',
+      });
     } finally {
       setLoadingSignOut(false)
     }

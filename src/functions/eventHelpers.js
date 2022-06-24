@@ -1,3 +1,4 @@
+import Toast from 'react-native-toast-message';
 import {supabase} from '../../supabaseClient';
 import {getLocalDateTimeNow} from './helpers';
 
@@ -8,11 +9,18 @@ export const handleLikeEvent = async (userId, eventId) => {
       .insert([{user_id: userId, event_id: eventId}]);
     if (error) throw error;
     if (data) {
-      alert('Added event to wishlist.');
+      Toast.show({
+        type: 'success',
+        text1: 'Added event to Wishlist.'
+      });
       return data;
     }
   } catch (error) {
-    console.log(error.error_description || error.message);
+    console.log(error);
+    Toast.show({
+      type: 'error',
+      text1: 'Error encountered in adding event to Wishlist. Please try again later.'
+    });
   }
 };
 
@@ -24,11 +32,18 @@ export const handleUnlikeEvent = async (userId, eventId) => {
       .match({user_id: userId, event_id: eventId});
     if (error) throw error;
     if (data) {
-      alert('Removed event from wishlist.');
+      Toast.show({
+        type: 'success',
+        text1: 'Removed event to Wishlist.'
+      });
       return data;
     }
   } catch (error) {
-    console.log(error.error_description || error.message);
+    console.log(error);
+    Toast.show({
+      type: 'error',
+      text1: 'Error encountered in removing event from Wishlist. Please try again later.'
+    });
   }
 };
 
@@ -48,19 +63,28 @@ export const getEventCurrCapacity = async eventId => {
 export const handleJoinEvent = async (userId, eventId) => {
   hasJoinedEvent(userId, eventId).then(result => {
     if (result > 0) {
-      alert('You have already joined this event.');
+      Toast.show({
+        type: 'error',
+        text1: 'You have already joined this event.'
+      });
     } else {
       eventIsOver(eventId).then(result => {
         if (result > 0) {
-          alert('This event is already over. Sorry!');
+          Toast.show({
+            type: 'error',
+            text1: 'This event is already over. Sorry!'
+          });
         } else {
           getEventCurrCapacity(eventId)
             .then(currCap => eventIsFull(eventId, currCap))
             .then(result => {
               if (result > 0) {
-                alert('This event has reached full capacity. Sorry!');
+                Toast.show({
+                  type: 'error',
+                  text1: 'This event has reached full capacity. Sorry!'
+                });
               } else {
-                joinEvent(userId, eventId);
+                joinEvent(userId, eventId)
               }
             });
         }
@@ -77,10 +101,17 @@ export const handleQuitEvent = async (userId, eventId) => {
       .match({user_id: userId, event_id: eventId});
     if (error) throw error;
     if (data) {
-      alert('You have quit this event.');
+      Toast.show({
+        type: 'success',
+        text1: 'You have quit this event.'
+      });
     }
   } catch (error) {
-    console.log(error.error_description || error.message);
+    console.log(error);
+    Toast.show({
+      type: 'error',
+      text1: 'Error encountered in joining event. Please try again later.'
+    });
   }
 };
 
@@ -92,11 +123,17 @@ export const handleDeleteEvent = async (eventId) => {
       .match({id: eventId});
     if (error) throw error;
     else {
-      alert('Event is deleted.')
+      Toast.show({
+        type: 'success',
+        text1: 'Event is deleted'
+      });
     }
   } catch (error) {
     console.log(error);
-    alert('Error encountered in deleting event.')
+    Toast.show({
+      type: 'error',
+      text1: 'Error encountered in deleting event. Please try again later.'
+    });
   }
 };
 
@@ -175,16 +212,13 @@ const joinEvent = async (userId, eventId) => {
       .insert([{user_id: userId, event_id: eventId}]);
     if (error) throw error;
     if (data) {
-      alert('You have joined this event.');
+      Toast.show({
+        type: 'success',
+        text1: 'You have joined this event.'
+      });
       return data;
     }
   } catch (error) {
     console.log(error.error_description || error.message);
   }
 };
-
-/* TODO: 
-    handleDeleteEvent(organiserId, eventId) 
-    
-    * abstract common
-*/

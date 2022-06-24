@@ -40,7 +40,6 @@ import {
 } from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
-import {Loading} from '../components/basic/Loading';
 import { LoadingPage } from '../components/basic/LoadingPage';
 
 const EventPage = ({route}) => {
@@ -199,7 +198,10 @@ const EventPage = ({route}) => {
   };
 
   const deleteEventHandler = async () => {
-    handleDeleteEvent(eventId).then(() => navigation.navigate('Marketplace'));
+    setLoadingEventHandler(true);
+    handleDeleteEvent(eventId)
+      .then(() => setLoadingEventHandler(false))
+      .then(() => navigation.navigate('Marketplace'));
   };
 
   const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
@@ -387,7 +389,7 @@ const EventPage = ({route}) => {
             title="This event has already ended. Sorry!"
             width="95%"
             color="#a1a1aa" // gray.400
-            isDisabled={true}
+            isDisabled={false}
           />
         ) : organiserDetails.id == user.id ? ( // user is organiser
           <CustomModal
@@ -395,6 +397,7 @@ const EventPage = ({route}) => {
             modalButtonColor="#ef4444" // red.500
             confirmHandler={deleteEventHandler}
             showWarning={true}
+            isLoading={loadingEventHandler}
           />
         ) : joined ? ( // user is already participant
           <CustomModal

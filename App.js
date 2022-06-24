@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import React from 'react';
-import {LogBox} from 'react-native';
-import {NativeBaseProvider, extendTheme} from 'native-base';
+import {LogBox, StyleSheet} from 'react-native';
+import {NativeBaseProvider, extendTheme, View, Text} from 'native-base';
 import SignInPage from './src/screens/SignInPage';
 import SignUpPage from './src/screens/SignUpPage';
 import BottomTabs from './src/components/footer/BottomTabs';
@@ -11,8 +11,7 @@ import {
 } from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './src/components/contexts/Auth';
-
-import {LoadingPage} from './src/components/basic/LoadingPage';
+import Toast from 'react-native-toast-message';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -36,27 +35,16 @@ const theme = extendTheme({
         normal: 'Lato-Regular',
         italic: 'Lato-Italic',
       },
-      500: { // 'medium'
+      500: {
+        // 'medium'
         normal: 'Lato-Bold',
         italic: 'Lato-BoldItalic',
       },
-      600: { // 'semibold'
+      600: {
+        // 'semibold'
         normal: 'Lato-Bold',
         italic: 'Lato-BoldItalic',
       },
-
-      // 700: {
-      //   normal: 'Lato-Regular',
-      //   italic: 'Lato-Italic',
-      // },
-      // 800: {
-      //   normal: 'Lato-Regular',
-      //   italic: 'Lato-Italic',
-      // },
-      // 900: {
-      //   normal: 'Lato-Regular',
-      //   italic: 'Lato-Italic',
-      // },
     },
   },
 
@@ -68,10 +56,18 @@ const theme = extendTheme({
   },
 });
 
-// const customFonts = {
-//   'SalmaalfasansLight': require("./src/assets/fonts/SalmaalfasansLight-d9MJx.otf"),
-//   'SalmaalfasansLightitalic': require("./src/assets/fonts/SalmaalfasansLight-d9MJx.otf"),
-// };
+const toastConfig = {
+  success: ({text1}) => (
+    <View style={styles.toastView} borderLeftColor="success.600">
+      <Text>{text1}</Text>
+    </View>
+  ),
+  error: ({text1}) => (
+    <View style={styles.toastView} borderLeftColor="rose.500">
+      <Text>{text1}</Text>
+    </View>
+  ),
+};
 
 function getHeaderTitle(route) {
   // If the focused route is not found, we need to assume it's the initial screen
@@ -115,9 +111,9 @@ const App = () => {
               headerTitleAlign: 'center',
               headerTitleStyle: {
                 fontSize: 18,
-                fontFamily: 'body'
+                fontFamily: 'body',
               },
-              headerShadowVisible:false,
+              headerShadowVisible: false,
             }}>
             <Stack.Screen
               name="SignIn"
@@ -135,20 +131,28 @@ const App = () => {
               options={({route}) => ({
                 headerTitle: getHeaderTitle(route),
                 headerBackVisible: false,
-                headerShown: getFocusedRouteNameFromRoute(route) != 'Profile' &&
-                              getFocusedRouteNameFromRoute(route) != 'EventPage',
+                headerShown:
+                  getFocusedRouteNameFromRoute(route) != 'Profile' &&
+                  getFocusedRouteNameFromRoute(route) != 'EventPage',
               })}
-            />
-            <Stack.Screen
-              name="LoadingPage"
-              component={LoadingPage}
-              options={{headerShown: false}}
             />
           </Stack.Navigator>
         </AuthProvider>
       </NavigationContainer>
+      <Toast config={toastConfig} />
     </NativeBaseProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  toastView: {
+    maxWidth: '60%',
+    borderLeftWidth: 4,
+    borderRadius: 3,
+    backgroundColor: '#f2f2f2',
+    opacity: 0.9,
+    padding: '3%',
+  },
+});
 
 export default App;
