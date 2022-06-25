@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {Image, StyleSheet} from 'react-native';
 import {View, Text, HStack, Icon, Pressable} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import {useNavigation} from '@react-navigation/native';
 import {getPublicURL} from '../../functions/helpers';
 import {CardButton} from './CardButton';
+import {CustomModal} from '../basic/CustomModal';
 
 export const LikedEventCard = props => {
   const {
@@ -16,9 +17,16 @@ export const LikedEventCard = props => {
     capacity,
     unlikeHandler,
     joinEventHandler,
+    isLoadingJoiningEvent
   } = props;
 
   const navigation = useNavigation();
+
+  const [loadingEventHandler, setLoadingEventHandler] = useState(false);
+
+  useEffect(() => {
+    setLoadingEventHandler(isLoadingJoiningEvent)
+  }, [isLoadingJoiningEvent])
 
   return (
     <Pressable
@@ -87,18 +95,23 @@ export const LikedEventCard = props => {
                 </Text>
               </HStack>
             </View>
-            <CardButton
-              buttonColor="emerald.500"
-              iconName="person-add"
-              xShift={0.5}
-              onPressHandler={joinEventHandler}
-            />
-            <CardButton
-              buttonColor="red.400"
-              iconName="delete"
-              xShift={8}
-              onPressHandler={unlikeHandler}
-            />
+            <View position="absolute" left={0.5}>
+              <CustomModal
+                modalButton={
+                  <CardButton buttonColor="emerald.500" iconName="person-add" />
+                }
+                confirmHandler={joinEventHandler}
+                isLoading={loadingEventHandler}
+              />
+            </View>
+
+            <View position="absolute" left={8}>
+              <CardButton
+                buttonColor="red.400"
+                iconName="delete"
+                onPressHandler={unlikeHandler}
+              />
+            </View>
           </View>
         );
       }}

@@ -40,7 +40,7 @@ import {
 } from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
-import { LoadingPage } from '../components/basic/LoadingPage';
+import {LoadingPage} from '../components/basic/LoadingPage';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -82,7 +82,7 @@ const EventPage = ({route}) => {
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
 
   useEffect(() => {
-    setLoadingPage(true)
+    setLoadingPage(true);
     getEventDetails()
       .then(() => getEventCurrCapacity(eventId))
       .then(currCap => setCurrCapacity(currCap))
@@ -90,7 +90,7 @@ const EventPage = ({route}) => {
       .then(() => getLikedState())
       .then(() => getJoinedState())
       .then(() => getEditPermission())
-      .then(() => setLoadingPage(false))
+      .then(() => setLoadingPage(false));
   }, [isFocused]);
 
   // this function is called when 'liked button' is pressed
@@ -270,7 +270,9 @@ const EventPage = ({route}) => {
     );
   };
 
-  return ( loadingPage ? <LoadingPage /> :
+  return loadingPage ? (
+    <LoadingPage />
+  ) : (
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#f97316">
       <ImageBackground style={{backgroundColor: '#f97316'}}>
         <View width="100%" alignItems="center">
@@ -393,23 +395,38 @@ const EventPage = ({route}) => {
           />
         ) : organiserDetails.id == user.id ? ( // user is organiser
           <CustomModal
-            modalButtonTitle="Delete Event"
-            modalButtonColor="#ef4444" // red.500
+            modalButton={
+              <CustomButton
+                title="Delete Event"
+                width="95%"
+                color="#ef4444" // red.500
+              />
+            }
             confirmHandler={deleteEventHandler}
             showWarning={true}
             isLoading={loadingEventHandler}
           />
         ) : joined ? ( // user is already participant
           <CustomModal
-            modalButtonTitle="Quit"
-            modalButtonColor="#ef4444" // red.500
+            modalButton={
+              <CustomButton
+                title="Quit"
+                width="95%"
+                color="#ef4444" // red.500
+              />
+            }
             confirmHandler={quitEventHandler}
             isLoading={loadingEventHandler}
           />
         ) : (
           <CustomModal // user is not participant/organiser
-            modalButtonTitle="Join Now!"
-            modalButtonColor="#f97316" // orange.500
+            modalButton={
+              <CustomButton
+                title="Join Now!"
+                width="95%"
+                color="#f97316" // orange.500
+              />
+            }
             confirmHandler={joinEventHandler}
             isLoading={loadingEventHandler}
           />

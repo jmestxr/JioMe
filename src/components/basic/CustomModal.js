@@ -1,14 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {Modal} from 'react-native';
-import {Icon, Text, Pressable, Center, HStack, VStack, View} from 'native-base';
-import {Ionicons} from '@native-base/icons';
-import CustomButton from './CustomButton';
+import {Icon, Text, Pressable, Center, HStack, VStack} from 'native-base';
+import {MaterialIcons} from '@native-base/icons';
 import {Warning} from './Warning';
+import {Loading} from './Loading';
 
 export const CustomModal = props => {
   const {
-    modalButtonTitle,
-    modalButtonColor,
+    modalButton,
     confirmHandler,
     showWarning = false,
     isLoading = false,
@@ -19,12 +18,12 @@ export const CustomModal = props => {
 
   useEffect(() => {
     setLoading(isLoading);
+    if (isLoading) {
+      setModalVisible(true);
+    } else {
+      setModalVisible(false);
+    }
   }, [isLoading]);
-
-  const handleConfirm = () => {
-    confirmHandler()
-      .then(() => setModalVisible(false))
-  }
 
   return (
     <Center width="100%">
@@ -52,19 +51,25 @@ export const CustomModal = props => {
             </Center>
 
             <HStack space={7}>
-              <Pressable onPress={handleConfirm}>
+              <Pressable onPress={confirmHandler}>
                 {({isPressed}) => {
                   return (
-                    <Icon
-                      as={Ionicons}
-                      size="6xl"
-                      name="checkmark-circle"
-                      color={
+                    <Center
+                      height={60}
+                      width={60}
+                      borderRadius={30}
+                      bgColor={
                         isPressed
                           ? 'success.600:alpha.20'
                           : 'success.600:alpha.50'
-                      }
-                    />
+                      }>
+                      <Icon
+                        as={MaterialIcons}
+                        size="2xl"
+                        name="check"
+                        color="white"
+                      />
+                    </Center>
                   );
                 }}
               </Pressable>
@@ -72,29 +77,35 @@ export const CustomModal = props => {
               <Pressable onPress={() => setModalVisible(!modalVisible)}>
                 {({isPressed}) => {
                   return (
-                    <Icon
-                      as={Ionicons}
-                      size="6xl"
-                      name="close-circle"
-                      color={
+                    <Center
+                      height={60}
+                      width={60}
+                      borderRadius={30}
+                      bgColor={
                         isPressed ? 'rose.500:alpha.20' : 'rose.500:alpha.50'
-                      }
-                    />
+                      }>
+                      <Icon
+                        as={MaterialIcons}
+                        size="2xl"
+                        name="close"
+                        color="white"
+                      />
+                    </Center>
                   );
                 }}
               </Pressable>
             </HStack>
           </VStack>
+          {loading ? (
+            <Center position="absolute" top={500}>
+              <Loading />
+            </Center>
+          ) : null}
         </Center>
       </Modal>
-
-      <CustomButton
-        title={modalButtonTitle}
-        width="95%"
-        color={modalButtonColor}
-        onPressHandler={() => setModalVisible(true)}
-        isDisabled={loading}
-      />
+      {React.cloneElement(modalButton, {
+        onPressHandler: () => setModalVisible(true),
+      })}
     </Center>
   );
 };

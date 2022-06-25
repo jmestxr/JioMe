@@ -18,6 +18,7 @@ const Wishlist = () => {
     const { user } = useAuth();
 
     const [loading, setLoading] = useState(true)
+    const [loadingEventHandler, setLoadingEventHandler] = useState(false);
     
     const [likedEventsDetails, setLikedEventsDetails] = useState(null)
     const [likedEventsCurrCapacity, setLikedEventsCurrCapacity] = useState(null)
@@ -68,7 +69,9 @@ const unLikeEventHandler = async (eventId) => {
 
 // To join an event given its id
 const joinEventHandler = async (eventId) => {
-    handleJoinEvent(user.id, eventId);
+    setLoadingEventHandler(true);
+    handleJoinEvent(user.id, eventId)
+        .then(() => setLoadingEventHandler(false))
 }
 
 const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {
@@ -127,6 +130,7 @@ const formatAvailCapacity = (currCapacity, maxCapacity) => {
                                                 unLikeEventHandler(detail.id);
                                             }}
                                             joinEventHandler={() => joinEventHandler(detail.id)}
+                                            isLoadingJoiningEvent={loadingEventHandler}
                                         />
                             })}
                         </VStack>

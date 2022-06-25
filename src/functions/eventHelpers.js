@@ -34,7 +34,7 @@ export const handleUnlikeEvent = async (userId, eventId) => {
     if (data) {
       Toast.show({
         type: 'success',
-        text1: 'Removed event to Wishlist.'
+        text1: 'Removed event from Wishlist.'
       });
       return data;
     }

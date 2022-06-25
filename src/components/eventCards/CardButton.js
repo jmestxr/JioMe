@@ -3,13 +3,9 @@ import {IconButton, Icon} from 'native-base';
 import {MaterialIcons, Ionicons} from '@native-base/icons';
 
 export const CardButton = props => {
-  const {buttonColor, iconName, onPressHandler, xShift} = props;
+  const {buttonColor, iconName, onPressHandler} = props;
   return (
     <IconButton
-      position="absolute"
-      left={xShift}
-      top={0.5}
-
       size="sm"
       bgColor={buttonColor}
       borderRadius="full"
