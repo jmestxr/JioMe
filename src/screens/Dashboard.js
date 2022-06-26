@@ -9,8 +9,7 @@ import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import {handleQuitEvent} from '../functions/eventHelpers';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
-import { LoadingPage } from '../components/basic/LoadingPage';
-
+import {LoadingPage} from '../components/basic/LoadingPage';
 
 const Dashboard = () => {
   const isFocused = useIsFocused();
@@ -21,14 +20,22 @@ const Dashboard = () => {
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
   const [profileDetails, setProfileDetails] = useState([]);
-  const [upcomingEventsParticipatedDetails, setUpcomingEventsParticipatedDetails] = useState([]);
-  const [upcomingEventsOrganisedDetails, setUpcomingEventsOrganisedDetails] = useState([]);
+  const [
+    upcomingEventsParticipatedDetails,
+    setUpcomingEventsParticipatedDetails,
+  ] = useState([]);
+  const [upcomingEventsOrganisedDetails, setUpcomingEventsOrganisedDetails] =
+    useState([]);
 
   useEffect(() => {
-    setLoading(true);
-    getProfileDetails()
-      .then(() => getUpcomingEventsDetails())
-      .then(() => setLoading(false));
+    if (isFocused) {
+      setLoading(true);
+      getProfileDetails()
+        .then(() => getUpcomingEventsDetails())
+        .then(() => setLoading(false));
+    } else {
+      setLoading(true);
+    }
   }, [isFocused]);
 
   const getProfileDetails = async e => {
@@ -87,7 +94,7 @@ const Dashboard = () => {
         .gte('to_datetime', getLocalDateTimeNow());
       if (participatingError) throw participatingError;
       if (participatingData) {
-        setUpcomingEventsParticipatedDetails(participatingData)
+        setUpcomingEventsParticipatedDetails(participatingData);
       }
 
       let {data: organisingData, error: organisingError} = await supabase
@@ -97,7 +104,7 @@ const Dashboard = () => {
         .gte('to_datetime', getLocalDateTimeNow());
       if (organisingError) throw organisingError;
       if (organisingData) {
-       setUpcomingEventsOrganisedDetails(organisingData)
+        setUpcomingEventsOrganisedDetails(organisingData);
       }
     } catch (error) {
       alert(error.error_description || error.message);
@@ -152,12 +159,17 @@ const Dashboard = () => {
       <View width="100%" alignItems="center" marginTop="10%">
         <Text fontSize="lg" fontWeight="medium" marginBottom="3%">
           You have{' '}
-          {upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length == 0
+          {upcomingEventsParticipatedDetails.length +
+            upcomingEventsOrganisedDetails.length ==
+          0
             ? 'no'
-            : upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length}{' '}
+            : upcomingEventsParticipatedDetails.length +
+              upcomingEventsOrganisedDetails.length}{' '}
           upcoming events.
         </Text>
-        {upcomingEventsParticipatedDetails.length + upcomingEventsOrganisedDetails.length == 0 ? (
+        {upcomingEventsParticipatedDetails.length +
+          upcomingEventsOrganisedDetails.length ==
+        0 ? (
           <ZeroEventCard
             imagePath={require('../assets/koala_join.png')}
             imageWidth={225}

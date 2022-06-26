@@ -11,6 +11,8 @@ import EventPage from '../../screens/EventPage';
 import EventEditForm from '../../screens/EventEditForm';
 import { Marketplace } from "../../screens/Marketplace";
 
+import { CardStyleInterpolators } from '@react-navigation/stack';
+
 const CustomTabBar = ({state, descriptors, navigation}) => {
   return (
     <View style={styles.bar}>
@@ -84,6 +86,7 @@ const BottomTabs = () => {
           tabBarLabel: 'Marketplace',
           tabBarIcon: TabIcon({tabName: 'Marketplace', iconName: 'store'}),
           title: 'Marketplace',
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
         }}
       />
       <Tab.Screen

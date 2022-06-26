@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
 import React from 'react';
 import {LogBox, StyleSheet} from 'react-native';
@@ -10,6 +11,8 @@ import {
   getFocusedRouteNameFromRoute,
 } from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
+import { CardStyleInterpolators } from '@react-navigation/stack';
 import {AuthProvider} from './src/components/contexts/Auth';
 import Toast from 'react-native-toast-message';
 
@@ -93,7 +96,7 @@ function getHeaderTitle(route) {
 }
 
 const App = () => {
-  const Stack = createNativeStackNavigator();
+  const Stack = createStackNavigator();
 
   return (
     <NativeBaseProvider theme={theme}>
@@ -123,7 +126,7 @@ const App = () => {
             <Stack.Screen
               name="SignUp"
               component={SignUpPage}
-              options={{headerShown: false}}
+              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid, }}
             />
             <Stack.Screen
               name="Dashboard"
@@ -131,6 +134,7 @@ const App = () => {
               options={({route}) => ({
                 headerTitle: getHeaderTitle(route),
                 headerBackVisible: false,
+                headerLeft: ()=> null,
                 headerShown:
                   getFocusedRouteNameFromRoute(route) != 'Profile' &&
                   getFocusedRouteNameFromRoute(route) != 'EventPage',
@@ -143,6 +147,19 @@ const App = () => {
     </NativeBaseProvider>
   );
 };
+
+const config = {
+  animation: 'spring',
+  config: {
+    stiffness: 1000,
+    damping: 500,
+    mass: 3,
+    overshootClamping: true,
+    restDisplacementThreshold: 0.01,
+    restSpeedThreshold: 0.01,
+  },
+};
+
 
 const styles = StyleSheet.create({
   toastView: {

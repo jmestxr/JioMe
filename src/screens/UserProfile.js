@@ -24,9 +24,10 @@ import CustomButton from '../components/basic/CustomButton';
 import {useNavigation, StackActions} from '@react-navigation/native';
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {HeaderButton} from '../components/basic/HeaderButton';
-import { LoadingPage } from '../components/basic/LoadingPage';
+import {LoadingPage} from '../components/basic/LoadingPage';
 
 import Toast from 'react-native-toast-message';
+import {TapGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/tapGesture';
 
 const UserProfile = () => {
   const {user} = useAuth();
@@ -34,9 +35,9 @@ const UserProfile = () => {
   const navigation = useNavigation();
 
   // Get signOut function from the auth context
-  const { signOut } = useAuth()
+  const {signOut} = useAuth();
 
-  const [loadingPage, setLoadingPage] = useState(false)
+  const [loadingPage, setLoadingPage] = useState(false);
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
   const [profileDetails, setProfileDetails] = useState({
@@ -44,16 +45,23 @@ const UserProfile = () => {
     avatar_url: '', // avatar private url
     profile_description: '',
   });
-  const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] = useState([]);
-  const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState([]);
+  const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] =
+    useState([]);
+  const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState(
+    [],
+  );
 
-  const [loadingSignOut, setLoadingSignOut] = useState(false)
+  const [loadingSignOut, setLoadingSignOut] = useState(false);
 
   useEffect(() => {
-    setLoadingPage(true);
-    getProfileDetails()
-      .then(() => getPastEventsDetails())
-      .then(() => setLoadingPage(false))
+    if (isFocused) {
+      setLoadingPage(true);
+      getProfileDetails()
+        .then(() => getPastEventsDetails())
+        .then(() => setLoadingPage(false));
+    } else {
+      setLoadingPage(true);
+    }
   }, [reRender, isFocused]);
 
   const getProfileDetails = async e => {
@@ -102,7 +110,8 @@ const UserProfile = () => {
       console.log(error.message);
       Toast.show({
         type: 'error',
-        text1: 'Error encountered in uploading profile picture. Please upload the image again or try again later.',
+        text1:
+          'Error encountered in uploading profile picture. Please upload the image again or try again later.',
       });
     } finally {
       //   setUploading(false)
@@ -119,7 +128,7 @@ const UserProfile = () => {
 
       if (participatedError) throw participatedError;
       if (participatedData) {
-        setPastEventsParticipatedDetails(participatedData)
+        setPastEventsParticipatedDetails(participatedData);
       }
 
       let {data: organisedData, error: organisedError} = await supabase
@@ -129,21 +138,20 @@ const UserProfile = () => {
         .lt('to_datetime', getLocalDateTimeNow());
       if (organisedError) throw organisedError;
       if (organisedData) {
-        setPastEventsOrganisedDetails(organisedData)
+        setPastEventsOrganisedDetails(organisedData);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const handleSignOut = async e => {
     // e.preventDefault()
     try {
-      setLoadingSignOut(true)
-
+      setLoadingSignOut(true);
 
       // Calls `signIn` function from the context
-      const { error } = await signOut()
+      const {error} = await signOut();
 
       if (error) {
         alert('Error signing out');
@@ -165,11 +173,13 @@ const UserProfile = () => {
         text1: 'Error encountered in signing out. Please try again later.',
       });
     } finally {
-      setLoadingSignOut(false)
+      setLoadingSignOut(false);
     }
   };
 
-  return ( loadingPage ? <LoadingPage /> :
+  return loadingPage ? (
+    <LoadingPage />
+  ) : (
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#a1a1aa">
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
         <HeaderButton
@@ -181,7 +191,9 @@ const UserProfile = () => {
         <Center paddingTop="15%">
           <ProfileAvatar
             imageInputHandler={handleUploadAvatar}
-            existingAvatarUrl={getPublicURL(profileDetails.avatar_url, 'avatars').uri}
+            existingAvatarUrl={
+              getPublicURL(profileDetails.avatar_url, 'avatars').uri
+            }
             imageSize={150}
             reRender={reRender}
           />
@@ -218,7 +230,9 @@ const UserProfile = () => {
           Past Events Joined:
         </Text>
         {/* To render past events in avatar form: */}
-        {pastEventsParticipatedDetails.length + pastEventsOrganisedDetails.length == 0 ? (
+        {pastEventsParticipatedDetails.length +
+          pastEventsOrganisedDetails.length ==
+        0 ? (
           <ZeroEventCard
             imagePath={require('../assets/koala_baby.png')}
             imageWidth={150}

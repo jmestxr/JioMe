@@ -82,15 +82,19 @@ const EventPage = ({route}) => {
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
 
   useEffect(() => {
-    setLoadingPage(true);
-    getEventDetails()
-      .then(() => getEventCurrCapacity(eventId))
-      .then(currCap => setCurrCapacity(currCap))
-      .then(() => getParticipantsAvatars())
-      .then(() => getLikedState())
-      .then(() => getJoinedState())
-      .then(() => getEditPermission())
-      .then(() => setLoadingPage(false));
+    if (isFocused) {
+      setLoadingPage(true);
+      getEventDetails()
+        .then(() => getEventCurrCapacity(eventId))
+        .then(currCap => setCurrCapacity(currCap))
+        .then(() => getParticipantsAvatars())
+        .then(() => getLikedState())
+        .then(() => getJoinedState())
+        .then(() => getEditPermission())
+        .then(() => setLoadingPage(false));
+    } else {
+      setLoadingPage(true);
+    }
   }, [isFocused]);
 
   // this function is called when 'liked button' is pressed

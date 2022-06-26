@@ -16,8 +16,6 @@ export const Marketplace = () => {
   const isFocused = useIsFocused();
 
   const [loading, setLoading] = useState(false);
-  const [filtering, setFiltering] = useState(false);
-  const [searching, setSearching] = useState(false);
   const [availableEvents, setAvailableEvents] = useState([]);
   const [allAvailableEvents, setAllAvailableEvents] = useState([]);
   // in case people use the search function multiple times
@@ -28,9 +26,13 @@ export const Marketplace = () => {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    if (isFocused) {
       setFilter('all')
       setSearch('')
       getEvents()
+    } else {
+      setLoading(true)
+    }
   }, [isFocused]);
 
   const getEvents = async e => {
@@ -66,7 +68,7 @@ export const Marketplace = () => {
   };
 
   const searchEvents = async e => {
-    setSearching(true);
+    setLoading(true);
     setSearch(e);
     // console.log('Searching')
     // console.log(e)
@@ -83,7 +85,7 @@ export const Marketplace = () => {
         ),
       );
     }
-    setSearching(false);
+    setLoading(false);
   };
 
   // const filterEvents = async (e) => {
@@ -117,7 +119,7 @@ export const Marketplace = () => {
   const filterEvents = async event => {
     console.log(event)
     // function filterEvents (event) {
-    setFiltering(true);
+    setLoading(true);
     console.log(event);
     setFilter(event);
     if (event == 'all' && search == '') {
@@ -174,10 +176,10 @@ export const Marketplace = () => {
       }
     }
     // console.log(data)
-    setFiltering(false);
+    setLoading(false);
   };
 
-  return loading || filtering || searching ? (
+  return loading ? (
     <LoadingPage />
   ) : (
     <Wrapper contentViewStyle={{width: '97%', paddingTop: '3%'}} statusBarColor="#ea580c">
