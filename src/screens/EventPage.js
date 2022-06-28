@@ -13,7 +13,7 @@ import CustomButton from '../components/basic/CustomButton';
 import {HeaderButton} from '../components/basic/HeaderButton';
 import {TextCollapsible} from '../components/eventPage/TextCollapsible';
 import {AvatarsCollapsible} from '../components/eventPage/AvatarsCollapsible';
-import {MaterialIcons} from '@native-base/icons';
+import {MaterialIcons, Ionicons} from '@native-base/icons';
 import LinearGradient from 'react-native-linear-gradient';
 import {supabase} from '../../supabaseClient';
 import {useIsFocused} from '@react-navigation/native';
@@ -287,6 +287,18 @@ const EventPage = ({route}) => {
               colors={['#00000000', '#f97316']}
               style={{height: '100%', width: '100%'}}></LinearGradient>
 
+            <HeaderButton
+              onPressHandler={() => navigation.goBack()}
+              xShift={12}
+              icon={
+                <Icon
+                  as={Ionicons}
+                  name='chevron-back'
+                  color='white'
+                />
+              }
+            />
+
             {canEdit ? (
               <HeaderButton
                 onPressHandler={() =>
@@ -362,7 +374,9 @@ const EventPage = ({route}) => {
           <Avatar>
             <TouchableOpacity
               activeOpacity={0.5}
-              onPress={() => alert(organiserDetails.username)}>
+              onPress={() => navigation.navigate('AvatarProfile', {
+                userId: organiserDetails.id, showBackButton: true
+              })}>
               <Avatar
                 bg={getOrganiserAvatarPublicURL().uri ? 'orange.500' : 'white'}
                 source={

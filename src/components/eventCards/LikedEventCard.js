@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {Image, StyleSheet} from 'react-native';
 import {View, Text, HStack, Icon, Pressable} from 'native-base';
 import {Ionicons} from '@native-base/icons';
@@ -17,7 +17,7 @@ export const LikedEventCard = props => {
     capacity,
     unlikeHandler,
     joinEventHandler,
-    isLoadingJoiningEvent
+    isLoadingJoiningEvent,
   } = props;
 
   const navigation = useNavigation();
@@ -25,14 +25,15 @@ export const LikedEventCard = props => {
   const [loadingEventHandler, setLoadingEventHandler] = useState(false);
 
   useEffect(() => {
-    setLoadingEventHandler(isLoadingJoiningEvent)
-  }, [isLoadingJoiningEvent])
+    setLoadingEventHandler(isLoadingJoiningEvent);
+  }, [isLoadingJoiningEvent]);
 
   return (
     <Pressable
       onPress={() =>
-        navigation.navigate('EventPage', {
-          eventId: eventId,
+        navigation.navigate('LikedEventPage', {
+          screen: 'EventPage',
+          params: {eventId: eventId},
         })
       }>
       {({isHovered, isFocused, isPressed}) => {

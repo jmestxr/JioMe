@@ -7,8 +7,9 @@ import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import MarketSearch from '../components/marketplace/MarketSearch';
 import {MarketplaceEventCard} from '../components/eventCards/MarketplaceEventCard';
 import {getLocalDateTimeNow} from '../functions/helpers';
-import { useIsFocused } from '@react-navigation/native';
-import { LoadingPage } from '../components/basic/LoadingPage';
+import {useIsFocused} from '@react-navigation/native';
+import {LoadingPage} from '../components/basic/LoadingPage';
+import {HeaderBar} from '../components/basic/HeaderBar';
 
 export const Marketplace = () => {
   const {user} = useAuth();
@@ -27,17 +28,17 @@ export const Marketplace = () => {
 
   useEffect(() => {
     if (isFocused) {
-      setFilter('all')
-      setSearch('')
-      getEvents()
+      setFilter('all');
+      setSearch('');
+      getEvents();
     } else {
-      setLoading(true)
+      setLoading(true);
     }
   }, [isFocused]);
 
   const getEvents = async e => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       let {data, error} = await supabase
         .from('events')
@@ -63,7 +64,7 @@ export const Marketplace = () => {
     } catch (error) {
       console.log('error', error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -117,7 +118,7 @@ export const Marketplace = () => {
   // }
 
   const filterEvents = async event => {
-    console.log(event)
+    console.log(event);
     // function filterEvents (event) {
     setLoading(true);
     console.log(event);
@@ -164,8 +165,10 @@ export const Marketplace = () => {
         `,
         )
         .gte('to_datetime', getLocalDateTimeNow())
-        .eq('category', event)
-        data = data.filter(x => x.title.toLowerCase().includes(search.toLowerCase()));
+        .eq('category', event);
+      data = data.filter(x =>
+        x.title.toLowerCase().includes(search.toLowerCase()),
+      );
       if (data) {
         let list = data.sort((a, b) => a.from_datetime > b.from_datetime);
         setAvailableEvents(list);
@@ -179,59 +182,72 @@ export const Marketplace = () => {
     setLoading(false);
   };
 
-  return loading ? (
-    <LoadingPage />
-  ) : (
-    <Wrapper contentViewStyle={{width: '97%', paddingTop: '3%'}} statusBarColor="#ea580c">
-      <Center>
-        <HStack space={2} justifyContent="space-between" alignItems="center">
-          <MarketSearch
-            placeholder={'Search'}
-            searchValue={search}
-            searchHandler={searchEvents}
-            selectedValue={filter}
-            filterHandler={filterEvents}
-          />
-        </HStack>
-      </Center>
+  return (
+    <>
+      <HeaderBar headerText="Marketplace" />
 
-      <Text
-        fontSize="sm"
-        textAlign="right"
-        fontWeight="medium"
-        marginTop="2%"
-        marginRight="2%">
-        {availableEvents.length +
-          ' ' +
-          (availableEvents.length == 1 ? 'result' : 'results') +
-          ' ' +
-          'for' +
-          ' ' +
-          filter}
-      </Text>
-
-      {availableEvents.length == 0 ? (
-        <Center marginTop="30%">
-          <ZeroEventCard
-            imagePath={require('../assets/koala_sad.png')}
-            imageWidth={175}
-            imageHeight={175}
-          />
-          <Text style={{transform: [{translateY: -50}]}} fontSize="md">
-            No available events currently. Sorry!
-          </Text>
-        </Center>
+      {loading ? (
+        <LoadingPage />
       ) : (
-        <HStack
-          marginTop="5%"
-          justifyContent="space-between"
-          width="100%"
-          flexWrap="wrap">
-          {availableEvents.map((detail, index) => {
-            return <MarketplaceEventCard key={index} eventDetails={detail} />;
-          })}
-        </HStack>
+        <Wrapper
+          contentViewStyle={{width: '97%', paddingTop: '3%'}}
+          statusBarColor="#ea580c">
+          <Center>
+            <HStack
+              space={2}
+              justifyContent="space-between"
+              alignItems="center">
+              <MarketSearch
+                placeholder={'Search'}
+                searchValue={search}
+                searchHandler={searchEvents}
+                selectedValue={filter}
+                filterHandler={filterEvents}
+              />
+            </HStack>
+          </Center>
+
+          <Text
+            fontSize="sm"
+            textAlign="right"
+            fontWeight="medium"
+            marginTop="2%"
+            marginRight="2%">
+            {availableEvents.length +
+              ' ' +
+              (availableEvents.length == 1 ? 'result' : 'results') +
+              ' ' +
+              'for' +
+              ' ' +
+              filter}
+          </Text>
+
+          {availableEvents.length == 0 ? (
+            <Center marginTop="30%">
+              <ZeroEventCard
+                imagePath={require('../assets/koala_sad.png')}
+                imageWidth={175}
+                imageHeight={175}
+              />
+              <Text style={{transform: [{translateY: -50}]}} fontSize="md">
+                No available events currently. Sorry!
+              </Text>
+            </Center>
+          ) : (
+            <HStack
+              marginTop="5%"
+              justifyContent="space-between"
+              width="100%"
+              flexWrap="wrap">
+              {availableEvents.map((detail, index) => {
+                return (
+                  <MarketplaceEventCard key={index} eventDetails={detail} />
+                );
+              })}
+            </HStack>
+          )}
+        </Wrapper>
       )}
-    </Wrapper>
+    </>
   );
 };

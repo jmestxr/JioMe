@@ -10,7 +10,6 @@ import {
   NavigationContainer,
   getFocusedRouteNameFromRoute,
 } from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CardStyleInterpolators } from '@react-navigation/stack';
 import {AuthProvider} from './src/components/contexts/Auth';
@@ -105,40 +104,20 @@ const App = () => {
           <Stack.Navigator
             initialRouteName="SignIn"
             screenOptions={{
-              headerStyle: {
-                backgroundColor: '#ea580c', // orange.600
-                // backgroundColor:'#f2f2f2',
-              },
-              headerTintColor: '#fff',
-              // headerTintColor:'#52525b', // gray.600
-              headerTitleAlign: 'center',
-              headerTitleStyle: {
-                fontSize: 18,
-                fontFamily: 'body',
-              },
-              headerShadowVisible: false,
+              headerShown: false
             }}>
             <Stack.Screen
               name="SignIn"
               component={SignInPage}
-              options={{headerShown: false}}
             />
             <Stack.Screen
               name="SignUp"
               component={SignUpPage}
-              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid, }}
+              options={{cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid, }}
             />
             <Stack.Screen
               name="Dashboard"
               component={BottomTabs}
-              options={({route}) => ({
-                headerTitle: getHeaderTitle(route),
-                headerBackVisible: false,
-                headerLeft: ()=> null,
-                headerShown:
-                  getFocusedRouteNameFromRoute(route) != 'Profile' &&
-                  getFocusedRouteNameFromRoute(route) != 'EventPage',
-              })}
             />
           </Stack.Navigator>
         </AuthProvider>
@@ -147,19 +126,6 @@ const App = () => {
     </NativeBaseProvider>
   );
 };
-
-const config = {
-  animation: 'spring',
-  config: {
-    stiffness: 1000,
-    damping: 500,
-    mass: 3,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-};
-
 
 const styles = StyleSheet.create({
   toastView: {

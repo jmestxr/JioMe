@@ -2,20 +2,20 @@ import React from 'react';
 import {Pressable, View, Text, VStack, HStack, Icon} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import {UpcomingEventCardButtons} from './UpcomingEventCardButtons';
-import { useNavigation } from "@react-navigation/native";
-
+import {useNavigation} from '@react-navigation/native';
 
 export const UpcomingEventCard = props => {
   const {id, name, location, daysToEvent, quitEventHandler} = props;
 
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
 
   return (
     <Pressable
       width="100%"
       onPress={() =>
-        navigation.navigate('EventPage', {
-          eventId: id,
+        navigation.navigate('UpcomingEventPage', {
+          screen: 'EventPage',
+          params: {eventId: id},
         })
       }>
       {({isHovered, isFocused, isPressed}) => {

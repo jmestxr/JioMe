@@ -4,7 +4,7 @@ import {Ionicons} from '@native-base/icons';
 import React from 'react';
 import {getPublicURL} from '../../functions/helpers';
 import {MONTH, WEEKDAY_LONG} from '../../constants/constants';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 export const MarketplaceEventCard = props => {
   const {eventDetails} = props;
@@ -41,8 +41,9 @@ export const MarketplaceEventCard = props => {
       height={330}
       marginBottom="2%"
       onPress={() =>
-        navigation.navigate('EventPage', {
-          eventId: eventDetails.id,
+        navigation.navigate('OngoingEventPage', {
+          screen: 'EventPage',
+          params: {eventId: eventDetails.id},
         })
       }>
       {({isHovered, isFocused, isPressed}) => {

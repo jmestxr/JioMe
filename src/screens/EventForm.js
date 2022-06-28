@@ -12,9 +12,10 @@ import DatePicker from 'react-native-date-picker';
 import {decode} from 'base64-arraybuffer';
 import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
-import { MONTH } from '../constants/constants';
+import {MONTH} from '../constants/constants';
 
 import Toast from 'react-native-toast-message';
+import {HeaderBar} from '../components/basic/HeaderBar';
 
 const EventForm = () => {
   const {user} = useAuth();
@@ -69,7 +70,8 @@ const EventForm = () => {
         console.log(error);
         Toast.show({
           type: 'error',
-          text1: 'We have encountered an error uploading the image. Please upload the image again or try again later.',
+          text1:
+            'We have encountered an error uploading the image. Please upload the image again or try again later.',
         });
         return false;
       }
@@ -153,7 +155,8 @@ const EventForm = () => {
         console.log(error);
         Toast.show({
           type: 'error',
-          text1: 'We have encountered an error uploading the event details. Please try again later.',
+          text1:
+            'We have encountered an error uploading the event details. Please try again later.',
         });
       }
       // TO BE COMPLETED
@@ -185,7 +188,6 @@ const EventForm = () => {
     }
   };
 
-
   // function handles the Event Creation
   const handleCreateEvent = async e => {
     setLoading(true);
@@ -215,106 +217,110 @@ const EventForm = () => {
   };
 
   return (
-    <Wrapper
-      contentViewStyle={{width: '95%', paddingTop: '3%'}}
-      statusBarColor="#ea580c">
-      {/* <HeaderTitle title="New Event" /> */}
+    <>
+      <HeaderBar headerText="Create Event" />
 
-      <EventPictureInput
-        imageInputHandler={image => setEventDetail('eventPicture', image)}
-      />
+      <Wrapper
+        contentViewStyle={{width: '95%', paddingTop: '3%'}}
+        statusBarColor="#ea580c">
+        {/* <HeaderTitle title="New Event" /> */}
 
-      <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
-        <EventSingleFieldInput
-          placeholder="Title"
-          value={eventDetails.title}
-          textHandler={value => setEventDetail('title', value)}
-          iconName="bookmark-outline"
+        <EventPictureInput
+          imageInputHandler={image => setEventDetail('eventPicture', image)}
         />
 
-        <EventSelectFieldInput
-          selectedValue={eventDetails.category}
-          selectHandler={value => setEventDetail('category', value)}
-        />
+        <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
+          <EventSingleFieldInput
+            placeholder="Title"
+            value={eventDetails.title}
+            textHandler={value => setEventDetail('title', value)}
+            iconName="bookmark-outline"
+          />
 
-        <EventTextFieldInput
-          value={eventDetails.description}
-          textHandler={value => setEventDetail('description', value)}
-        />
+          <EventSelectFieldInput
+            selectedValue={eventDetails.category}
+            selectHandler={value => setEventDetail('category', value)}
+          />
 
-        <EventSingleFieldInput
-          value={eventDetails.location}
-          textHandler={value => setEventDetail('location', value)}
-          placeholder="Location"
-          iconName="location-outline"
-        />
+          <EventTextFieldInput
+            value={eventDetails.description}
+            textHandler={value => setEventDetail('description', value)}
+          />
 
-        <DateTimeInput
-          placeholder="Start Time"
-          value={startDateString}
-          textHandler={setStartDateString}
-          onPressHandler={() => setStartOpen(true)}
-        />
-        <DatePicker
-          modal
-          open={startOpen}
-          date={eventDetails.startDate}
-          minimumDate={new Date()}
-          minuteInterval={15}
-          onConfirm={date => {
-            setStartOpen(false);
-            setEventDetail('startDate', date);
-            setStartDateString(formatDateTime(date));
-            if (date > eventDetails.endDate) {
-              setEventDetail('endDate', new Date());
-              setEndDateString('');
-            }
-          }}
-          onCancel={() => {
-            setStartOpen(false);
-          }}
-        />
+          <EventSingleFieldInput
+            value={eventDetails.location}
+            textHandler={value => setEventDetail('location', value)}
+            placeholder="Location"
+            iconName="location-outline"
+          />
 
-        <DateTimeInput
-          placeholder="End Time"
-          value={endDateString}
-          textHandler={setEndDateString}
-          onPressHandler={() => setEndOpen(true)}
-        />
-        <DatePicker
-          modal
-          open={endOpen}
-          date={eventDetails.endDate}
-          minimumDate={eventDetails.startDate}
-          minuteInterval={15}
-          onConfirm={date => {
-            setEndOpen(false);
-            setEventDetail('endDate', date);
-            // console.log(date.getMonth())
-            setEndDateString(formatDateTime(date));
-          }}
-          onCancel={() => {
-            setEndOpen(false);
-          }}
-        />
+          <DateTimeInput
+            placeholder="Start Time"
+            value={startDateString}
+            textHandler={setStartDateString}
+            onPressHandler={() => setStartOpen(true)}
+          />
+          <DatePicker
+            modal
+            open={startOpen}
+            date={eventDetails.startDate}
+            minimumDate={new Date()}
+            minuteInterval={15}
+            onConfirm={date => {
+              setStartOpen(false);
+              setEventDetail('startDate', date);
+              setStartDateString(formatDateTime(date));
+              if (date > eventDetails.endDate) {
+                setEventDetail('endDate', new Date());
+                setEndDateString('');
+              }
+            }}
+            onCancel={() => {
+              setStartOpen(false);
+            }}
+          />
 
-        <EventSingleFieldInput
-          placeholder="Capacity (does not include yourself)"
-          value={eventDetails.capacity}
-          textHandler={value => setEventDetail('capacity', value)}
-          keyboardType="numeric"
-          iconName="people-outline"
-        />
-      </VStack>
+          <DateTimeInput
+            placeholder="End Time"
+            value={endDateString}
+            textHandler={setEndDateString}
+            onPressHandler={() => setEndOpen(true)}
+          />
+          <DatePicker
+            modal
+            open={endOpen}
+            date={eventDetails.endDate}
+            minimumDate={eventDetails.startDate}
+            minuteInterval={15}
+            onConfirm={date => {
+              setEndOpen(false);
+              setEventDetail('endDate', date);
+              // console.log(date.getMonth())
+              setEndDateString(formatDateTime(date));
+            }}
+            onCancel={() => {
+              setEndOpen(false);
+            }}
+          />
 
-      <CustomButton
-        title="Create Event!"
-        width="100%"
-        color="#f97316" // orange.500
-        onPressHandler={handleCreateEvent}
-        isDisabled={loading}
-      />
-    </Wrapper>
+          <EventSingleFieldInput
+            placeholder="Capacity (does not include yourself)"
+            value={eventDetails.capacity}
+            textHandler={value => setEventDetail('capacity', value)}
+            keyboardType="numeric"
+            iconName="people-outline"
+          />
+        </VStack>
+
+        <CustomButton
+          title="Create Event!"
+          width="100%"
+          color="#f97316" // orange.500
+          onPressHandler={handleCreateEvent}
+          isDisabled={loading}
+        />
+      </Wrapper>
+    </>
   );
 };
 

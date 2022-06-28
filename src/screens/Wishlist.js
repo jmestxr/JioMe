@@ -10,6 +10,7 @@ import {supabase} from '../../supabaseClient';
 import {handleUnlikeEvent, handleJoinEvent} from '../functions/eventHelpers';
 import {MONTH} from '../constants/constants';
 import {LoadingPage} from '../components/basic/LoadingPage';
+import {HeaderBar} from '../components/basic/HeaderBar';
 
 const Wishlist = () => {
   const isFocused = useIsFocused();
@@ -135,59 +136,67 @@ const Wishlist = () => {
     );
   };
 
-  return loading ? (
-    <LoadingPage />
-  ) : (
-    <Wrapper
-      contentViewStyle={{width: '95%', paddingTop: '3%'}}
-      statusBarColor="#ea580c">
-      {/* <HeaderTitle title="My Liked Events" /> */}
+  return (
+    <>
+      <HeaderBar headerText="Wishlist" />
 
-      <View width="100%" alignItems="center" marginTop="5%">
-        <Text fontSize="lg" fontWeight="medium" marginBottom="3%">
-          You have{' '}
-          {likedEventsDetails.length == 0 ? 'no' : likedEventsDetails.length}{' '}
-          liked events.
-        </Text>
-        {likedEventsDetails.length == 0 ? (
-          <ZeroEventCard
-            imagePath={require('../assets/koala_like.png')}
-            imageWidth={225}
-            imageHeight={225}
-            textMessage={
-              'Events you have liked will be' + '\n' + 'displayed here.'
-            }
-          />
-        ) : (
-          <VStack width="100%" space={4}>
-            {likedEventsDetails.map((detail, index) => {
-              return (
-                <LikedEventCard
-                  key={index}
-                  eventId={detail.id}
-                  pictureURL={detail.picture_url}
-                  title={detail.title}
-                  location={detail.location}
-                  time={formatEventPeriod(
-                    detail.from_datetime,
-                    detail.to_datetime,
-                  )}
-                  capacity={formatAvailCapacity(
-                    likedEventsCurrCapacity[index].no_of_participants,
-                    detail.max_capacity,
-                  )}
-                  unlikeHandler={() => {
-                    unLikeEventHandler(detail.id);
-                  }}
-                  joinEventHandler={() => joinEventHandler(detail.id)}
-                  isLoadingJoiningEvent={loadingEventHandler}
-                />
-              );
-            })}
-          </VStack>
-        )}
-      </View>
-    </Wrapper>
+      {loading ? (
+        <LoadingPage />
+      ) : (
+        <Wrapper
+          contentViewStyle={{width: '95%', paddingTop: '3%'}}
+          statusBarColor="#ea580c">
+          {/* <HeaderTitle title="My Liked Events" /> */}
+
+          <View width="100%" alignItems="center" marginTop="5%">
+            <Text fontSize="lg" fontWeight="medium" marginBottom="3%">
+              You have{' '}
+              {likedEventsDetails.length == 0
+                ? 'no'
+                : likedEventsDetails.length}{' '}
+              liked events.
+            </Text>
+            {likedEventsDetails.length == 0 ? (
+              <ZeroEventCard
+                imagePath={require('../assets/koala_like.png')}
+                imageWidth={225}
+                imageHeight={225}
+                textMessage={
+                  'Events you have liked will be' + '\n' + 'displayed here.'
+                }
+              />
+            ) : (
+              <VStack width="100%" space={4}>
+                {likedEventsDetails.map((detail, index) => {
+                  return (
+                    <LikedEventCard
+                      key={index}
+                      eventId={detail.id}
+                      pictureURL={detail.picture_url}
+                      title={detail.title}
+                      location={detail.location}
+                      time={formatEventPeriod(
+                        detail.from_datetime,
+                        detail.to_datetime,
+                      )}
+                      capacity={formatAvailCapacity(
+                        likedEventsCurrCapacity[index].no_of_participants,
+                        detail.max_capacity,
+                      )}
+                      unlikeHandler={() => {
+                        unLikeEventHandler(detail.id);
+                      }}
+                      joinEventHandler={() => joinEventHandler(detail.id)}
+                      isLoadingJoiningEvent={loadingEventHandler}
+                    />
+                  );
+                })}
+              </VStack>
+            )}
+          </View>
+        </Wrapper>
+      )}
+    </>
   );
 };
 

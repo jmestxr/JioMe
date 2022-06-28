@@ -12,9 +12,10 @@ import DatePicker from 'react-native-date-picker';
 import {decode} from 'base64-arraybuffer';
 import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
-import { MONTH } from '../constants/constants';
+import {MONTH} from '../constants/constants';
 
 import Toast from 'react-native-toast-message';
+import {HeaderBar} from '../components/basic/HeaderBar';
 
 const EventEditForm = ({route}) => {
   const {user} = useAuth();
@@ -94,7 +95,8 @@ const EventEditForm = ({route}) => {
       console.log(error);
       Toast.show({
         type: 'error',
-        text1: 'We have encountered an error updating the image. Please upload the image again or try again later.',
+        text1:
+          'We have encountered an error updating the image. Please upload the image again or try again later.',
       });
       return false;
     }
@@ -162,10 +164,11 @@ const EventEditForm = ({route}) => {
             from_datetime: startDateString,
             to_datetime: endDateString,
             max_capacity: eventDetails.max_capacity,
-            picture_url: eventPicture == '' ? eventDetails.picture_url : eventPicture.path,
+            picture_url:
+              eventPicture == '' ? eventDetails.picture_url : eventPicture.path,
           })
           .match({id: eventId});
-        if (error) throw error
+        if (error) throw error;
         else {
           Toast.show({
             type: 'success',
@@ -176,7 +179,8 @@ const EventEditForm = ({route}) => {
         console.log(error);
         Toast.show({
           type: 'error',
-          text1: 'We have encountered an error updating the event details. Please try again later.',
+          text1:
+            'We have encountered an error updating the event details. Please try again later.',
         });
       }
       // TO BE COMPLETED
@@ -213,14 +217,13 @@ const EventEditForm = ({route}) => {
     setLoading(true);
     if (eventPicture != '') {
       // picture is updated
-      handleUpdatePic(eventPicture)
-        .then((result) => {
-          if (result) {
-            handleUpdateEventDetails().then(() => setLoading(false))
-          } else {
-            setLoading(false)
-          }
-          })
+      handleUpdatePic(eventPicture).then(result => {
+        if (result) {
+          handleUpdateEventDetails().then(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
+      });
     } else {
       handleUpdateEventDetails().then(() => setLoading(false));
     }
@@ -259,105 +262,109 @@ const EventEditForm = ({route}) => {
   };
 
   return (
-    <Wrapper
-      contentViewStyle={{width: '95%', paddingTop: '3%'}}
-      statusBarColor="#ea580c">
-      <EventPictureInput
-        imageInputHandler={image => setEventPicture(image)}
-        existingPictureUrl={eventDetails.picture_url}
-      />
+    <>
+      <HeaderBar headerText="Edit Event" backButtonVisible={true} />
 
-      <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
-        <EventSingleFieldInput
-          placeholder="Title"
-          value={eventDetails.title}
-          textHandler={value => setEventDetail('title', value)}
-          iconName="bookmark-outline"
+      <Wrapper
+        contentViewStyle={{width: '95%', paddingTop: '3%'}}
+        statusBarColor="#ea580c">
+        <EventPictureInput
+          imageInputHandler={image => setEventPicture(image)}
+          existingPictureUrl={eventDetails.picture_url}
         />
 
-        <EventSelectFieldInput
-          selectedValue={eventDetails.category}
-          selectHandler={value => setEventDetail('category', value)}
-        />
+        <VStack paddingLeft="1%" paddingRight="1%" marginTop="2%">
+          <EventSingleFieldInput
+            placeholder="Title"
+            value={eventDetails.title}
+            textHandler={value => setEventDetail('title', value)}
+            iconName="bookmark-outline"
+          />
 
-        <EventTextFieldInput
-          value={eventDetails.description}
-          textHandler={value => setEventDetail('description', value)}
-        />
+          <EventSelectFieldInput
+            selectedValue={eventDetails.category}
+            selectHandler={value => setEventDetail('category', value)}
+          />
 
-        <EventSingleFieldInput
-          value={eventDetails.location}
-          textHandler={value => setEventDetail('location', value)}
-          placeholder="Location"
-          iconName="location-outline"
-        />
+          <EventTextFieldInput
+            value={eventDetails.description}
+            textHandler={value => setEventDetail('description', value)}
+          />
 
-        <DateTimeInput
-          placeholder="Start Time"
-          value={startDateString}
-          textHandler={setStartDateString}
-          onPressHandler={() => setStartOpen(true)}
-        />
-        <DatePicker
-          modal
-          open={startOpen}
-          date={eventDetails.from_datetime}
-          minimumDate={new Date()}
-          minuteInterval={15}
-          onConfirm={date => {
-            setStartOpen(false);
-            setEventDetail('from_datetime', date);
-            setStartDateString(formatDateTime(date));
-            if (date > eventDetails.to_datetime) {
-              setEventDetail('to_datetime', new Date());
-              setEndDateString('');
-            }
-          }}
-          onCancel={() => {
-            setStartOpen(false);
-          }}
-        />
+          <EventSingleFieldInput
+            value={eventDetails.location}
+            textHandler={value => setEventDetail('location', value)}
+            placeholder="Location"
+            iconName="location-outline"
+          />
 
-        <DateTimeInput
-          placeholder="End Time"
-          value={endDateString}
-          textHandler={setEndDateString}
-          onPressHandler={() => setEndOpen(true)}
-        />
-        <DatePicker
-          modal
-          open={endOpen}
-          date={eventDetails.to_datetime}
-          minimumDate={eventDetails.from_datetime}
-          minuteInterval={15}
-          onConfirm={date => {
-            setEndOpen(false);
-            setEventDetail('to_datetime', date);
-            // console.log(date.getMonth())
-            setEndDateString(formatDateTime(date));
-          }}
-          onCancel={() => {
-            setEndOpen(false);
-          }}
-        />
+          <DateTimeInput
+            placeholder="Start Time"
+            value={startDateString}
+            textHandler={setStartDateString}
+            onPressHandler={() => setStartOpen(true)}
+          />
+          <DatePicker
+            modal
+            open={startOpen}
+            date={eventDetails.from_datetime}
+            minimumDate={new Date()}
+            minuteInterval={15}
+            onConfirm={date => {
+              setStartOpen(false);
+              setEventDetail('from_datetime', date);
+              setStartDateString(formatDateTime(date));
+              if (date > eventDetails.to_datetime) {
+                setEventDetail('to_datetime', new Date());
+                setEndDateString('');
+              }
+            }}
+            onCancel={() => {
+              setStartOpen(false);
+            }}
+          />
 
-        <EventSingleFieldInput
-          placeholder="Capacity (does not include yourself)"
-          value={eventDetails.max_capacity.toString()}
-          textHandler={value => setEventDetail('max_capacity', value)}
-          keyboardType="numeric"
-          iconName="people-outline"
-        />
-      </VStack>
+          <DateTimeInput
+            placeholder="End Time"
+            value={endDateString}
+            textHandler={setEndDateString}
+            onPressHandler={() => setEndOpen(true)}
+          />
+          <DatePicker
+            modal
+            open={endOpen}
+            date={eventDetails.to_datetime}
+            minimumDate={eventDetails.from_datetime}
+            minuteInterval={15}
+            onConfirm={date => {
+              setEndOpen(false);
+              setEventDetail('to_datetime', date);
+              // console.log(date.getMonth())
+              setEndDateString(formatDateTime(date));
+            }}
+            onCancel={() => {
+              setEndOpen(false);
+            }}
+          />
 
-      <CustomButton
-        title="Edit Event"
-        width="100%"
-        color="#fb923c" // orange.400
-        onPressHandler={handleEditEvent}
-        isDisabled={loading}
-      />
-    </Wrapper>
+          <EventSingleFieldInput
+            placeholder="Capacity (does not include yourself)"
+            value={eventDetails.max_capacity.toString()}
+            textHandler={value => setEventDetail('max_capacity', value)}
+            keyboardType="numeric"
+            iconName="people-outline"
+          />
+        </VStack>
+
+        <CustomButton
+          title="Edit Event"
+          width="100%"
+          color="#fb923c" // orange.400
+          onPressHandler={handleEditEvent}
+          isDisabled={loading}
+        />
+      </Wrapper>
+    </>
   );
 };
 

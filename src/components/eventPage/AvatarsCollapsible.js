@@ -3,10 +3,13 @@ import {TouchableOpacity, Image} from 'react-native';
 import {View, VStack, Avatar} from 'native-base';
 import { getPublicURL } from '../../functions/helpers';
 import { PROFILE_DEFAULT_IMAGE } from '../../constants/constants';
+import { useNavigation } from '@react-navigation/native';
 
 export const AvatarsCollapsible = props => {
   const {avatarUrls} = props;
   const [avatarUrlList, setAvatarUrlList] = useState([]);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     setAvatarUrlList(avatarUrls);
@@ -22,7 +25,9 @@ export const AvatarsCollapsible = props => {
         <Avatar>
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => alert(data.username)}>
+            onPress={() => navigation.navigate('AvatarProfile', {
+              userId: data.id, showBackButton: true
+            })}>
             <Avatar
               key={index}
               bg={avatar_publicURL.uri ? "orange.500" : '#f2f2f2'}

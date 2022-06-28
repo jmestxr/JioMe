@@ -1,15 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {
-  Avatar,
-  Center,
-  Text,
-  Icon,
-  HStack,
-  VStack,
-  View,
-  IconButton,
-} from 'native-base';
-import {MaterialIcons} from '@native-base/icons';
+import {Avatar, Center, Text, Icon, HStack, VStack, View} from 'native-base';
+import {MaterialIcons, Ionicons} from '@native-base/icons';
 import {Wrapper} from '../components/basic/Wrapper';
 import Background from '../components/eventPage/Background';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
@@ -27,15 +18,16 @@ import {HeaderButton} from '../components/basic/HeaderButton';
 import {LoadingPage} from '../components/basic/LoadingPage';
 
 import Toast from 'react-native-toast-message';
-import {TapGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/tapGesture';
 
-const UserProfile = () => {
-  const {user} = useAuth();
+const UserProfile = ({route}) => {
+  const {user} = useAuth(); // the current logged-in user
   const isFocused = useIsFocused();
   const navigation = useNavigation();
 
   // Get signOut function from the auth context
   const {signOut} = useAuth();
+
+  const {userId, showBackButton} = route.params; // userId: the unique id of this user
 
   const [loadingPage, setLoadingPage] = useState(false);
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
@@ -71,7 +63,7 @@ const UserProfile = () => {
       let {data, error} = await supabase
         .from('profiles')
         .select('username, avatar_url, profile_description')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single();
 
       if (error) throw error;
@@ -100,7 +92,7 @@ const UserProfile = () => {
       if (uploadError) throw uploadError;
 
       let {error: updateError} = await supabase.from('profiles').upsert({
-        id: user.id,
+        id: userId,
         avatar_url: filePath,
       });
 
@@ -123,7 +115,7 @@ const UserProfile = () => {
       let {data: participatedData, error: participatedError} = await supabase
         .from('events')
         .select('*, user_joinedevents!inner(*)')
-        .eq('user_joinedevents.user_id', user.id)
+        .eq('user_joinedevents.user_id', userId)
         .lt('to_datetime', getLocalDateTimeNow());
 
       if (participatedError) throw participatedError;
@@ -134,7 +126,7 @@ const UserProfile = () => {
       let {data: organisedData, error: organisedError} = await supabase
         .from('events')
         .select('*')
-        .eq('organiser_id', user.id)
+        .eq('organiser_id', userId)
         .lt('to_datetime', getLocalDateTimeNow());
       if (organisedError) throw organisedError;
       if (organisedData) {
@@ -182,6 +174,14 @@ const UserProfile = () => {
   ) : (
     <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#a1a1aa">
       <Background fromColor="#a1a1aa" toColor="#f2f2f2">
+        {showBackButton ? (
+          <HeaderButton
+            onPressHandler={() => navigation.goBack()}
+            xShift={12}
+            icon={<Icon as={Ionicons} name="chevron-back" color="white" />}
+          />
+        ) : null}
+
         <HeaderButton
           onPressHandler={() => alert('TODO: Enable edit description')}
           xShift={350}
@@ -238,7 +238,12 @@ const UserProfile = () => {
             imageWidth={150}
             imageHeight={150}
             textMessage={
-              'You have not completed any events.' + '\n' + 'Join one now!'
+              (userId == user.id
+                ? 'You have'
+                : profileDetails.username + ' has') +
+              ' ' +
+              'not completed any events.' +
+              (userId == user.id ? '\n' + 'Join one now!' : '')
             }
           />
         ) : (
@@ -269,8 +274,9 @@ const UserProfile = () => {
                   activeOpacity={0.5}
                   style={{padding: '1%'}}
                   onPress={() =>
-                    navigation.navigate('EventPage', {
-                      eventId: detail.id,
+                    navigation.navigate('PastEventPage', {
+                      screen: 'EventPage',
+                      params: {eventId: detail.id},
                     })
                   }>
                   <Avatar
