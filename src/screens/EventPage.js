@@ -19,6 +19,8 @@ import {supabase} from '../../supabaseClient';
 import {useIsFocused} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../components/contexts/Auth';
+import { CommentCollapsible } from '../components/eventPage/CommentCollapsible';
+import { CommentModal } from '../components/eventPage/CommentModal';
 
 import {
   MONTH,
@@ -80,6 +82,7 @@ const EventPage = ({route}) => {
 
   const [organiserDetails, setOrganiserDetails] = useState({});
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     if (isFocused) {
@@ -91,6 +94,8 @@ const EventPage = ({route}) => {
         .then(() => getLikedState())
         .then(() => getJoinedState())
         .then(() => getEditPermission())
+        .then(() => getComments())
+        // .then(() => mapComments())
         .then(() => setLoadingPage(false));
     } else {
       setLoadingPage(true);
@@ -134,6 +139,40 @@ const EventPage = ({route}) => {
       results => setCanEdit(results[0] == 1 && results[1] == 0),
     );
   };
+
+  const getComments = async () => {
+    try {
+      const {data, count, error} = await supabase
+      
+        .from('comments')
+        .select('created_at, user_id, event_id, comment, profiles!inner(*)', {count: 'exact'})
+        // .select('comment', {count: 'exact'})
+        .match({event_id: eventId});
+      if (error) throw error;
+      if (data) {
+        // let newData = data.map(x => {
+        //   let avatarurl = getCommentAvatar(x.user_id)
+        //   return {"comment": x.comment,
+        //       "event_id": x.event_id,
+        //       "user_id": avatarurl}
+        // })
+        // console.log(newData)
+        setComments(data);
+      }
+    } catch (error) {
+      console.log(error.error_description || error.message);
+    }
+  }
+
+  // const mapComments = async () => {
+  //   let newComments = comments.map(x => {
+  //     let avatarurl = await getCommentAvatar(x.user_id)
+  //     console.log(avatarurl)
+  //         return {"comment": x.comment,
+  //             "event_id": x.event_id,
+  //             "user_id": avatarurl}
+  //   })
+  // }
 
   const getEventDetails = async e => {
     try {
@@ -180,6 +219,25 @@ const EventPage = ({route}) => {
       console.log(error.error_description || error.message);
     }
   };
+
+  // function stores list of avatar private URLS in participantsAvatars
+  // const getCommentAvatar = async (user_id) => {
+  //   try {
+  //     const {data, error} = await supabase
+  //       .from('profiles')
+  //       .select('avatar_url')
+  //       .eq('id', user_id);
+
+  //     if (error) throw error;
+  //     if (data) {
+  //       // setParticipantsAvatars(data);
+  //       console.log(data[0].avatar_url)
+  //       return data[0].avatar_url;
+  //     }
+  //   } catch (error) {
+  //     console.log(error.error_description || error.message);
+  //   }
+  // };
 
   const joinEventHandler = async () => {
     setLoadingEventHandler(true);
@@ -294,10 +352,30 @@ const EventPage = ({route}) => {
                     eventId: eventId,
                   })
                 }
-                xShift={295}
+                xShift={240}
                 icon={<Icon as={MaterialIcons} name="edit" color="white" />}
               />
             ) : null}
+
+<CommentModal
+            modalButton={
+              <HeaderButton
+              position='relative'
+              xShift={0}
+              yShift={0}
+              icon={
+                <Icon
+                  as={MaterialIcons}
+                  name={liked ? 'favorite' : 'favorite-outline'}
+                  color={liked ? 'red.500' : 'white'}
+                />
+              }
+              />
+            }
+            confirmHandler={deleteEventHandler}
+            isLoading={loadingEventHandler}
+            data = {comments}
+          />
 
             <HeaderButton
               onPressHandler={toggleLiked}
@@ -310,6 +388,7 @@ const EventPage = ({route}) => {
                 />
               }
             />
+            
           </ImageBackground>
 
           <Center>
@@ -386,6 +465,10 @@ const EventPage = ({route}) => {
           ) : (
             <AvatarsCollapsible avatarUrls={participantsAvatars} />
           )}
+        </Detail>
+
+        <Detail title="Comments">
+          <CommentCollapsible comments={comments}/>
         </Detail>
       </VStack>
 
