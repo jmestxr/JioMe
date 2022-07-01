@@ -47,6 +47,27 @@ export const handleUnlikeEvent = async (userId, eventId) => {
   }
 };
 
+export const getEventDetails = async (eventId) => {
+  try {
+    const {data, error} = await supabase
+      .from('events')
+      .select(
+        `
+        *,
+        profiles!events_organiser_id_fkey (
+          *
+        )
+      `,
+      )
+      .eq('id', eventId)
+      .single();
+    if (error) throw error;
+    if (data) return data;
+  } catch (error) {
+    console.log(error)
+  }
+};
+
 export const getEventCurrCapacity = async eventId => {
   try {
     const {data, count, error} = await supabase

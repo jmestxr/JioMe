@@ -15,6 +15,8 @@ import { CardStyleInterpolators } from '@react-navigation/stack';
 import {AuthProvider} from './src/components/contexts/Auth';
 import Toast from 'react-native-toast-message';
 
+import ChatRoom from './src/screens/ChatRoom'
+
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -102,7 +104,7 @@ const App = () => {
       <NavigationContainer>
         <AuthProvider>
           <Stack.Navigator
-            initialRouteName="SignIn"
+            initialRouteName="ChatRoom"
             screenOptions={{
               headerShown: false
             }}>
@@ -118,6 +120,11 @@ const App = () => {
             <Stack.Screen
               name="Dashboard"
               component={BottomTabs}
+            />
+            <Stack.Screen
+              name="ChatRoom"
+              component={ChatRoom}
+              options={{headerShown: false}}
             />
           </Stack.Navigator>
         </AuthProvider>
