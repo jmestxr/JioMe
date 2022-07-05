@@ -26,7 +26,8 @@ export const AvatarsCollapsible = props => {
           <TouchableOpacity
             activeOpacity={0.5}
             onPress={() => navigation.navigate('AvatarProfile', {
-              userId: data.id, showBackButton: true
+              screen:'UserProfile',
+              params: {userId: data.id, showBackButton: true}
             })}>
             <Avatar
               key={index}

@@ -2,11 +2,11 @@ import React from 'react';
 import {IconButton} from 'native-base';
 
 export const HeaderButton = props => {
-  const {onPressHandler, xShift, yShift=5, icon, showBgColor=true} = props;
+  const {onPressHandler, xShift, yShift=5, icon, showBgColor=true, position='absolute'} = props;
 
   return (
     <IconButton
-      position='absolute'
+      position={position}
       style={{transform: [{translateX: xShift}, {translateY: yShift}]}}
       bgColor={showBgColor ? "gray.300:alpha.50" : 'transparent'}
       icon={icon}

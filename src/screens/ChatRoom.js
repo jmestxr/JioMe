@@ -6,15 +6,234 @@ import {
   InputToolbar,
   Send,
   Composer,
+  LoadEarlier,
 } from 'react-native-gifted-chat';
-import {Center, Icon, View, Avatar, Text, VStack, HStack} from 'native-base';
+import {
+  Center,
+  Icon,
+  View,
+  Avatar,
+  Text,
+  VStack,
+  HStack,
+  Pressable,
+} from 'native-base';
 import {Ionicons} from '@native-base/icons';
 import {supabase} from '../../supabaseClient';
 import {getEventCurrCapacity, getEventDetails} from '../functions/eventHelpers';
 import {getPublicURL} from '../functions/helpers';
+import {useAuth} from '../components/contexts/Auth';
+import {HeaderButton} from '../components/basic/HeaderButton';
+import {useNavigation} from '@react-navigation/native';
+import {Loading} from '../components/basic/Loading';
+
+const ChatRoom = ({route}) => {
+  const {eventId, eventDetails} = route.params;
+
+  const {user} = useAuth();
+  const navigation = useNavigation();
+
+  const [messages, setMessages] = useState([]);
+  const [eventCurrCapacity, setEventCurrCapacity] = useState(0);
+
+  useEffect(() => {
+    getMessages();
+
+    const subscription = supabase
+      .from('chat_messages')
+      .on('INSERT', payload => {
+        // console.log('payload is ', payload);
+        const newMessage = payload.new;
+        if (newMessage.user_id != user.id) {
+          getSenderDetails(newMessage.user_id).then(sender => {
+            // console.log('sender is ', sender);
+            newMessage.profiles = {};
+            newMessage.profiles.id = sender.id;
+            newMessage.profiles.username = sender.username;
+
+            // console.log('new message is ', newMessage);
+
+            setMessages(previousMessages =>
+              GiftedChat.append(previousMessages, [
+                constructMessageObject(newMessage),
+              ]),
+            );
+          });
+        }
+      })
+      .subscribe();
+
+    // return () => {
+    //   supabase.removeSubscription(subscription);
+    // };
+
+    getEventCurrCapacity(eventId).then(currCap =>
+      setEventCurrCapacity(currCap),
+    );
+  }, []);
+
+  const constructMessageObject = data => {
+    return {
+      _id: data.id,
+      text: data.text,
+      createdAt: new Date(data.created_at),
+      user: {
+        _id: data.profiles.id,
+        name: data.profiles.username,
+        avatar: getPublicURL(data.profiles.avatar_url, 'avatars').uri,
+      },
+    };
+  };
+
+  const getSenderDetails = async senderId => {
+    try {
+      const {data, error} = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', senderId)
+        .single();
+
+      if (error) throw error;
+      if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getMessages = async () => {
+    try {
+      const {data, error} = await supabase
+        .from('chat_messages')
+        .select('*, profiles!chat_messages_user_id_fkey(*)')
+        .eq('event_id', eventId)
+        .order('created_at', {ascending: false});
+
+      if (error) throw error;
+      if (data) {
+        const messagesArr = [];
+        for (let i = 0; i < data.length; i++) {
+          messagesArr[messagesArr.length] = constructMessageObject(data[i]);
+        }
+        setMessages(messagesArr);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onSend = useCallback((newMessages = []) => {
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, newMessages),
+    );
+    // console.log('all messages: ', messages)
+  }, []);
+
+  const insertMessage = async textMessage => {
+    try {
+      const {data, error} = await supabase.from('chat_messages').insert([
+        {
+          event_id: eventId,
+          user_id: user.id,
+          text: textMessage,
+        },
+      ]);
+
+      if (error) throw error;
+      if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      {renderChatHeader(eventDetails, eventCurrCapacity)}
+
+      <GiftedChat
+        messages={messages}
+        onSend={messages => {
+          // console.log('sent message is ', messages);
+          onSend(messages);
+          insertMessage(messages[0].text);
+        }}
+        user={{
+          _id: user.id,
+        }}
+        alwaysShowSend={true}
+        onPressAvatar={user =>
+          navigation.navigate('AvatarProfile', {
+            screen: 'UserProfile',
+            params: {userId: user._id, showBackButton: true},
+          })
+        }
+        renderBubble={renderBubble}
+        renderMessageText={renderMessageText}
+        renderInputToolbar={renderInputToolbar}
+        renderSend={renderSend}
+        renderComposer={renderComposer}
+        renderChatFooter={renderChatFooter}
+        renderLoading={renderLoading}
+      />
+    </>
+  );
+};
+
+// This is a self-made component, not from react-native-gifted-chat
+const renderChatHeader = (eventDetails, eventCurrCapacity) => {
+  const navigation = useNavigation();
+
+  return (
+    <HStack
+      borderBottomWidth={1}
+      borderColor="gray.200"
+      alignItems="center"
+      justifyContent="space-between"
+      padding="3%"
+      paddingTop="2%"
+      paddingBottom="2%">
+      <HeaderButton
+        onPressHandler={() => navigation.goBack()}
+        xShift={0}
+        yShift={0}
+        position="relative"
+        icon={<Icon as={Ionicons} name="chevron-back" color="black" />}
+        showBgColor={false}
+      />
+      <Pressable
+        flex={1}
+        onPress={() =>
+          navigation.navigate('JoinedEventPage', {
+            screen: 'EventPage',
+            params: {eventId: eventDetails.id},
+          })
+        }>
+        {({isHovered, isFocused, isPressed}) => {
+          return (
+            <HStack
+              space={5}
+              alignItems="center"
+              justifyContent="flex-end">
+              <VStack flex={1}>
+                <Text fontSize="lg" fontWeight="semibold" textAlign="right">
+                  {eventDetails.title}
+                </Text>
+                <Text textAlign="right">
+                  {eventCurrCapacity + 1 + ' members'}{' '}
+                </Text>
+              </VStack>
+              <Avatar
+                source={getPublicURL(eventDetails.picture_url, 'eventpics')}
+                size="xl"></Avatar>
+            </HStack>
+          );
+        }}
+      </Pressable>
+    </HStack>
+  );
+};
 
 const renderChatFooter = () => {
-  return <View height={7} width="100%"></View>;
+  return <View height={10} width="100%"></View>;
 };
 
 const renderComposer = props => {
@@ -104,161 +323,11 @@ const renderBubble = props => {
   );
 };
 
-const ChatRoom = () => {
-  const [messages, setMessages] = useState([]);
-  const [eventDetails, setEventDetails] = useState({});
-  const [eventCurrCapacity, setEventCurrCapacity] = useState(0);
-
-  useEffect(() => {
-    getMessages();
-
-    const subscription = supabase
-      .from('chat_messages')
-      .on('INSERT', payload => {
-        // console.log('payload is ', payload);
-        const newMessage = payload.new;
-        if (newMessage.user_id != '4a8f494c-6609-4bbe-981a-c082a99325e4') {
-          getSenderDetails(newMessage.user_id).then(sender => {
-            // console.log('sender is ', sender);
-            newMessage.profiles = {};
-            newMessage.profiles.id = sender.id;
-            newMessage.profiles.username = sender.username;
-
-            // console.log('new message is ', newMessage);
-
-            setMessages(previousMessages =>
-              GiftedChat.append(previousMessages, [
-                constructMessageObject(newMessage),
-              ]),
-            );
-          });
-        }
-      })
-      .subscribe();
-
-    // return () => {
-    //   supabase.removeSubscription(subscription);
-    // };
-
-    getEventDetails('7fffd7a3-fcfe-447c-b50c-700ec4824eb1')
-      .then(details => setEventDetails(details))
-
-    getEventCurrCapacity('7fffd7a3-fcfe-447c-b50c-700ec4824eb1')
-      .then(currCap => setEventCurrCapacity(currCap))
-  }, []);
-
-  const constructMessageObject = data => {
-    return {
-      _id: data.id,
-      text: data.text,
-      createdAt: new Date(data.created_at),
-      user: {
-        _id: data.profiles.id,
-        name: data.profiles.username,
-        // avatar: 'https://facebook.github.io/react/img/logo_og.png',
-      },
-    };
-  };
-
-  const getSenderDetails = async senderId => {
-    try {
-      const {data, error} = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', senderId)
-        .single();
-
-      if (error) throw error;
-      if (data) return data;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getMessages = async () => {
-    try {
-      const {data, error} = await supabase
-        .from('chat_messages')
-        .select('*, profiles!chat_messages_user_id_fkey(*)')
-        .eq('event_id', '7fffd7a3-fcfe-447c-b50c-700ec4824eb1')
-        .order('created_at', {ascending: false});
-
-      if (error) throw error;
-      if (data) {
-        const messagesArr = [];
-        for (let i = 0; i < data.length; i++) {
-          messagesArr[messagesArr.length] = constructMessageObject(data[i]);
-        }
-        setMessages(messagesArr);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onSend = useCallback((newMessages = []) => {
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, newMessages),
-    );
-    // console.log('all messages: ', messages)
-  }, []);
-
-  const insertMessage = async textMessage => {
-    try {
-      const {data, error} = await supabase.from('chat_messages').insert([
-        {
-          event_id: '7fffd7a3-fcfe-447c-b50c-700ec4824eb1',
-          user_id: '4a8f494c-6609-4bbe-981a-c082a99325e4',
-          text: textMessage,
-        },
-      ]);
-
-      if (error) throw error;
-      if (data) return data;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+const renderLoading = () => {
   return (
-    <>
-      <HStack 
-        space={3}
-        borderBottomWidth={1} 
-        borderColor="gray.200" 
-        alignItems='center' 
-        justifyContent='flex-end'
-        padding='3%'
-        paddingTop='2%'
-        paddingBottom='2%'>
-        <VStack>
-          <Text fontSize="lg" fontWeight='semibold'>{eventDetails.title}</Text>
-          <Text>{(eventCurrCapacity + 1) + ' members'} </Text>
-        </VStack>
-        <Avatar
-          source={getPublicURL(eventDetails.picture_url, 'eventpics')}
-          size="xl"></Avatar>
-      </HStack>
-
-      <GiftedChat
-        messages={messages}
-        onSend={messages => {
-          // console.log('sent message is ', messages);
-          onSend(messages);
-          insertMessage(messages[0].text);
-        }}
-        user={{
-          _id: '4a8f494c-6609-4bbe-981a-c082a99325e4',
-        }}
-        alwaysShowSend={true}
-        renderBubble={renderBubble}
-        renderMessageText={renderMessageText}
-        renderInputToolbar={renderInputToolbar}
-        renderSend={renderSend}
-        renderComposer={renderComposer}
-        renderChatFooter={renderChatFooter}
-      />
-    </>
+    <Center height="100%" width="100%">
+      <Loading />
+    </Center>
   );
 };
 

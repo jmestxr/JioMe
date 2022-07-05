@@ -10,21 +10,23 @@ import UserProfile from '../../screens/UserProfile';
 import EventPage from '../../screens/EventPage';
 import EventEditForm from '../../screens/EventEditForm';
 import {Marketplace} from '../../screens/Marketplace';
+import ChatRoom from '../../screens/ChatRoom';
 
 import {CardStyleInterpolators} from '@react-navigation/stack';
-import { useAuth } from '../contexts/Auth';
-import { StackActions } from '@react-navigation/native';
+import {useAuth} from '../contexts/Auth';
+import {StackActions} from '@react-navigation/native';
+import ChatsPage from '../../screens/ChatsPage';
 
-const TAB_TO_RESET = ['Home', 'Marketplace', 'Liked', 'Profile'];
-const resetStackNavigators = ({ navigation, route }) => ({
-  tabPress: (e) => {
+const TAB_TO_RESET = ['Home', 'Marketplace', 'Liked', 'Chat', 'Profile'];
+const resetStackNavigators = ({navigation, route}) => ({
+  tabPress: e => {
     const state = navigation.getState();
 
     if (state) {
       // Grab all the tabs that are NOT the one we just pressed
-      const nonTargetTabs = state.routes.filter((r) => r.key !== e.target);
+      const nonTargetTabs = state.routes.filter(r => r.key !== e.target);
 
-      nonTargetTabs.forEach((tab) => {
+      nonTargetTabs.forEach(tab => {
         // Find the tab we want to reset and grab the key of the nested stack
         const tabName = tab?.name;
         const stackKey = tab?.state?.key;
@@ -42,6 +44,7 @@ const resetStackNavigators = ({ navigation, route }) => ({
 });
 
 const CustomTabBar = ({state, descriptors, navigation}) => {
+  const {user} = useAuth();
   return (
     <View style={styles.bar}>
       {state.routes.map((route, index) => {
@@ -66,7 +69,12 @@ const CustomTabBar = ({state, descriptors, navigation}) => {
 
           if (!isFocused && !event.defaultPrevented) {
             // The `merge: true` option makes sure that the params inside the tab screen are preserved
-            navigation.navigate({name: route.name, merge: true});
+            route.name == 'Profile'
+              ? navigation.navigate('Profile', {
+                  screen: 'UserProfile',
+                  params: {userId: user.id, showBackButton: false},
+                })
+              : navigation.navigate({name: route.name, merge: true});
           }
         };
 
@@ -77,8 +85,7 @@ const CustomTabBar = ({state, descriptors, navigation}) => {
           });
         };
 
-        return route.name == 'EventPage' ||
-          route.name == 'EventEditForm' ? null : (
+        return (
           <BarIcon
             color={isFocused ? 'orange.600' : 'gray.600'}
             onPressHandler={onPress}
@@ -137,6 +144,15 @@ const BottomTabs = () => {
         listeners={resetStackNavigators}
       />
       <Tab.Screen
+        name="Chat"
+        component={ChatScreens}
+        options={{
+          tabBarLabel: 'Chats',
+          tabBarIcon: TabIcon({tabName: 'Chats', iconName: 'chat'}),
+        }}
+        listeners={resetStackNavigators}
+      />
+      <Tab.Screen
         name="Profile"
         component={ProfileScreens}
         options={{
@@ -159,7 +175,7 @@ const EventPageScreens = () => {
       <EventPageStack.Screen name="EventPage" component={EventPage} />
       <EventPageStack.Screen
         name="AvatarProfile"
-        component={UserProfile}
+        component={ProfileScreens}
         options={{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
@@ -237,18 +253,50 @@ const WishlistScreens = () => {
   );
 };
 
+const ChatStack = createStackNavigator();
+const ChatScreens = () => {
+  return (
+    <ChatStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <ChatStack.Screen name="ChatsPage" component={ChatsPage} />
+      <ChatStack.Screen
+        name="ChatRoom"
+        component={ChatRoom}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <DashboardStack.Screen
+        name="JoinedEventPage"
+        component={EventPageScreens}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <ChatStack.Screen
+        name="AvatarProfile"
+        component={ProfileScreens}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+    </ChatStack.Navigator>
+  );
+};
+
 const ProfileStack = createStackNavigator();
 const ProfileScreens = () => {
-  const {user} = useAuth();
   return (
     <ProfileStack.Navigator
       screenOptions={{
         headerShown: false,
       }}>
-      <ProfileStack.Screen 
-        name="Profile" 
-        component={UserProfile} 
-        initialParams={{userId: user.id, showBackbutton: false}} />
+      <ProfileStack.Screen name="UserProfile" component={UserProfile} />
       <ProfileStack.Screen
         name="PastEventPage"
         component={EventPageScreens}

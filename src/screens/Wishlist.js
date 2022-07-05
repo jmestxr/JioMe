@@ -166,7 +166,7 @@ const Wishlist = () => {
                 }
               />
             ) : (
-              <VStack width="100%" space={4}>
+              <VStack width="100%" space={2}>
                 {likedEventsDetails.map((detail, index) => {
                   return (
                     <LikedEventCard

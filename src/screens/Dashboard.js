@@ -183,7 +183,7 @@ const Dashboard = () => {
                 }
               />
             ) : (
-              <VStack width="90%" space={4} alignItems="center">
+              <VStack width="90%" space={2} alignItems="center">
                 {upcomingEventsParticipatedDetails.map((detail, index) => {
                   return (
                     <UpcomingEventCard

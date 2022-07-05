@@ -96,7 +96,7 @@ export const LikedEventCard = props => {
                 </Text>
               </HStack>
             </View>
-            <View position="absolute" left={0.5}>
+            <View position="absolute" top={0.5} left={0.5}>
               <CustomModal
                 modalButton={
                   <CardButton buttonColor="emerald.500" iconName="person-add" />
@@ -106,7 +106,7 @@ export const LikedEventCard = props => {
               />
             </View>
 
-            <View position="absolute" left={8}>
+            <View position="absolute" top={0.5} left={8}>
               <CardButton
                 buttonColor="red.400"
                 iconName="delete"

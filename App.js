@@ -18,7 +18,7 @@ import Toast from 'react-native-toast-message';
 import ChatRoom from './src/screens/ChatRoom'
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
-LogBox.ignoreAllLogs(); //Ignore all log notifications
+LogBox.ignoreAllLogs(); //Ignore agll log notifications
 
 const theme = extendTheme({
   fontConfig: {
@@ -104,7 +104,7 @@ const App = () => {
       <NavigationContainer>
         <AuthProvider>
           <Stack.Navigator
-            initialRouteName="ChatRoom"
+            initialRouteName="SignIn"
             screenOptions={{
               headerShown: false
             }}>

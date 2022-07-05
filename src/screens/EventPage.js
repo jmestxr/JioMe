@@ -375,7 +375,8 @@ const EventPage = ({route}) => {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => navigation.navigate('AvatarProfile', {
-                userId: organiserDetails.id, showBackButton: true
+                screen: 'UserProfile',
+                params: {userId: organiserDetails.id, showBackButton: true}
               })}>
               <Avatar
                 bg={getOrganiserAvatarPublicURL().uri ? 'orange.500' : 'white'}
