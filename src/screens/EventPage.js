@@ -290,13 +290,7 @@ const EventPage = ({route}) => {
             <HeaderButton
               onPressHandler={() => navigation.goBack()}
               xShift={12}
-              icon={
-                <Icon
-                  as={Ionicons}
-                  name='chevron-back'
-                  color='white'
-                />
-              }
+              icon={<Icon as={Ionicons} name="chevron-back" color="white" />}
             />
 
             {canEdit ? (
@@ -374,17 +368,15 @@ const EventPage = ({route}) => {
           <Avatar>
             <TouchableOpacity
               activeOpacity={0.5}
-              onPress={() => navigation.navigate('AvatarProfile', {
-                screen: 'UserProfile',
-                params: {userId: organiserDetails.id, showBackButton: true}
-              })}>
+              onPress={() =>
+                navigation.navigate('AvatarProfile', {
+                  screen: 'UserProfile',
+                  params: {userId: organiserDetails.id, showBackButton: true},
+                })
+              }>
               <Avatar
-                bg={getOrganiserAvatarPublicURL().uri ? 'orange.500' : 'white'}
-                source={
-                  getOrganiserAvatarPublicURL().uri
-                    ? getOrganiserAvatarPublicURL()
-                    : {uri: PROFILE_DEFAULT_IMAGE}
-                }></Avatar>
+                bg='#f2f2f2'
+                source={getOrganiserAvatarPublicURL()}></Avatar>
             </TouchableOpacity>
           </Avatar>
         </Detail>

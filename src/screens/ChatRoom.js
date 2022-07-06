@@ -24,7 +24,7 @@ import {getEventCurrCapacity, getEventDetails} from '../functions/eventHelpers';
 import {getPublicURL} from '../functions/helpers';
 import {useAuth} from '../components/contexts/Auth';
 import {HeaderButton} from '../components/basic/HeaderButton';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {Loading} from '../components/basic/Loading';
 
 const ChatRoom = ({route}) => {
@@ -32,47 +32,51 @@ const ChatRoom = ({route}) => {
 
   const {user} = useAuth();
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
 
   const [messages, setMessages] = useState([]);
   const [eventCurrCapacity, setEventCurrCapacity] = useState(0);
 
   useEffect(() => {
-    getMessages();
-
     const subscription = supabase
       .from('chat_messages')
-      .on('INSERT', payload => {
-        // console.log('payload is ', payload);
-        const newMessage = payload.new;
-        if (newMessage.user_id != user.id) {
-          getSenderDetails(newMessage.user_id).then(sender => {
-            // console.log('sender is ', sender);
-            newMessage.profiles = {};
-            newMessage.profiles.id = sender.id;
-            newMessage.profiles.username = sender.username;
-
-            // console.log('new message is ', newMessage);
-
-            setMessages(previousMessages =>
-              GiftedChat.append(previousMessages, [
-                constructMessageObject(newMessage),
-              ]),
-            );
-          });
-        }
-      })
+      .on('INSERT', appendIncomingMessage)
+      // .on('INSERT', payload => console.log('BOOP'))
       .subscribe();
 
-    // return () => {
-    //   supabase.removeSubscription(subscription);
-    // };
+    getMessages()
+      .then(() => getEventCurrCapacity(eventId))
+      .then(currCap => setEventCurrCapacity(currCap));
 
-    getEventCurrCapacity(eventId).then(currCap =>
-      setEventCurrCapacity(currCap),
-    );
+    return () => {
+      supabase.removeSubscription(subscription);
+    };
   }, []);
 
-  const constructMessageObject = data => {
+  const appendIncomingMessage = async payload => {
+    const newMessage = payload.new;
+    if (newMessage.user_id != user.id) {
+      getSenderDetails(newMessage.user_id).then(sender => {
+        console.log('sender is ', sender);
+        newMessage.profiles = {id: '', username: '', avatar_url: ''};
+        newMessage.profiles.id = sender.id;
+        newMessage.profiles.username = sender.username;
+        newMessage.profiles.avatar_url = sender.avatar_url;
+
+        console.log('new message is ', newMessage);
+
+        setMessages(previousMessages =>
+          GiftedChat.append(previousMessages, [
+            constructMessageObjectForChat(newMessage),
+          ]),
+        );
+        // onSend([constructMessageObject(newMessage)]);
+        // setMessages(oldMessages => [...oldMessages, constructMessageObject(newMessage)])
+      });
+    }
+  };
+
+  const constructMessageObjectForChat = data => {
     return {
       _id: data.id,
       text: data.text,
@@ -94,7 +98,10 @@ const ChatRoom = ({route}) => {
         .single();
 
       if (error) throw error;
-      if (data) return data;
+      if (data) {
+        console.log('BOOP: ', data);
+        return data;
+      }
     } catch (error) {
       console.log(error);
     }
@@ -112,7 +119,12 @@ const ChatRoom = ({route}) => {
       if (data) {
         const messagesArr = [];
         for (let i = 0; i < data.length; i++) {
-          messagesArr[messagesArr.length] = constructMessageObject(data[i]);
+          messageAlreadyRead(data[i]).then(result =>
+            result == 0 ? markMessageAsRead(data[i]) : null,
+          );
+          messagesArr[messagesArr.length] = constructMessageObjectForChat(
+            data[i],
+          );
         }
         setMessages(messagesArr);
       }
@@ -125,21 +137,55 @@ const ChatRoom = ({route}) => {
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, newMessages),
     );
-    // console.log('all messages: ', messages)
   }, []);
 
-  const insertMessage = async textMessage => {
+  const insertMessage = async messageData => {
     try {
       const {data, error} = await supabase.from('chat_messages').insert([
         {
           event_id: eventId,
           user_id: user.id,
-          text: textMessage,
+          text: messageData.text,
         },
       ]);
 
       if (error) throw error;
       if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const markMessageAsRead = async messageData => {
+    try {
+      const {data, error} = await supabase.from('chat_messages_read').insert({
+        created_at: messageData.created_at,
+        event_id: messageData.event_id,
+        sender_id: messageData.user_id,
+        receiver_id: user.id,
+        text: messageData.text,
+      });
+      if (error) throw error;
+      if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const messageAlreadyRead = async messageData => {
+    try {
+      const {data, error, count} = await supabase
+        .from('chat_messages_read')
+        .select('*', {count: 'exact'})
+        .match({
+          created_at: messageData.created_at,
+          event_id: messageData.event_id,
+          sender_id: messageData.user_id,
+          receiver_id: user.id,
+          text: messageData.text,
+        });
+      if (error) throw error;
+      if (data) return count;
     } catch (error) {
       console.log(error);
     }
@@ -152,9 +198,8 @@ const ChatRoom = ({route}) => {
       <GiftedChat
         messages={messages}
         onSend={messages => {
-          // console.log('sent message is ', messages);
           onSend(messages);
-          insertMessage(messages[0].text);
+          insertMessage(messages[0]).then(data => markMessageAsRead(data));
         }}
         user={{
           _id: user.id,
@@ -209,10 +254,7 @@ const renderChatHeader = (eventDetails, eventCurrCapacity) => {
         }>
         {({isHovered, isFocused, isPressed}) => {
           return (
-            <HStack
-              space={5}
-              alignItems="center"
-              justifyContent="flex-end">
+            <HStack space={5} alignItems="center" justifyContent="flex-end">
               <VStack flex={1}>
                 <Text fontSize="lg" fontWeight="semibold" textAlign="right">
                   {eventDetails.title}

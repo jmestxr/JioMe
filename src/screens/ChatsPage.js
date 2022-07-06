@@ -7,20 +7,32 @@ import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import {useIsFocused} from '@react-navigation/native';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
+import {LoadingPage} from '../components/basic/LoadingPage';
 
 const ChatsPage = () => {
   const {user} = useAuth();
   const isFocused = useIsFocused();
 
+  const [reRender, setReRender] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [joinedEventsDetails, setJoinedEventsDetails] = useState([]);
 
   useEffect(() => {
-    getJoinedEventsDetails();
+    if (isFocused) {
+      setLoading(true);
+      getJoinedEventsDetails();
+    } else {
+      setLoading(true);
+    }
 
     const subscription = supabase
       .from('chat_messages')
       .on('INSERT', payload => getJoinedEventsDetails())
       .subscribe();
+
+    return () => {
+      supabase.removeSubscription(subscription);
+    };
   }, [isFocused]);
 
   // sort by last_chat_message created_at time (latest first)
@@ -55,10 +67,13 @@ const ChatsPage = () => {
     Promise.all([
       getJoinedEventsParticipatedDetails(),
       getJoinedEventsOrganisedDetails(),
-    ]).then(results => {
-      // sort by last_chat_message created_at time (latest first)
-      setJoinedEventsDetails(sortChats(results[0].concat(results[1])));
-    });
+    ])
+      .then(results => {
+        // sort by last_chat_message created_at time (latest first)
+        setJoinedEventsDetails(sortChats(results[0].concat(results[1])));
+      })
+      .then(() => setReRender(-reRender))
+      .then(() => setLoading(false));
   };
 
   const getJoinedEventsParticipatedDetails = async e => {
@@ -84,7 +99,6 @@ const ChatsPage = () => {
         .eq('organiser_id', user.id);
       if (error) throw error;
       if (data) {
-        console.log(data.length);
         // console.log(data[1].last_chat_message);
         return data;
       }
@@ -96,34 +110,43 @@ const ChatsPage = () => {
   return (
     <>
       <HeaderBar headerText="Event Chats" />
-
-      <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#ea580c">
-        {joinedEventsDetails.length == 0 ? (
-          <Center>
-            <Text
-              fontSize="lg"
-              fontWeight="medium"
-              marginTop="5%"
-              marginBottom="3%">
-              You have yet to join an event.
-            </Text>
-            <ZeroEventCard
-              imagePath={require('../assets/koala_chat.png')}
-              imageWidth={225}
-              imageHeight={225}
-              textMessage={
-                'Chats of joined events will be' + '\n' + 'displayed here.'
-              }
-            />
-          </Center>
-        ) : (
-          <VStack>
-            {joinedEventsDetails.map((detail, index) => {
-              return <ChatCard key={index} eventDetails={detail} />;
-            })}
-          </VStack>
-        )}
-      </Wrapper>
+      {loading ? (
+        <LoadingPage />
+      ) : (
+        <Wrapper contentViewStyle={{width: '100%'}} statusBarColor="#ea580c">
+          {joinedEventsDetails.length == 0 ? (
+            <Center>
+              <Text
+                fontSize="lg"
+                fontWeight="medium"
+                marginTop="5%"
+                marginBottom="3%">
+                You have yet to join an event.
+              </Text>
+              <ZeroEventCard
+                imagePath={require('../assets/koala_chat.png')}
+                imageWidth={225}
+                imageHeight={225}
+                textMessage={
+                  'Chats of joined events will be' + '\n' + 'displayed here.'
+                }
+              />
+            </Center>
+          ) : (
+            <VStack>
+              {joinedEventsDetails.map((detail, index) => {
+                return (
+                  <ChatCard
+                    key={index}
+                    eventDetails={detail}
+                    reRender={reRender}
+                  />
+                );
+              })}
+            </VStack>
+          )}
+        </Wrapper>
+      )}
     </>
   );
 };

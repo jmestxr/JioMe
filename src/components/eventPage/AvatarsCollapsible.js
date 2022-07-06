@@ -31,8 +31,8 @@ export const AvatarsCollapsible = props => {
             })}>
             <Avatar
               key={index}
-              bg={avatar_publicURL.uri ? "orange.500" : '#f2f2f2'}
-              source={avatar_publicURL.uri ? avatar_publicURL : {uri: PROFILE_DEFAULT_IMAGE}}></Avatar>
+              bg='#f2f2f2'
+              source={avatar_publicURL}></Avatar>
           </TouchableOpacity>
         </Avatar>
       );
