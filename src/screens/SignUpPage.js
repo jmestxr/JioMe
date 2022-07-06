@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Image} from 'react-native';
 import {Center, VStack, Text} from 'native-base';
+import {Ionicons} from '@native-base/icons';
 import {Warning} from '../components/basic/Warning';
 import CustomButton from '../components/basic/CustomButton';
 import AuthTextInput from '../components/auth/AuthTextInput';
@@ -15,6 +16,7 @@ const SignUpPage = () => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmpassword, setConfirmPassword] = useState('');
 
@@ -28,10 +30,11 @@ const SignUpPage = () => {
       const user = supabase.auth.user();
       const {data, error} = await supabase
         .from('profiles')
-        .insert([{id: user.id, username: username}]);
+        .insert([{id: user.id, username: username, email: email, phone: phoneNumber}]);
       // Clear fields
       setUsername('');
       setEmail('');
+      setPhoneNumber('');
       setPassword('');
       setConfirmPassword('');
 
@@ -89,6 +92,16 @@ const SignUpPage = () => {
         type: 'error',
         text1: 'Please enter a username.',
       });
+    } else if (phoneNumber.length == 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Please enter a phone number.',
+      });
+    } else if (phoneNumber.length != 9) {
+      Toast.show({
+        type: 'error',
+        text1: 'Phone number entered is invalid.',
+      });
     } else if (password.length < 8) {
       Toast.show({
         type: 'error',
@@ -107,7 +120,10 @@ const SignUpPage = () => {
           'Username has already been taken. Please enter a different username.',
       });
     } else {
-      const {error} = await signUp({email, password});
+      const {error} = await signUp({
+        email: email,
+        password: password,
+      });
       if (error) {
         Toast.show({
           type: 'error',
@@ -137,6 +153,21 @@ const SignUpPage = () => {
     }
   }
 
+  // function displays warning message if phone number is invalid
+  function checkPhoneNumber() {
+    if (phoneNumber.length > 0 && phoneNumber.length != 9) {
+      return <Warning warningMessage="Invalid phone number." />;
+    }
+  }
+
+  const handlePhoneNumber = text => {
+    let formattedText = text.split(' ').join('');
+    if (formattedText.length > 0) {
+      formattedText = formattedText.match(new RegExp('.{1,4}', 'g')).join(' ');
+    }
+    setPhoneNumber(formattedText);
+  };
+
   return (
     <Center height="100%" width="100%">
       <FocusAwareStatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
@@ -148,17 +179,25 @@ const SignUpPage = () => {
         <AuthTextInput
           placeholder="Username"
           value={username}
-          secureTextEntry={false}
           textHandler={setUsername}
           iconName="badge"
         />
         <AuthTextInput
           placeholder="Email"
           value={email}
-          secureTextEntry={false}
           textHandler={setEmail}
           iconName="mail-outline"
         />
+        <AuthTextInput
+          placeholder="Phone Number"
+          value={phoneNumber}
+          textHandler={handlePhoneNumber}
+          keyboardType="numeric"
+          iconLibrary={Ionicons}
+          iconName="call-outline"
+          textInFront={true}
+        />
+        {checkPhoneNumber()}
         <AuthTextInput
           placeholder="Password (At least 8 characters)"
           value={password}

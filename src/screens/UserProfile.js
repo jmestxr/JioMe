@@ -34,6 +34,8 @@ const UserProfile = ({route}) => {
 
   const [profileDetails, setProfileDetails] = useState({
     username: '',
+    email: '',
+    phone: '',
     avatar_url: '', // avatar private url
     profile_description: '',
   });
@@ -62,7 +64,7 @@ const UserProfile = ({route}) => {
 
       let {data, error} = await supabase
         .from('profiles')
-        .select('username, avatar_url, profile_description')
+        .select('username, email, phone, avatar_url, profile_description')
         .eq('id', userId)
         .single();
 
@@ -211,14 +213,14 @@ const UserProfile = ({route}) => {
                 width="45%"
                 iconName="mail-outline"
                 iconColor="gray.800">
-                <Text textAlign="center">(TODO: Email here)</Text>
+                <Text textAlign="center">{profileDetails.email}</Text>
               </EssentialDetail>
 
               <EssentialDetail
                 width="45%"
                 iconName="call-outline"
                 iconColor="gray.800">
-                <Text textAlign="center">+65 (TODO: Phone No here)</Text>
+                <Text textAlign="center">+65 {profileDetails.phone}</Text>
               </EssentialDetail>
             </HStack>
           </View>
