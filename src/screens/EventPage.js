@@ -43,6 +43,7 @@ import {
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
 import {LoadingPage} from '../components/basic/LoadingPage';
+import { convertAbsoluteToRem } from 'native-base/lib/typescript/theme/tools';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -83,6 +84,7 @@ const EventPage = ({route}) => {
   const [organiserDetails, setOrganiserDetails] = useState({});
   const [participantsAvatars, setParticipantsAvatars] = useState([]);
   const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState([]);
 
   useEffect(() => {
     if (isFocused) {
@@ -95,6 +97,7 @@ const EventPage = ({route}) => {
         .then(() => getJoinedState())
         .then(() => getEditPermission())
         .then(() => getComments())
+        .then(() => getReplies())
         // .then(() => mapComments())
         .then(() => setLoadingPage(false));
     } else {
@@ -145,11 +148,12 @@ const EventPage = ({route}) => {
       const {data, count, error} = await supabase
       
         .from('comments')
-        .select('created_at, user_id, event_id, comment, profiles!inner(*)', {count: 'exact'})
+        .select('created_at, user_id, event_id, comment, profiles:user_id(*)', {count: 'exact'})
         // .select('comment', {count: 'exact'})
         .match({event_id: eventId});
       if (error) throw error;
       if (data) {
+        // console.log(data)
         // let newData = data.map(x => {
         //   let avatarurl = getCommentAvatar(x.user_id)
         //   return {"comment": x.comment,
@@ -164,6 +168,22 @@ const EventPage = ({route}) => {
     }
   }
 
+  const getReplies = async () => {
+    try {
+      const {data, count, error} = await supabase
+      
+        .from('replies')
+        .select('created_at, user_id, event_id, comment_id, reply, profiles:user_id(*)', {count: 'exact'})
+        .match({event_id: eventId});
+      if (error) throw error;
+      if (data) {
+        // console.log(data)
+        setReplies(data);
+      }
+    } catch (error) {
+      console.log(error.error_description || error.message);
+    }
+  }
   // const mapComments = async () => {
   //   let newComments = comments.map(x => {
   //     let avatarurl = await getCommentAvatar(x.user_id)
@@ -375,6 +395,8 @@ const EventPage = ({route}) => {
             confirmHandler={deleteEventHandler}
             isLoading={loadingEventHandler}
             data = {comments}
+            replies = {replies}
+            // replies = {replies}
           />
 
             <HeaderButton
@@ -468,7 +490,7 @@ const EventPage = ({route}) => {
         </Detail>
 
         <Detail title="Comments">
-          <CommentCollapsible comments={comments}/>
+          <CommentCollapsible comments={comments} replies={replies}/>
         </Detail>
       </VStack>
 

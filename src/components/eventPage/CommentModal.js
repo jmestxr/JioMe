@@ -15,7 +15,8 @@ export const CommentModal = props => {
     confirmHandler,
     showWarning = false,
     isLoading = false,
-    data
+    data,
+    replies
   } = props;
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,7 +45,7 @@ export const CommentModal = props => {
           <VStack justifyContent="center" alignItems="center" space={5}>
             <Center width={"100%"}>
             <Detail title="Comments">
-          <CommentCollapsible comments={data}/>
+          <CommentCollapsible comments={data} replies={replies}/>
         </Detail>
               
             </Center>
