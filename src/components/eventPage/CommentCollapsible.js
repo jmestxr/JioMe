@@ -5,7 +5,7 @@ import { getPublicURL } from '../../functions/helpers';
 import { PROFILE_DEFAULT_IMAGE } from '../../constants/constants';
 
 export const CommentCollapsible = props => {
-    const { comments } = props;
+    const { comments, replies } = props;
     const [commentList, setCommentList] = useState([]);
 
     useEffect(() => {
