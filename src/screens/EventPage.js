@@ -43,6 +43,7 @@ import {
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
 import {LoadingPage} from '../components/basic/LoadingPage';
+import { CommentSection } from '../components/eventPage/CommentSection';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -357,7 +358,7 @@ const EventPage = ({route}) => {
               />
             ) : null}
 
-<CommentModal
+<CommentSection
             modalButton={
               <HeaderButton
               position='relative'
@@ -366,13 +367,12 @@ const EventPage = ({route}) => {
               icon={
                 <Icon
                   as={MaterialIcons}
-                  name={liked ? 'favorite' : 'favorite-outline'}
-                  color={liked ? 'red.500' : 'white'}
+                  name='forum'
+                  color='white'
                 />
               }
               />
             }
-            confirmHandler={deleteEventHandler}
             isLoading={loadingEventHandler}
             data = {comments}
           />
