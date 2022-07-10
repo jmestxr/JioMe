@@ -41,6 +41,7 @@ import {
 import {getLocalDateTimeNow, getPublicURL} from '../functions/helpers';
 import {CustomModal} from '../components/basic/CustomModal';
 import {LoadingPage} from '../components/basic/LoadingPage';
+import {CommentSection} from '../components/eventPage/CommentSection';
 
 const EventPage = ({route}) => {
   const isFocused = useIsFocused();
@@ -300,10 +301,22 @@ const EventPage = ({route}) => {
                     eventId: eventId,
                   })
                 }
-                xShift={295}
+                xShift={240}
                 icon={<Icon as={MaterialIcons} name="edit" color="white" />}
               />
             ) : null}
+
+            <CommentSection
+              modalButton={
+                <HeaderButton
+                  position="relative"
+                  xShift={0}
+                  yShift={0}
+                  icon={<Icon as={MaterialIcons} name="forum" color="white" />}
+                />
+              }
+              eventId={eventDetails.id}
+            />
 
             <HeaderButton
               onPressHandler={toggleLiked}

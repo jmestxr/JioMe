@@ -1,4 +1,4 @@
-import { supabase } from "../../supabaseClient";
+import {supabase} from '../../supabaseClient';
 
 export const getLocalDateTimeNow = () => {
   return new Date(
@@ -6,12 +6,11 @@ export const getLocalDateTimeNow = () => {
   ).toISOString();
 };
 
-export const getLocalDateTime = (date) => {
+export const getLocalDateTime = date => {
   return new Date(
     date.getTime() - date.getTimezoneOffset() * 60000,
   ).toISOString();
 };
-
 
 // function returns public url of picture given its private url (from supabase)
 export const getPublicURL = (privateURL, bucketName) => {
@@ -26,5 +25,21 @@ export const getPublicURL = (privateURL, bucketName) => {
     }
   } catch (error) {
     console.log(error.error_description || error.message);
+  }
+};
+
+// function returns profile details (username, avatar_url, etc) of user given its id
+export const getProfileDetails = async userId => {
+  try {
+    const {data, error} = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    if (data) return data;
+  } catch (error) {
+    console.log('error', error.message);
   }
 };
