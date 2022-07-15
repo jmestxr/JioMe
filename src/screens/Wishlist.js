@@ -38,7 +38,7 @@ const Wishlist = () => {
       const {data, error} = await supabase
         .from('events')
         .select('*, user_likedevents!inner(*)')
-        .eq('user_likedevents.user_id', user.id);
+        .eq('user_likedevents.user_id', user?.id);
 
       if (error) throw error;
       if (data) {
@@ -54,7 +54,7 @@ const Wishlist = () => {
     try {
       const {data, error} = await supabase.rpc(
         'getcurrcapacityofuserlikedevents',
-        {_user_id: user.id},
+        {_user_id: user?.id},
       );
 
       if (error) throw error;
@@ -68,13 +68,13 @@ const Wishlist = () => {
 
   // To unlike an event given its id
   const unLikeEventHandler = async eventId => {
-    handleUnlikeEvent(user.id, eventId).then(() => getLikedEventsDetails());
+    handleUnlikeEvent(user?.id, eventId).then(() => getLikedEventsDetails());
   };
 
   // To join an event given its id
   const joinEventHandler = async eventId => {
     setLoadingEventHandler(true);
-    handleJoinEvent(user.id, eventId).then(() => setLoadingEventHandler(false));
+    handleJoinEvent(user?.id, eventId).then(() => setLoadingEventHandler(false));
   };
 
   const formatEventPeriod = (fromTimeStamp, toTimeStamp) => {

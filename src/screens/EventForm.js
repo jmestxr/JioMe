@@ -133,7 +133,7 @@ const EventForm = () => {
         const {data, error} = await supabase.from('events').insert([
           {
             created_at: new Date(),
-            organiser_id: user.id,
+            organiser_id: user?.id,
             title: eventDetails.title,
             category: eventDetails.category,
             description: eventDetails.description,

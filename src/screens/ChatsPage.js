@@ -83,7 +83,7 @@ const ChatsPage = () => {
         .select(
           '*, user_joinedevents!inner(*), last_chat_message(*, profiles(*))',
         )
-        .eq('user_joinedevents.user_id', user.id);
+        .eq('user_joinedevents.user_id', user?.id);
       if (error) throw error;
       if (data) return data;
     } catch (error) {
@@ -96,7 +96,7 @@ const ChatsPage = () => {
       const {data, error} = await supabase
         .from('events')
         .select('*, last_chat_message(*, profiles(*))')
-        .eq('organiser_id', user.id);
+        .eq('organiser_id', user?.id);
       if (error) throw error;
       if (data) {
         // console.log(data[1].last_chat_message);

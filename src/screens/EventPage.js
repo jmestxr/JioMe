@@ -101,9 +101,9 @@ const EventPage = ({route}) => {
   // this function is called when 'liked button' is pressed
   const toggleLiked = async () => {
     if (liked) {
-      handleUnlikeEvent(user.id, eventId);
+      handleUnlikeEvent(user?.id, eventId);
     } else {
-      handleLikeEvent(user.id, eventId);
+      handleLikeEvent(user?.id, eventId);
     }
     setLiked(!liked);
   };
@@ -114,7 +114,7 @@ const EventPage = ({route}) => {
       const {data, count, error} = await supabase
         .from('user_likedevents')
         .select('user_id, event_id', {count: 'exact'})
-        .match({user_id: user.id, event_id: eventId});
+        .match({user_id: user?.id, event_id: eventId});
       if (error) throw error;
       if (data) {
         setLiked(count == 1);
@@ -126,12 +126,12 @@ const EventPage = ({route}) => {
 
   // function to get the user's joined status of this event (whether user has joined it or not as of current state)
   const getJoinedState = async e => {
-    hasJoinedEvent(user.id, eventId).then(value => setJoined(value > 0));
+    hasJoinedEvent(user?.id, eventId).then(value => setJoined(value > 0));
   };
 
   // Can edit event only if the user is the organiser and event is not yet over
   const getEditPermission = async () => {
-    Promise.all([isOrganiser(user.id, eventId), eventIsOver(eventId)]).then(
+    Promise.all([isOrganiser(user?.id, eventId), eventIsOver(eventId)]).then(
       results => setCanEdit(results[0] == 1 && results[1] == 0),
     );
   };
@@ -184,7 +184,7 @@ const EventPage = ({route}) => {
 
   const joinEventHandler = async () => {
     setLoadingEventHandler(true);
-    handleJoinEvent(user.id, eventId)
+    handleJoinEvent(user?.id, eventId)
       .then(() => getEventDetails()) // update
       .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
@@ -194,7 +194,7 @@ const EventPage = ({route}) => {
 
   const quitEventHandler = async () => {
     setLoadingEventHandler(true);
-    handleQuitEvent(user.id, eventId)
+    handleQuitEvent(user?.id, eventId)
       .then(() => getEventDetails()) // update
       .then(() => getEventCurrCapacity(eventId)) // update
       .then(() => getParticipantsAvatars()) // update
@@ -417,7 +417,7 @@ const EventPage = ({route}) => {
             color="#a1a1aa" // gray.400
             isDisabled={false}
           />
-        ) : organiserDetails.id == user.id ? ( // user is organiser
+        ) : organiserDetails.id == user?.id ? ( // user is organiser
           <CustomModal
             modalButton={
               <CustomButton

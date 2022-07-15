@@ -30,7 +30,7 @@ const SignUpPage = () => {
       const user = supabase.auth.user();
       const {data, error} = await supabase
         .from('profiles')
-        .insert([{id: user.id, username: username, email: email, phone: phoneNumber}]);
+        .insert([{id: user?.id, username: username, email: email, phone: phoneNumber}]);
       // Clear fields
       setUsername('');
       setEmail('');

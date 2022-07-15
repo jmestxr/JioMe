@@ -240,12 +240,12 @@ const UserProfile = ({route}) => {
             imageWidth={150}
             imageHeight={150}
             textMessage={
-              (userId == user.id
+              (userId == user?.id
                 ? 'You have'
                 : profileDetails.username + ' has') +
               ' ' +
               'not completed any events.' +
-              (userId == user.id ? '\n' + 'Join one now!' : '')
+              (userId == user?.id ? '\n' + 'Join one now!' : '')
             }
           />
         ) : (

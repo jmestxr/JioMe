@@ -55,7 +55,7 @@ const ChatRoom = ({route}) => {
 
   const appendIncomingMessage = async payload => {
     const newMessage = payload.new;
-    if (newMessage.user_id != user.id) {
+    if (newMessage.user_id != user?.id) {
       getSenderDetails(newMessage.user_id).then(sender => {
         console.log('sender is ', sender);
         newMessage.profiles = {id: '', username: '', avatar_url: ''};
@@ -144,7 +144,7 @@ const ChatRoom = ({route}) => {
       const {data, error} = await supabase.from('chat_messages').insert([
         {
           event_id: eventId,
-          user_id: user.id,
+          user_id: user?.id,
           text: messageData.text,
         },
       ]);
@@ -162,7 +162,7 @@ const ChatRoom = ({route}) => {
         created_at: messageData.created_at,
         event_id: messageData.event_id,
         sender_id: messageData.user_id,
-        receiver_id: user.id,
+        receiver_id: user?.id,
         text: messageData.text,
       });
       if (error) throw error;
@@ -181,7 +181,7 @@ const ChatRoom = ({route}) => {
           created_at: messageData.created_at,
           event_id: messageData.event_id,
           sender_id: messageData.user_id,
-          receiver_id: user.id,
+          receiver_id: user?.id,
           text: messageData.text,
         });
       if (error) throw error;
@@ -202,7 +202,7 @@ const ChatRoom = ({route}) => {
           insertMessage(messages[0]).then(data => markMessageAsRead(data));
         }}
         user={{
-          _id: user.id,
+          _id: user?.id,
         }}
         alwaysShowSend={true}
         onPressAvatar={user =>

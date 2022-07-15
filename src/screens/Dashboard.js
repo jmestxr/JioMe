@@ -44,7 +44,7 @@ const Dashboard = () => {
       const {data, error} = await supabase
         .from('profiles')
         .select(`username, avatar_url`)
-        .eq('id', user.id)
+        .eq('id', user?.id)
         .single();
       if (error) throw error;
       if (data) {
@@ -70,7 +70,7 @@ const Dashboard = () => {
       if (uploadError) throw uploadError;
 
       let {error: updateError} = await supabase.from('profiles').upsert({
-        id: user.id,
+        id: user?.id,
         avatar_url: filePath,
       });
 
@@ -91,7 +91,7 @@ const Dashboard = () => {
         .select(
           'id, title, location, from_datetime, to_datetime, user_joinedevents!inner(*)',
         )
-        .eq('user_joinedevents.user_id', user.id)
+        .eq('user_joinedevents.user_id', user?.id)
         .gte('to_datetime', getLocalDateTimeNow());
       if (participatingError) throw participatingError;
       if (participatingData) {
@@ -101,7 +101,7 @@ const Dashboard = () => {
       let {data: organisingData, error: organisingError} = await supabase
         .from('events')
         .select('id, title, location, from_datetime, to_datetime')
-        .eq('organiser_id', user.id)
+        .eq('organiser_id', user?.id)
         .gte('to_datetime', getLocalDateTimeNow());
       if (organisingError) throw organisingError;
       if (organisingData) {
@@ -114,7 +114,7 @@ const Dashboard = () => {
 
   // To unlike an event given its id
   const quitEventHandler = async eventId => {
-    handleQuitEvent(user.id, eventId).then(() => getUpcomingEventsDetails());
+    handleQuitEvent(user?.id, eventId).then(() => getUpcomingEventsDetails());
   };
 
   // calculate exact difference in hours (timestamp - now)
