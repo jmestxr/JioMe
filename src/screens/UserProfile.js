@@ -39,20 +39,19 @@ const UserProfile = ({route}) => {
     avatar_url: '', // avatar private url
     profile_description: '',
   });
-  const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] =
-    useState([]);
-  const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState(
-    [],
-  );
+  // const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] =
+  //   useState([]);
+  // const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState(
+  //   [],
+  // );
+  const [pastEventsDetails, setPastEventsDetails] = useState([]);
 
   const [loadingSignOut, setLoadingSignOut] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
       setLoadingPage(true);
-      getProfileDetails()
-        .then(() => getPastEventsDetails())
-        .then(() => setLoadingPage(false));
+      getProfileDetails().then(() => getPastEventsDetails());
     } else {
       setLoadingPage(true);
     }
@@ -112,28 +111,53 @@ const UserProfile = ({route}) => {
     }
   };
 
-  const getPastEventsDetails = async e => {
+  // sort past events by to_datetime (earliest first)
+  const sortPastEvents = pastEventsArr => {
+    return pastEventsArr.sort(function (a, b) {
+      const keyA = new Date(a.to_datetime);
+      const keyB = new Date(b.to_datetime);
+      // Compare the 2 dates
+      if (keyA < keyB) return -1;
+      if (keyA > keyB) return 1;
+      return 0;
+    });
+  };
+
+  const getPastEventsDetails = async () => {
+    Promise.all([
+      getPastEventsParticipatedDetails(),
+      getPastEventsOrganisedDetails(),
+    ])
+      .then(results => {
+        // sort by last_chat_message created_at time (latest first)
+        setPastEventsDetails(sortPastEvents(results[0].concat(results[1])));
+      })
+      .then(() => setLoadingPage(false));
+  };
+
+  const getPastEventsParticipatedDetails = async e => {
     try {
-      let {data: participatedData, error: participatedError} = await supabase
+      const {data, error} = await supabase
         .from('events')
         .select('*, user_joinedevents!inner(*)')
         .eq('user_joinedevents.user_id', userId)
         .lt('to_datetime', getLocalDateTimeNow());
+      if (error) throw error;
+      if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-      if (participatedError) throw participatedError;
-      if (participatedData) {
-        setPastEventsParticipatedDetails(participatedData);
-      }
-
-      let {data: organisedData, error: organisedError} = await supabase
+  const getPastEventsOrganisedDetails = async e => {
+    try {
+      const {data, error} = await supabase
         .from('events')
         .select('*')
         .eq('organiser_id', userId)
         .lt('to_datetime', getLocalDateTimeNow());
-      if (organisedError) throw organisedError;
-      if (organisedData) {
-        setPastEventsOrganisedDetails(organisedData);
-      }
+      if (error) throw error;
+      if (data) return data;
     } catch (error) {
       console.log(error);
     }
@@ -232,9 +256,7 @@ const UserProfile = ({route}) => {
           Past Events Joined:
         </Text>
         {/* To render past events in avatar form: */}
-        {pastEventsParticipatedDetails.length +
-          pastEventsOrganisedDetails.length ==
-        0 ? (
+        {pastEventsDetails.length == 0 ? (
           <ZeroEventCard
             imagePath={require('../assets/koala_baby.png')}
             imageWidth={150}
@@ -250,7 +272,7 @@ const UserProfile = ({route}) => {
           />
         ) : (
           <HStack flexWrap="wrap" padding="1%" paddingTop="0%">
-            {pastEventsParticipatedDetails.map((detail, index) => {
+            {pastEventsDetails.map((detail, index) => {
               return (
                 <TouchableOpacity
                   key={index}
@@ -259,26 +281,6 @@ const UserProfile = ({route}) => {
                   onPress={() =>
                     navigation.navigate('EventPage', {
                       eventId: detail.id,
-                    })
-                  }>
-                  <Avatar
-                    source={getPublicURL(detail.picture_url, 'eventpics')}
-                    size="lg">
-                    PE
-                  </Avatar>
-                </TouchableOpacity>
-              );
-            })}
-            {pastEventsOrganisedDetails.map((detail, index) => {
-              return (
-                <TouchableOpacity
-                  key={index}
-                  activeOpacity={0.5}
-                  style={{padding: '1%'}}
-                  onPress={() =>
-                    navigation.navigate('PastEventPage', {
-                      screen: 'EventPage',
-                      params: {eventId: detail.id},
                     })
                   }>
                   <Avatar

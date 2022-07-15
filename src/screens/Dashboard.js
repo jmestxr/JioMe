@@ -4,7 +4,7 @@ import {Wrapper} from '../components/basic/Wrapper';
 import {UpcomingEventCard} from '../components/eventCards/UpcomingEventCard';
 import {ZeroEventCard} from '../components/eventCards/ZeroEventCard';
 import {ProfileAvatar} from '../components/profilePage/ProfileAvatar';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import {handleQuitEvent} from '../functions/eventHelpers';
@@ -21,19 +21,12 @@ const Dashboard = () => {
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
   const [profileDetails, setProfileDetails] = useState([]);
-  const [
-    upcomingEventsParticipatedDetails,
-    setUpcomingEventsParticipatedDetails,
-  ] = useState([]);
-  const [upcomingEventsOrganisedDetails, setUpcomingEventsOrganisedDetails] =
-    useState([]);
+  const [upcomingEventsDetails, setUpcomingEventsDetails] = useState([]);
 
   useEffect(() => {
     if (isFocused) {
       setLoading(true);
-      getProfileDetails()
-        .then(() => getUpcomingEventsDetails())
-        .then(() => setLoading(false));
+      getProfileDetails().then(() => getUpcomingEventsDetails());
     } else {
       setLoading(true);
     }
@@ -84,31 +77,57 @@ const Dashboard = () => {
     }
   };
 
-  const getUpcomingEventsDetails = async e => {
+  // sort upcoming events by from_datetime (earliest first)
+  const sortUpcomingEvents = upcomingEventsArr => {
+    return upcomingEventsArr.sort(function (a, b) {
+      const keyA = new Date(a.from_datetime);
+      const keyB = new Date(b.from_datetime);
+      // Compare the 2 dates
+      if (keyA < keyB) return -1;
+      if (keyA > keyB) return 1;
+      return 0;
+    });
+  };
+
+  const getUpcomingEventsDetails = async () => {
+    Promise.all([
+      getUpcomingEventsParticipatedDetails(),
+      getUpcomingEventsOrganisedDetails(),
+    ])
+      .then(results => {
+        // sort by last_chat_message created_at time (latest first)
+        setUpcomingEventsDetails(
+          sortUpcomingEvents(results[0].concat(results[1])),
+        );
+      })
+      .then(() => setLoading(false));
+  };
+
+  const getUpcomingEventsParticipatedDetails = async e => {
     try {
-      let {data: participatingData, error: participatingError} = await supabase
+      const {data, error} = await supabase
         .from('events')
-        .select(
-          'id, title, location, from_datetime, to_datetime, user_joinedevents!inner(*)',
-        )
+        .select('*, user_joinedevents!inner(*)')
         .eq('user_joinedevents.user_id', user?.id)
         .gte('to_datetime', getLocalDateTimeNow());
-      if (participatingError) throw participatingError;
-      if (participatingData) {
-        setUpcomingEventsParticipatedDetails(participatingData);
-      }
+      if (error) throw error;
+      if (data) return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-      let {data: organisingData, error: organisingError} = await supabase
+  const getUpcomingEventsOrganisedDetails = async e => {
+    try {
+      const {data, error} = await supabase
         .from('events')
-        .select('id, title, location, from_datetime, to_datetime')
+        .select('*')
         .eq('organiser_id', user?.id)
         .gte('to_datetime', getLocalDateTimeNow());
-      if (organisingError) throw organisingError;
-      if (organisingData) {
-        setUpcomingEventsOrganisedDetails(organisingData);
-      }
+      if (error) throw error;
+      if (data) return data;
     } catch (error) {
-      alert(error.error_description || error.message);
+      console.log(error);
     }
   };
 
@@ -140,7 +159,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <HeaderBar headerText='Dashboard' />
+      <HeaderBar headerText="Dashboard" />
       {loading ? (
         <LoadingPage />
       ) : (
@@ -163,17 +182,12 @@ const Dashboard = () => {
           <View width="100%" alignItems="center" marginTop="10%">
             <Text fontSize="lg" fontWeight="medium" marginBottom="3%">
               You have{' '}
-              {upcomingEventsParticipatedDetails.length +
-                upcomingEventsOrganisedDetails.length ==
-              0
+              {upcomingEventsDetails.length == 0
                 ? 'no'
-                : upcomingEventsParticipatedDetails.length +
-                  upcomingEventsOrganisedDetails.length}{' '}
+                : upcomingEventsDetails.length}{' '}
               upcoming events.
             </Text>
-            {upcomingEventsParticipatedDetails.length +
-              upcomingEventsOrganisedDetails.length ==
-            0 ? (
+            {upcomingEventsDetails.length == 0 ? (
               <ZeroEventCard
                 imagePath={require('../assets/koala_join.png')}
                 imageWidth={225}
@@ -184,24 +198,7 @@ const Dashboard = () => {
               />
             ) : (
               <VStack width="90%" space={2} alignItems="center">
-                {upcomingEventsParticipatedDetails.map((detail, index) => {
-                  return (
-                    <UpcomingEventCard
-                      key={index}
-                      id={detail.id}
-                      name={detail.title}
-                      location={detail.location}
-                      daysToEvent={displayTimeDifference(
-                        getHourDifference(
-                          getLocalDateTimeNow(),
-                          detail.from_datetime,
-                        ),
-                      )}
-                      quitEventHandler={() => quitEventHandler(detail.id)}
-                    />
-                  );
-                })}
-                {upcomingEventsOrganisedDetails.map((detail, index) => {
+                {upcomingEventsDetails.map((detail, index) => {
                   return (
                     <UpcomingEventCard
                       key={index}
@@ -223,7 +220,6 @@ const Dashboard = () => {
           </View>
         </Wrapper>
       )}
-      
     </>
   );
 };

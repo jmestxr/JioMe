@@ -199,7 +199,7 @@ const ChatRoom = ({route}) => {
         messages={messages}
         onSend={messages => {
           onSend(messages);
-          insertMessage(messages[0]).then(data => markMessageAsRead(data));
+          insertMessage(messages[0]).then(data => markMessageAsRead(data[0]));
         }}
         user={{
           _id: user?.id,
