@@ -18,6 +18,7 @@ import {HeaderButton} from '../components/basic/HeaderButton';
 import {LoadingPage} from '../components/basic/LoadingPage';
 
 import Toast from 'react-native-toast-message';
+import EventPage from './EventPage';
 
 const UserProfile = ({route}) => {
   const {user} = useAuth(); // the current logged-in user
@@ -279,8 +280,9 @@ const UserProfile = ({route}) => {
                   activeOpacity={0.5}
                   style={{padding: '1%'}}
                   onPress={() =>
-                    navigation.navigate('EventPage', {
-                      eventId: detail.id,
+                    navigation.navigate('PastEventPage', {
+                      screen: 'EventPage',
+                      params: {eventId: detail.id},
                     })
                   }>
                   <Avatar
