@@ -10,15 +10,15 @@ import CustomButton from '../components/basic/CustomButton';
 import {Warning} from '../components/basic/Warning';
 import DatePicker from 'react-native-date-picker';
 import {decode} from 'base64-arraybuffer';
-import {useAuth} from '../components/contexts/Auth';
 import {supabase} from '../../supabaseClient';
 import {MONTH} from '../constants/constants';
 
 import Toast from 'react-native-toast-message';
 import {HeaderBar} from '../components/basic/HeaderBar';
+import { useNavigation } from '@react-navigation/native';
 
 const EventEditForm = ({route}) => {
-  const {user} = useAuth();
+  const navigation = useNavigation();
   const {eventId} = route.params; // the unique id of this event
 
   const [loading, setLoading] = useState(false);
@@ -174,6 +174,7 @@ const EventEditForm = ({route}) => {
             type: 'success',
             text1: 'Event details are updated.',
           });
+          navigation.goBack();
         }
       } catch (error) {
         console.log(error);

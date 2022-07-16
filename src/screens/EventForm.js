@@ -7,6 +7,7 @@ import {EventTextFieldInput} from '../components/eventForm/EventTextFieldInput';
 import {EventSelectFieldInput} from '../components/eventForm/EventSelectFieldInput';
 import {DateTimeInput} from '../components/eventForm/DateTimeInput';
 import CustomButton from '../components/basic/CustomButton';
+import {CustomModal} from '../components/basic/CustomModal';
 import {Warning} from '../components/basic/Warning';
 import DatePicker from 'react-native-date-picker';
 import {decode} from 'base64-arraybuffer';
@@ -16,9 +17,11 @@ import {MONTH} from '../constants/constants';
 
 import Toast from 'react-native-toast-message';
 import {HeaderBar} from '../components/basic/HeaderBar';
+import { useNavigation } from '@react-navigation/native';
 
 const EventForm = () => {
   const {user} = useAuth();
+  const navigation = useNavigation();
 
   const [loading, setLoading] = useState(false);
   // const [uploadingPic, setUploadingPic] = useState(false);
@@ -145,11 +148,19 @@ const EventForm = () => {
           },
         ]);
         if (error) throw error;
-        else {
+        if (data) {
+          clearForm();
           Toast.show({
             type: 'success',
             text1: 'Event successfully created.',
           });
+          navigation.navigate('Marketplace', {
+            screen: 'OngoingEventPage',
+            params: {
+              screen: 'EventPage',
+              params: {eventId: data[0].id},
+            },
+          })
         }
       } catch (error) {
         console.log(error);
@@ -216,6 +227,21 @@ const EventForm = () => {
     );
   };
 
+  const clearForm = () => {
+    setEventDetails({
+      title: '',
+      category: '',
+      description: '',
+      location: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      capacity: 0,
+      eventPicture: '',
+    });
+    setStartDateString('');
+    setEndDateString('');
+  };
+
   return (
     <>
       <HeaderBar headerText="Create Event" />
@@ -223,7 +249,6 @@ const EventForm = () => {
       <Wrapper
         contentViewStyle={{width: '95%', paddingTop: '3%'}}
         statusBarColor="#ea580c">
-        {/* <HeaderTitle title="New Event" /> */}
 
         <EventPictureInput
           imageInputHandler={image => setEventDetail('eventPicture', image)}
@@ -311,13 +336,16 @@ const EventForm = () => {
             iconName="people-outline"
           />
         </VStack>
-
-        <CustomButton
-          title="Create Event!"
-          width="100%"
-          color="#f97316" // orange.500
-          onPressHandler={handleCreateEvent}
-          isDisabled={loading}
+        <CustomModal
+          modalButton={
+            <CustomButton
+              title="Create Event!"
+              width="100%"
+              color="#f97316" // orange.500
+            />
+          }
+          confirmHandler={handleCreateEvent}
+          isLoading={loading}
         />
       </Wrapper>
     </>
