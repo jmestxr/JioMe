@@ -1,5 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {Avatar, Center, Text, Icon, HStack, VStack, View} from 'native-base';
+import {
+  Avatar,
+  Center,
+  Text,
+  Icon,
+  HStack,
+  VStack,
+  View,
+  TextArea,
+} from 'native-base';
 import {MaterialIcons, Ionicons} from '@native-base/icons';
 import {Wrapper} from '../components/basic/Wrapper';
 import Background from '../components/eventPage/Background';
@@ -33,6 +42,8 @@ const UserProfile = ({route}) => {
   const [loadingPage, setLoadingPage] = useState(false);
   const [reRender, setReRender] = useState(1); // to rerender to display latest uploaded avatar (not the correct way to do so though)
 
+  const [editing, setEditing] = useState(false);
+
   const [profileDetails, setProfileDetails] = useState({
     username: '',
     email: '',
@@ -40,11 +51,6 @@ const UserProfile = ({route}) => {
     avatar_url: '', // avatar private url
     profile_description: '',
   });
-  // const [pastEventsParticipatedDetails, setPastEventsParticipatedDetails] =
-  //   useState([]);
-  // const [pastEventsOrganisedDetails, setPastEventsOrganisedDetails] = useState(
-  //   [],
-  // );
   const [pastEventsDetails, setPastEventsDetails] = useState([]);
 
   const [loadingSignOut, setLoadingSignOut] = useState(false);
@@ -57,6 +63,13 @@ const UserProfile = ({route}) => {
       setLoadingPage(true);
     }
   }, [reRender, isFocused]);
+
+  const setProfileDetail = (detail, value) => {
+    setProfileDetails(prevState => ({
+      ...prevState,
+      [detail]: value,
+    }));
+  };
 
   const getProfileDetails = async e => {
     try {
@@ -164,6 +177,38 @@ const UserProfile = ({route}) => {
     }
   };
 
+  const editDescriptionHandler = async () => {
+    if (editing) {
+      updateDescription();
+    } else {
+      setEditing(true);
+    }
+  };
+
+  const updateDescription = async e => {
+    try {
+      const {data, error} = await supabase.from('profiles').upsert({
+        id: user?.id,
+        profile_description: profileDetails.profile_description,
+      });
+      if (error) throw error;
+      if (data) {
+        setEditing(false);
+        Toast.show({
+          type: 'success',
+          text1: 'Your profile description is updated.',
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1:
+          'We have encountered an error updating your profile description. Please try again later.',
+      });
+    }
+  };
+
   const handleSignOut = async e => {
     // e.preventDefault()
     try {
@@ -210,9 +255,9 @@ const UserProfile = ({route}) => {
         ) : null}
 
         <HeaderButton
-          onPressHandler={() => alert('TODO: Enable edit description')}
+          onPressHandler={editDescriptionHandler}
           xShift={350}
-          icon={<Icon as={MaterialIcons} name="edit" color="gray.600" />}
+          icon={<Icon as={MaterialIcons} name={editing ? "done" : "edit"} color="gray.600" />}
         />
 
         <Center paddingTop="15%">
@@ -228,9 +273,25 @@ const UserProfile = ({route}) => {
           <Text marginTop="2%" fontSize="2xl">
             {profileDetails.username}
           </Text>
-          <Text color="gray.600" maxWidth="50%" italic>
-            {'"' + profileDetails.profile_description + '"'}
-          </Text>
+
+          {editing ? (
+            <TextArea
+              size="md"
+              h={20}
+              maxWidth="60%"
+              placeholder="Write something about yourself."
+              bgColor="gray.200"
+              borderColor="gray.300"
+              _focus={{borderColor: 'gray.300'}}
+              selectionColor="orange.500"
+              value={profileDetails.profile_description}
+              onChangeText={text => setProfileDetail("profile_description", text)}
+            />
+          ) : (
+            <Text color="gray.600" maxWidth="50%" italic>
+              {'"' + profileDetails.profile_description + '"'}
+            </Text>
+          )}
 
           <View flexDirection="row" marginTop="5%">
             <HStack justifyContent="space-evenly">
