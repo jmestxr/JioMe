@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import { TouchableOpacity, Image } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
+import { useAuth } from '../contexts/Auth';
 
-export const ProfileAvatar = ({imageInputHandler, existingAvatarUrl, reRender, imageSize}) => {
+export const ProfileAvatar = ({imageInputHandler, existingAvatarUrl, reRender, imageSize, thisUserId}) => {
+  const {user} = useAuth();
+
   const [uri, setUri] = useState(undefined);
 
   useEffect(() => {
@@ -23,7 +26,7 @@ export const ProfileAvatar = ({imageInputHandler, existingAvatarUrl, reRender, i
   };
 
   return (
-    <TouchableOpacity onPress={pickPicture} activeOpacity={0.5}>
+    <TouchableOpacity onPress={user?.id == thisUserId ? pickPicture : null} activeOpacity={user?.id == thisUserId ? 0.5 : 1}>
       {uri ? (
         <Image
           style={{width: imageSize, height:imageSize, borderRadius: imageSize/2}}

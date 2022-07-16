@@ -177,6 +177,7 @@ const Dashboard = () => {
               }
               imageSize={125}
               reRender={reRender}
+              thisUserId={user?.id}
             />
           </HStack>
           <View width="100%" alignItems="center" marginTop="10%">

@@ -45,6 +45,7 @@ const UserProfile = ({route}) => {
   const [editing, setEditing] = useState(false);
 
   const [profileDetails, setProfileDetails] = useState({
+    id: '',
     username: '',
     email: '',
     phone: '',
@@ -77,7 +78,7 @@ const UserProfile = ({route}) => {
 
       let {data, error} = await supabase
         .from('profiles')
-        .select('username, email, phone, avatar_url, profile_description')
+        .select('id, username, email, phone, avatar_url, profile_description')
         .eq('id', userId)
         .single();
 
@@ -268,6 +269,7 @@ const UserProfile = ({route}) => {
             }
             imageSize={150}
             reRender={reRender}
+            thisUserId={profileDetails.id}
           />
 
           <Text marginTop="2%" fontSize="2xl">
