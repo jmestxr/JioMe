@@ -246,7 +246,7 @@ const Comment = props => {
       <View width="100%" bgColor="gray.300" padding="3%" borderRadius={10}>
         <HStack justifyContent="space-between" alignItems="center">
           <HStack alignItems="center" space={3}>
-            <Avatar source={{uri: commentDetails.avatar}}></Avatar>
+            <Avatar bgColor='#f2f2f2' source={{uri: commentDetails.avatar}}></Avatar>
             <Text fontSize="md" fontWeight="medium">
               {commentDetails.username}
             </Text>
@@ -302,7 +302,7 @@ const Reply = props => {
           size="lg"
         />
         <HStack alignItems="center" space={3}>
-          <Avatar size="sm" source={{uri: replyDetails.avatar}}></Avatar>
+          <Avatar bgColor='#f2f2f2' size="sm" source={{uri: replyDetails.avatar}}></Avatar>
           <Text fontWeight="medium">{replyDetails.username}</Text>
           <Text fontSize="xs" italic>
             {formatDatetimeDifference(replyDetails.createdAt)}

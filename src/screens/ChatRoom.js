@@ -51,7 +51,7 @@ const ChatRoom = ({route}) => {
     return () => {
       supabase.removeSubscription(subscription);
     };
-  }, []);
+  }, [isFocused]);
 
   const appendIncomingMessage = async payload => {
     const newMessage = payload.new;
